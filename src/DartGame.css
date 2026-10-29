@@ -1,15 +1,13 @@
+/* =========================================
+   NEXORA SMASH — MOBILE & TOUCH SUPPORT
+   Keeps the existing neon game appearance
+   ========================================= */
 
 .smash-game {
-  --smash-cyan: #00f5ff;
-  --smash-purple: #8b5cf6;
-  --smash-pink: #ff3c9d;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-  color: #f7f7ff;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .smash-game *,
@@ -18,264 +16,91 @@
   box-sizing: border-box;
 }
 
-.smash-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 22px;
-}
-
-.smash-eyebrow {
-  margin: 0 0 7px;
-  color: var(--smash-cyan);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-}
-
-.smash-header h1 {
-  margin: 0;
-  font-size: clamp(2rem, 5vw, 3.7rem);
-  line-height: 1.05;
-  font-weight: 950;
-  letter-spacing: -0.055em;
-}
-
-.smash-header h1 span {
-  color: var(--smash-cyan);
-  text-shadow: 0 0 20px #00eaff66;
-}
-
-.smash-subtitle {
-  margin: 10px 0 0;
-  color: #c3c6e9;
-  font-size: 0.98rem;
-}
-
-.smash-zone {
-  min-width: 155px;
-  padding: 15px 18px;
-  border: 1px solid #00f5ff55;
-  border-radius: 14px;
-  background: #10132e;
-  box-shadow: inset 0 0 20px #00f5ff0b;
-  text-align: right;
-}
-
-.smash-zone span,
-.smash-zone strong {
-  display: block;
-}
-
-.smash-zone span {
-  margin-bottom: 5px;
-  color: var(--smash-cyan);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-}
-
-.smash-zone strong {
-  font-size: 1rem;
-}
-
-.smash-game-panel {
-  overflow: hidden;
-  border: 1px solid #8b5cf655;
-  border-radius: 20px;
-  background: linear-gradient(145deg, #11132e, #090b1b);
-  box-shadow: 0 15px 50px #00000035;
-}
-
 .smash-canvas-wrap {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
-  background: #080b20;
-  line-height: 0;
 }
 
 .smash-canvas {
   display: block;
   width: 100%;
+  max-width: 100%;
   height: auto;
   aspect-ratio: 16 / 9;
-  object-fit: contain;
+
+  /* Allow the game to handle finger dragging. */
   touch-action: none;
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
   -webkit-touch-callout: none;
-  cursor: grab;
 }
 
-.smash-canvas:active {
-  cursor: grabbing;
-}
-
-.smash-instructions {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px 24px;
-  padding: 13px 16px;
-  border-top: 1px solid #ffffff0d;
-  color: #c4c8e7;
-  font-size: 0.85rem;
-  text-align: center;
-}
-
-.smash-controls {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 16px;
-  border-top: 1px solid #ffffff12;
-}
-
-.smash-btn {
-  min-height: 44px;
-  padding: 11px 17px;
-  border: 1px solid #8b5cf677;
-  border-radius: 10px;
-  background: #191936;
-  color: #fff;
-  font: inherit;
-  font-size: 0.9rem;
-  font-weight: 750;
-  cursor: pointer;
+.smash-actions button,
+.smash-level-grid button,
+.smash-level-menu summary {
   touch-action: manipulation;
-  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
-.smash-btn:hover {
-  transform: translateY(-1px);
-  border-color: var(--smash-cyan);
-  background: #23234b;
-}
-
-.smash-btn:active {
-  transform: scale(0.97);
-}
-
-.smash-btn:focus-visible,
-.smash-level-btn:focus-visible {
-  outline: 3px solid var(--smash-cyan);
-  outline-offset: 3px;
-}
-
-.smash-primary {
-  border-color: var(--smash-cyan);
-  background: linear-gradient(110deg, #126c91, #6542c7);
-}
-
-.smash-primary:hover {
-  background: linear-gradient(110deg, #1689ad, #7854e7);
-}
-
-.smash-progress {
-  margin-left: auto;
-  color: #bfc5e8;
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.smash-message {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  padding: 16px;
-  text-align: center;
-  border-top: 1px solid #ffffff12;
-}
-
-.smash-message strong {
-  font-size: 1.05rem;
-}
-
-.smash-message.is-win strong {
-  color: var(--smash-cyan);
-}
-
-.smash-message.is-loss strong {
-  color: #ff80b9;
-}
-
-.smash-level-section {
-  margin-top: 28px;
-  padding: 22px;
-  border: 1px solid #8b5cf633;
-  border-radius: 18px;
-  background: #0d0f25;
-}
-
-.smash-section-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.smash-section-heading h2 {
-  margin: 0;
-  font-size: clamp(1.35rem, 3vw, 1.9rem);
-}
-
-.smash-section-heading > span {
-  color: #c5c8e8;
-  font-size: 0.88rem;
-}
-
-.smash-level-grid {
-  display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.smash-level-btn {
-  display: grid;
-  place-items: center;
-  min-width: 0;
-  min-height: 48px;
-  padding: 5px;
-  border: 1px solid #47446d;
-  border-radius: 10px;
-  background: #191a39;
-  color: #fff;
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: 0.15s ease;
-}
-
-.smash-level-btn:not(:disabled):hover {
-  transform: translateY(-2px);
-  border-color: var(--smash-cyan);
-  background: #222b50;
-}
-
-.smash-level-btn.active {
-  border-color: var(--smash-cyan);
-  background: #075c70;
-  color: #fff;
-  box-shadow: 0 0 15px #00f5ff35;
-}
-
-.smash-level-btn.locked {
-  border-color: #292943;
-  background: #111225;
-  color: #696985;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-@media (max-width: 700px) {
+/* Tablets and smaller screens */
+@media (max-width: 768px) {
   .smash-game {
     padding: 12px;
+  }
+
+  .smash-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .smash-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    gap: 8px;
+  }
+
+  .smash-stats span {
+    min-width: 0;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .smash-zone {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .smash-help {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .smash-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .smash-actions button {
+    min-height: 44px;
+  }
+
+  .smash-level-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .smash-level-grid button {
+    min-height: 40px;
+  }
+}
+
+/* Small mobile phones */
+@media (max-width: 480px) {
+  .smash-game {
+    padding: 8px;
   }
 
   .smash-header {
@@ -283,118 +108,57 @@
     gap: 10px;
   }
 
-  .smash-header h1 {
-    font-size: clamp(1.8rem, 8vw, 2.7rem);
+  .smash-brand {
+    min-width: 0;
+    max-width: 100%;
   }
 
-  .smash-subtitle {
-    max-width: 230px;
-    font-size: 0.85rem;
-    line-height: 1.4;
+  .smash-brand strong {
+    font-size: 14px;
+  }
+
+  .smash-brand small {
+    font-size: 9px;
+  }
+
+  .smash-stats {
+    gap: 6px;
+  }
+
+  .smash-stats span {
+    padding: 8px 3px;
+    font-size: 10px;
+    overflow-wrap: anywhere;
   }
 
   .smash-zone {
-    min-width: 0;
-    max-width: 125px;
-    padding: 10px;
-    text-align: center;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
   }
 
-  .smash-zone strong {
-    font-size: 0.82rem;
+  .smash-help {
+    gap: 8px;
+    font-size: 11px;
   }
 
-  .smash-game-panel {
-    border-radius: 12px;
+  .smash-actions {
+    gap: 8px;
   }
 
-  .smash-canvas {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-  }
-
-  .smash-instructions {
-    gap: 7px;
-    padding: 11px 8px;
-    font-size: 0.75rem;
-  }
-
-  .smash-controls {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 12px;
-    gap: 9px;
-  }
-
-  .smash-btn {
-    min-height: 46px;
-    padding: 10px;
-    font-size: 0.86rem;
-  }
-
-  .smash-progress {
-    grid-column: 1 / -1;
-    margin: 3px 0 0;
-    text-align: center;
-  }
-
-  .smash-level-section {
-    margin-top: 16px;
-    padding: 14px 10px;
-    border-radius: 12px;
-  }
-
-  .smash-section-heading {
-    align-items: flex-start;
-    margin-bottom: 14px;
-  }
-
-  .smash-section-heading > span {
-    padding-top: 18px;
-    font-size: 0.75rem;
-    text-align: right;
+  .smash-actions button {
+    min-height: 44px;
+    padding: 10px 12px;
   }
 
   .smash-level-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .smash-level-btn {
-    min-height: 44px;
-    border-radius: 8px;
-  }
-}
-
-@media (max-width: 380px) {
-  .smash-game {
-    padding: 8px;
-  }
-
-  .smash-header {
-    flex-direction: column;
-  }
-
-  .smash-zone {
-    width: 100%;
-    max-width: none;
-    text-align: left;
-  }
-
-  .smash-level-grid {
     gap: 6px;
   }
 
-  .smash-level-btn {
+  .smash-level-grid button {
     min-height: 40px;
-    font-size: 0.85rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .smash-btn,
-  .smash-level-btn {
-    transition: none;
+    padding: 8px 2px;
+    font-size: 12px;
   }
 }
