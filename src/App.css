@@ -506,3 +506,86 @@ footer p, footer > span { color: #8994b5; font-size: 11px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }
+
+/* Center the Neon Brick Breaker section */
+.brick-breaker-center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  grid-column: 1 / -1;
+}
+
+.brick-breaker-center .brick-breaker {
+  width: min(1120px, calc(100% - 32px));
+  margin: 48px auto;
+}
+
+/* English / Chinese language switcher */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.language-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(139, 92, 246, 0.55);
+  border-radius: 999px;
+  background: rgba(13, 10, 30, 0.9);
+}
+
+.language-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: transparent;
+  color: #c4b5fd;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.language-button:hover {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.language-button.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  box-shadow: 0 0 14px rgba(124, 58, 237, 0.35);
+}
+
+.language-button:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 3px;
+}
+
+/* Keep the navigation usable on smaller screens */
+@media (max-width: 1000px) {
+  .navbar {
+    flex-wrap: wrap;
+  }
+
+  .navbar-actions {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .language-button {
+    padding: 8px 10px;
+  }
+}

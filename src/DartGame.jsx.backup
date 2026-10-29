@@ -1,0 +1,776 @@
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import "./DartGame.css";
+
+const WIDTH = 1000;
+const HEIGHT = 560;
+const GROUND = 465;
+const BOW = { x: 145, y: 355 };
+const MAX_ARROWS = 5;
+const GRAVITY = 650;
+const HIGH_SCORE_KEY = "nexora-neon-archery-high-score";
+
+function createTargets() {
+  return [
+    { x: 690, y: 385, r: 25, alive: true, points: 100, phase: 0.5 },
+    { x: 805, y: 355, r: 29, alive: true, points: 150, phase: 1.8 },
+    { x: 885, y: 405, r: 23, alive: true, points: 200, phase: 2.6 },
+    { x: 830, y: 285, r: 22, alive: true, points: 250, phase: 3.4 },
+  ];
+}
+
+function createBlocks() {
+  return [
+    { x: 750, y: 410, w: 24, h: 55, alive: true },
+    { x: 790, y: 395, w: 24, h: 85, alive: true },
+    { x: 830, y: 410, w: 24, h: 55, alive: true },
+    { x: 790, y: 350, w: 65, h: 18, alive: true },
+  ];
+}
+
+function createGame() {
+  return {
+    score: 0,
+    arrows: MAX_ARROWS,
+    targets: createTargets(),
+    blocks: createBlocks(),
+    projectiles: [],
+    particles: [],
+    dragging: false,
+    aimX: BOW.x,
+    aimY: BOW.y,
+    flying: false,
+    roundOver: false,
+    message: "PULL BACK AND RELEASE TO SHOOT",
+    time: 0,
+  };
+}
+
+function drawBackground(ctx, time) {
+  const sky = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+  sky.addColorStop(0, "#080b25");
+  sky.addColorStop(0.55, "#21174a");
+  sky.addColorStop(1, "#54275f");
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+  const glow = ctx.createRadialGradient(770, 120, 5, 770, 120, 140);
+  glow.addColorStop(0, "rgba(72,235,255,0.35)");
+  glow.addColorStop(1, "rgba(72,235,255,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(620, 0, 300, 270);
+
+  ctx.fillStyle = "#b5f8ff";
+  ctx.beginPath();
+  ctx.arc(770, 120, 39, 0, Math.PI * 2);
+  ctx.fill();
+
+  for (let i = 0; i < 70; i++) {
+    const x = (i * 139 + 23) % WIDTH;
+    const y = (i * 73 + 17) % 300;
+    const alpha = 0.35 + (Math.sin(time * 1.5 + i) + 1) * 0.2;
+    ctx.fillStyle = `rgba(206,241,255,${alpha})`;
+    ctx.fillRect(x, y, 2, 2);
+  }
+
+  for (let i = 0; i < 18; i++) {
+    const x = i * 65 - 10;
+    const h = 100 + ((i * 37) % 135);
+    const y = GROUND - h;
+
+    ctx.fillStyle = i % 2 ? "#141637" : "#20163e";
+    ctx.fillRect(x, y, 54, h);
+
+    ctx.fillStyle = i % 3 ? "#3d6bcb" : "#c34aff";
+    ctx.globalAlpha = 0.48;
+
+    for (let wy = y + 15; wy < GROUND - 10; wy += 21) {
+      for (let wx = x + 9; wx < x + 45; wx += 16) {
+        if ((wx + wy + i) % 3 > 0) ctx.fillRect(wx, wy, 5, 8);
+      }
+    }
+
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.fillStyle = "#211846";
+  ctx.beginPath();
+  ctx.moveTo(0, GROUND - 70);
+  ctx.lineTo(170, GROUND - 155);
+  ctx.lineTo(360, GROUND - 75);
+  ctx.lineTo(545, GROUND - 135);
+  ctx.lineTo(730, GROUND - 65);
+  ctx.lineTo(900, GROUND - 125);
+  ctx.lineTo(WIDTH, GROUND - 55);
+  ctx.lineTo(WIDTH, GROUND);
+  ctx.lineTo(0, GROUND);
+  ctx.closePath();
+  ctx.fill();
+
+  const ground = ctx.createLinearGradient(0, GROUND, 0, HEIGHT);
+  ground.addColorStop(0, "#1c2850");
+  ground.addColorStop(1, "#080d20");
+  ctx.fillStyle = ground;
+  ctx.fillRect(0, GROUND, WIDTH, HEIGHT - GROUND);
+
+  ctx.save();
+  ctx.shadowColor = "#43efff";
+  ctx.shadowBlur = 15;
+  ctx.fillStyle = "#52edff";
+  ctx.fillRect(0, GROUND, WIDTH, 3);
+  ctx.restore();
+
+  ctx.strokeStyle = "rgba(61,209,255,0.19)";
+  ctx.lineWidth = 1;
+
+  for (let x = -300; x < WIDTH + 300; x += 75) {
+    const shift = (time * 25) % 75;
+    ctx.beginPath();
+    ctx.moveTo(x - shift, GROUND);
+    ctx.lineTo(WIDTH / 2 + (x - WIDTH / 2 - shift) * 1.7, HEIGHT);
+    ctx.stroke();
+  }
+
+  for (let y = GROUND + 28; y < HEIGHT; y += 26) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(WIDTH, y);
+    ctx.stroke();
+  }
+}
+
+function drawArrow(ctx, x1, y1, x2, y2, glow = false) {
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+
+  ctx.save();
+
+  if (glow) {
+    ctx.shadowColor = "#6df7ff";
+    ctx.shadowBlur = 14;
+  }
+
+  ctx.strokeStyle = "#d6ffff";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+
+  ctx.fillStyle = "#51edff";
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(
+    x2 - 13 * Math.cos(angle - 0.45),
+    y2 - 13 * Math.sin(angle - 0.45)
+  );
+  ctx.lineTo(
+    x2 - 13 * Math.cos(angle + 0.45),
+    y2 - 13 * Math.sin(angle + 0.45)
+  );
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#f16bff";
+
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(x1 + 8 * Math.cos(angle), y1 + 8 * Math.sin(angle));
+    ctx.lineTo(
+      x1 + 19 * Math.cos(angle) + side * 6 * Math.cos(angle + Math.PI / 2),
+      y1 + 19 * Math.sin(angle) + side * 6 * Math.sin(angle + Math.PI / 2)
+    );
+    ctx.lineTo(
+      x1 + 9 * Math.cos(angle) + side * 5 * Math.cos(angle + Math.PI / 2),
+      y1 + 9 * Math.sin(angle) + side * 5 * Math.sin(angle + Math.PI / 2)
+    );
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawBow(ctx, game) {
+  const x = BOW.x;
+  const y = BOW.y;
+  const aimX = game.dragging ? game.aimX : x + 32;
+  const aimY = game.dragging ? game.aimY : y;
+
+  ctx.strokeStyle = "rgba(0,0,0,0.35)";
+  ctx.lineWidth = 13;
+  ctx.beginPath();
+  ctx.arc(x, y, 42, -1.25, 1.25);
+  ctx.stroke();
+
+  ctx.save();
+  ctx.shadowColor = "#e14dff";
+  ctx.shadowBlur = 17;
+  ctx.strokeStyle = "#e56aff";
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.arc(x, y, 42, -1.25, 1.25);
+  ctx.stroke();
+
+  ctx.strokeStyle = "#9af8ff";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(x, y, 42, -1.25, 1.25);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.strokeStyle = "#d7fbff";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x + Math.cos(-1.25) * 42, y + Math.sin(-1.25) * 42);
+  ctx.lineTo(aimX, aimY);
+  ctx.lineTo(x + Math.cos(1.25) * 42, y + Math.sin(1.25) * 42);
+  ctx.stroke();
+
+  if (game.dragging) {
+    const dx = x - aimX;
+    const dy = y - aimY;
+    const length = Math.hypot(dx, dy) || 1;
+    const ux = dx / length;
+    const uy = dy / length;
+    const pull = Math.min(length, 115);
+    const tipX = x + ux * pull * 1.7;
+    const tipY = y + uy * pull * 1.7;
+
+    drawArrow(ctx, tipX - ux * 60, tipY - uy * 60, tipX, tipY, true);
+
+    ctx.fillStyle = "rgba(92,235,255,0.6)";
+
+    for (let i = 1; i <= 6; i++) {
+      const t = i * 0.12;
+      const vx = ux * pull * 6.5;
+      const vy = uy * pull * 6.5;
+      const gx = x + vx * t;
+      const gy = y + vy * t + 0.5 * GRAVITY * t * t;
+
+      if (gx < WIDTH && gy < GROUND && gx > 0 && gy > 0) {
+        ctx.beginPath();
+        ctx.arc(gx, gy, Math.max(2, 4 - i * 0.3), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+}
+
+function drawTarget(ctx, target, time) {
+  if (!target.alive) return;
+
+  const bob = Math.sin(time * 2.2 + target.phase) * 5;
+  const x = target.x;
+  const y = target.y + bob;
+
+  ctx.save();
+  ctx.shadowColor = "#ff54c8";
+  ctx.shadowBlur = 20;
+  ctx.fillStyle = "#40245f";
+  ctx.beginPath();
+  ctx.arc(x, y, target.r + 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#a74bdb";
+  ctx.beginPath();
+  ctx.arc(x, y, target.r, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "#ff9bfa";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.fillStyle = "#1a153a";
+  ctx.beginPath();
+  ctx.arc(x, y, target.r * 0.66, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.save();
+  ctx.shadowColor = "#ff3d9b";
+  ctx.shadowBlur = 12;
+  ctx.fillStyle = "#ff73bd";
+  ctx.fillRect(x - 12, y - 5, 8, 6);
+  ctx.fillRect(x + 4, y - 5, 8, 6);
+  ctx.restore();
+
+  ctx.strokeStyle = "#a9faff";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x, y - target.r);
+  ctx.lineTo(x, y - target.r - 11);
+  ctx.stroke();
+
+  ctx.fillStyle = "#73f8ff";
+  ctx.beginPath();
+  ctx.arc(x, y - target.r - 12, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawBlock(ctx, block) {
+  if (!block.alive) return;
+
+  const { x, y, w, h } = block;
+
+  ctx.save();
+  ctx.shadowColor = "#36d9ff";
+  ctx.shadowBlur = 9;
+
+  const gradient = ctx.createLinearGradient(x, y, x + w, y + h);
+  gradient.addColorStop(0, "#4d91c9");
+  gradient.addColorStop(0.5, "#27416c");
+  gradient.addColorStop(1, "#172449");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(x, y, w, h);
+
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "#7deaff";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+
+  ctx.fillStyle = "rgba(201,249,255,0.35)";
+  ctx.fillRect(x + 4, y + 4, 3, Math.max(4, h - 8));
+
+  ctx.restore();
+}
+
+function makeParticles(game, x, y, color, count = 12) {
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 50 + Math.random() * 220;
+    const life = 0.3 + Math.random() * 0.5;
+
+    game.particles.push({
+      x,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      life,
+      maxLife: life,
+      size: 2 + Math.random() * 4,
+      color,
+    });
+  }
+}
+
+function drawParticles(ctx, particles) {
+  for (const p of particles) {
+    ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+export default function DartGame() {
+  const canvasRef = useRef(null);
+  const gameRef = useRef(createGame());
+  const lastTimeRef = useRef(0);
+  const highScoreRef = useRef(0);
+
+  const [score, setScore] = useState(0);
+  const [highScore, setHighScore] = useState(0);
+  const [arrows, setArrows] = useState(MAX_ARROWS);
+  const [roundOver, setRoundOver] = useState(false);
+  const [message, setMessage] = useState("PULL BACK AND RELEASE TO SHOOT");
+  const [targetsLeft, setTargetsLeft] = useState(4);
+
+  useEffect(() => {
+    try {
+      const saved = Number(localStorage.getItem(HIGH_SCORE_KEY)) || 0;
+      highScoreRef.current = saved;
+      setHighScore(saved);
+    } catch {
+      highScoreRef.current = 0;
+    }
+  }, []);
+
+  const syncUI = useCallback(() => {
+    const game = gameRef.current;
+    setScore(game.score);
+    setArrows(game.arrows);
+    setRoundOver(game.roundOver);
+    setMessage(game.message);
+    setTargetsLeft(game.targets.filter((target) => target.alive).length);
+  }, []);
+
+  const restartGame = useCallback(() => {
+    gameRef.current = createGame();
+    lastTimeRef.current = 0;
+    syncUI();
+  }, [syncUI]);
+
+  const getCanvasPosition = useCallback((event) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: BOW.x, y: BOW.y };
+
+    const rect = canvas.getBoundingClientRect();
+
+    return {
+      x: ((event.clientX - rect.left) / rect.width) * WIDTH,
+      y: ((event.clientY - rect.top) / rect.height) * HEIGHT,
+    };
+  }, []);
+
+  const pointerDown = useCallback((event) => {
+    const game = gameRef.current;
+
+    if (game.roundOver || game.arrows <= 0 || game.flying) return;
+
+    const pos = getCanvasPosition(event);
+    const distance = Math.hypot(pos.x - BOW.x, pos.y - BOW.y);
+
+    if (distance < 95 && pos.x < 255) {
+      game.dragging = true;
+      game.aimX = pos.x;
+      game.aimY = pos.y;
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+    }
+  }, [getCanvasPosition]);
+
+  const pointerMove = useCallback((event) => {
+    const game = gameRef.current;
+    if (!game.dragging) return;
+
+    const pos = getCanvasPosition(event);
+    const dx = pos.x - BOW.x;
+    const dy = pos.y - BOW.y;
+    const distance = Math.hypot(dx, dy);
+    const maxPull = 115;
+    const factor = distance > maxPull ? maxPull / distance : 1;
+
+    game.aimX = BOW.x + dx * factor;
+    game.aimY = BOW.y + dy * factor;
+  }, [getCanvasPosition]);
+
+  const pointerUp = useCallback(() => {
+    const game = gameRef.current;
+    if (!game.dragging) return;
+
+    const dx = BOW.x - game.aimX;
+    const dy = BOW.y - game.aimY;
+    const pull = Math.hypot(dx, dy);
+
+    game.dragging = false;
+
+    if (pull < 12) {
+      game.aimX = BOW.x;
+      game.aimY = BOW.y;
+      return;
+    }
+
+    const power = Math.min(pull, 115);
+    const scale = power * 6;
+
+    game.projectiles.push({
+      x: BOW.x,
+      y: BOW.y,
+      vx: (dx / pull) * scale,
+      vy: (dy / pull) * scale,
+      angle: Math.atan2(dy, dx),
+      alive: true,
+      life: 3.5,
+      trail: [],
+    });
+
+    game.arrows -= 1;
+    game.flying = true;
+    game.message = "ARROW RELEASED!";
+    syncUI();
+  }, [syncUI]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return undefined;
+
+    let animationFrame;
+    let uiTimer = 0;
+
+    function update(dt) {
+      const game = gameRef.current;
+      game.time += dt;
+
+      for (const projectile of game.projectiles) {
+        if (!projectile.alive) continue;
+
+        projectile.life -= dt;
+        projectile.trail.push({ x: projectile.x, y: projectile.y });
+
+        if (projectile.trail.length > 10) projectile.trail.shift();
+
+        projectile.vy += GRAVITY * dt;
+        projectile.x += projectile.vx * dt;
+        projectile.y += projectile.vy * dt;
+        projectile.angle = Math.atan2(projectile.vy, projectile.vx);
+
+        for (const target of game.targets) {
+          if (!target.alive) continue;
+
+          const targetY =
+            target.y + Math.sin(game.time * 2.2 + target.phase) * 5;
+
+          const distance = Math.hypot(
+            projectile.x - target.x,
+            projectile.y - targetY
+          );
+
+          if (distance < target.r + 7) {
+            target.alive = false;
+            projectile.alive = false;
+            game.score += target.points;
+            game.message = `TARGET HIT +${target.points}`;
+            makeParticles(game, target.x, targetY, "#ff62db", 22);
+            break;
+          }
+        }
+
+        if (!projectile.alive) continue;
+
+        for (const block of game.blocks) {
+          if (!block.alive) continue;
+
+          if (
+            projectile.x >= block.x - 5 &&
+            projectile.x <= block.x + block.w + 5 &&
+            projectile.y >= block.y - 5 &&
+            projectile.y <= block.y + block.h + 5
+          ) {
+            block.alive = false;
+            projectile.alive = false;
+            game.score += 25;
+            game.message = "OBSTACLE DESTROYED +25";
+            makeParticles(game, projectile.x, projectile.y, "#49edff", 16);
+            break;
+          }
+        }
+
+        if (
+          projectile.x < -40 ||
+          projectile.x > WIDTH + 40 ||
+          projectile.y > HEIGHT + 40 ||
+          projectile.y < -100 ||
+          projectile.life <= 0
+        ) {
+          projectile.alive = false;
+        }
+      }
+
+      game.projectiles = game.projectiles.filter((p) => p.alive);
+
+      for (const particle of game.particles) {
+        particle.life -= dt;
+        particle.x += particle.vx * dt;
+        particle.y += particle.vy * dt;
+        particle.vy += 180 * dt;
+        particle.vx *= 0.985;
+      }
+
+      game.particles = game.particles.filter((p) => p.life > 0);
+
+      if (game.flying && game.projectiles.length === 0) {
+        game.flying = false;
+
+        if (
+          game.arrows <= 0 ||
+          game.targets.every((target) => !target.alive)
+        ) {
+          game.roundOver = true;
+          game.message = "ROUND OVER";
+        } else {
+          game.message = "PULL BACK AND RELEASE TO SHOOT";
+        }
+      }
+
+      if (game.score > highScoreRef.current) {
+        highScoreRef.current = game.score;
+        setHighScore(game.score);
+
+        try {
+          localStorage.setItem(HIGH_SCORE_KEY, String(game.score));
+        } catch {
+          // The game remains playable if browser storage is unavailable.
+        }
+      }
+    }
+
+    function render() {
+      const game = gameRef.current;
+      drawBackground(ctx, game.time);
+
+      ctx.fillStyle = "rgba(70,238,255,0.12)";
+      ctx.fillRect(620, GROUND - 5, 350, 7);
+
+      ctx.fillStyle = "#141e3e";
+      ctx.fillRect(BOW.x - 17, BOW.y + 35, 34, GROUND - BOW.y - 35);
+      ctx.fillStyle = "#43eaff";
+      ctx.fillRect(BOW.x - 19, GROUND - 5, 38, 5);
+
+      for (const block of game.blocks) drawBlock(ctx, block);
+      for (const target of game.targets) drawTarget(ctx, target, game.time);
+
+      for (const projectile of game.projectiles) {
+        for (let i = 0; i < projectile.trail.length; i++) {
+          const point = projectile.trail[i];
+          ctx.globalAlpha = (i / projectile.trail.length) * 0.5;
+          ctx.fillStyle = "#5bf5ff";
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, 2 + i * 0.25, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+
+        const length = 44;
+        const x2 = projectile.x + Math.cos(projectile.angle) * length;
+        const y2 = projectile.y + Math.sin(projectile.angle) * length;
+
+        drawArrow(ctx, projectile.x, projectile.y, x2, y2, true);
+      }
+
+      drawBow(ctx, game);
+      drawParticles(ctx, game.particles);
+
+      if (!game.roundOver && game.arrows > 0 && !game.flying) {
+        ctx.save();
+        ctx.font = "bold 15px monospace";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#bffaff";
+        ctx.shadowColor = "#36eaff";
+        ctx.shadowBlur = 10;
+        ctx.fillText("DRAG THE BOW BACKWARD TO AIM", 330, 70);
+        ctx.restore();
+      }
+
+      if (game.roundOver) {
+        ctx.fillStyle = "rgba(5,6,25,0.72)";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        ctx.textAlign = "center";
+        ctx.font = "bold 36px monospace";
+        ctx.fillStyle = "#74f4ff";
+        ctx.shadowColor = "#3beaff";
+        ctx.shadowBlur = 18;
+
+        ctx.fillText(
+          game.targets.every((target) => !target.alive)
+            ? "ALL TARGETS DESTROYED!"
+            : "ROUND OVER",
+          WIDTH / 2,
+          250
+        );
+
+        ctx.shadowBlur = 0;
+        ctx.font = "bold 23px monospace";
+        ctx.fillStyle = "#fff";
+        ctx.fillText(`SCORE: ${game.score}`, WIDTH / 2, 300);
+
+        ctx.font = "16px monospace";
+        ctx.fillStyle = "#d8c8ff";
+        ctx.fillText("PRESS PLAY AGAIN TO TRY AGAIN", WIDTH / 2, 340);
+      }
+    }
+
+    function frame(timestamp) {
+      if (!lastTimeRef.current) lastTimeRef.current = timestamp;
+
+      const dt = Math.min((timestamp - lastTimeRef.current) / 1000, 0.033);
+      lastTimeRef.current = timestamp;
+
+      update(dt);
+      render();
+
+      // Update the visible score, arrows, message, and target count.
+      uiTimer += dt;
+
+      if (uiTimer >= 0.12) {
+        uiTimer = 0;
+        const game = gameRef.current;
+
+        setScore(game.score);
+        setArrows(game.arrows);
+        setRoundOver(game.roundOver);
+        setMessage(game.message);
+        setTargetsLeft(
+          game.targets.filter((target) => target.alive).length
+        );
+      }
+
+      animationFrame = requestAnimationFrame(frame);
+    }
+
+    animationFrame = requestAnimationFrame(frame);
+
+    return () => cancelAnimationFrame(animationFrame);
+  }, []);
+
+  return (
+    <section className="neon-archery">
+      <header className="neon-archery-header">
+        <div>
+          <p className="neon-archery-kicker">NEXORA AI ARCADE</p>
+          <h2>Neon Archery</h2>
+          <p className="neon-archery-subtitle">
+            Aim carefully. Break the defenses. Beat your high score.
+          </p>
+        </div>
+
+        <button className="neon-archery-restart" onClick={restartGame}>
+          PLAY AGAIN
+        </button>
+      </header>
+
+      <div className="neon-archery-stats">
+        <div className="neon-archery-stat">
+          <span>CURRENT SCORE</span>
+          <strong>{score}</strong>
+        </div>
+
+        <div className="neon-archery-stat neon-archery-record">
+          <span>HIGHEST SCORE</span>
+          <strong>{highScore}</strong>
+        </div>
+
+        <div className="neon-archery-stat">
+          <span>ARROWS LEFT</span>
+          <strong>{arrows}</strong>
+        </div>
+
+        <div className="neon-archery-stat">
+          <span>TARGETS LEFT</span>
+          <strong>{targetsLeft}</strong>
+        </div>
+      </div>
+
+      <div className="neon-archery-canvas-wrap">
+        <canvas
+          ref={canvasRef}
+          width={WIDTH}
+          height={HEIGHT}
+          onPointerDown={pointerDown}
+          onPointerMove={pointerMove}
+          onPointerUp={pointerUp}
+          onPointerCancel={pointerUp}
+          onLostPointerCapture={pointerUp}
+          className="neon-archery-canvas"
+          aria-label="Neon Archery game. Drag backward from the bow and release to shoot."
+        />
+      </div>
+
+      <div className="neon-archery-footer">
+        <p className="neon-archery-message">{message}</p>
+
+        <p className="neon-archery-help">
+          <strong>HOW TO PLAY:</strong> Click or touch the bow, drag backward
+          to aim, and release to shoot. Hit glowing robots for points and break
+          blue obstacles for bonus points.
+        </p>
+      </div>
+    </section>
+  );
+}

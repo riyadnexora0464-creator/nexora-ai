@@ -1,0 +1,408 @@
+
+.archery-game {
+  --archery-cyan: #67f4ff;
+  --archery-purple: #a855ff;
+  --archery-pink: #ff55c8;
+  width: 100%;
+  color: #f4f3ff;
+  padding: 24px;
+  border: 1px solid rgba(119, 104, 255, 0.35);
+  border-radius: 22px;
+  background:
+    radial-gradient(ellipse at top left, rgba(95, 37, 190, 0.18), transparent 45%),
+    linear-gradient(145deg, #0b0d22, #10102b 65%, #0a1026);
+  box-shadow: 0 0 35px rgba(102, 54, 255, 0.12);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.archery-game * {
+  box-sizing: border-box;
+}
+
+.archery-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.archery-eyebrow {
+  color: var(--archery-cyan);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.archery-heading h2 {
+  margin: 0;
+  font-size: clamp(1.65rem, 4vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.archery-heading h2 span {
+  color: var(--archery-cyan);
+  text-shadow: 0 0 18px rgba(103, 244, 255, 0.5);
+}
+
+.archery-subtitle {
+  color: #a7afd2;
+  font-size: 0.9rem;
+  margin: 9px 0 0;
+}
+
+.archery-sound,
+.archery-footer button {
+  border: 1px solid rgba(112, 241, 255, 0.45);
+  background: rgba(24, 36, 74, 0.75);
+  color: #e8fdff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.archery-sound:hover,
+.archery-footer button:hover {
+  background: rgba(67, 70, 140, 0.8);
+  transform: translateY(-1px);
+}
+
+.archery-sound.is-on {
+  color: var(--archery-cyan);
+}
+
+.archery-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.archery-stat {
+  min-width: 0;
+  padding: 13px 12px;
+  border-radius: 12px;
+  background: rgba(24, 27, 62, 0.8);
+  border: 1px solid rgba(124, 113, 220, 0.23);
+}
+
+.archery-stat > span {
+  display: block;
+  color: #9ea8d4;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.archery-stat strong {
+  display: block;
+  font-size: clamp(1.05rem, 2.2vw, 1.55rem);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  color: #fff;
+}
+
+.archery-stat strong small {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #9da8d1;
+}
+
+.archery-progress {
+  display: grid;
+  grid-template-columns: repeat(20, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0 0 16px;
+}
+
+.archery-progress span {
+  height: 6px;
+  border-radius: 5px;
+  background: #292b50;
+}
+
+.archery-progress span.completed {
+  background: var(--archery-cyan);
+  box-shadow: 0 0 9px rgba(103, 244, 255, 0.45);
+}
+
+.archery-progress span.current {
+  background: var(--archery-pink);
+  box-shadow: 0 0 12px rgba(255, 85, 200, 0.65);
+}
+
+.archery-level-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #aab3d7;
+  font-size: 0.82rem;
+  margin-bottom: 10px;
+}
+
+.level-tag,
+.boss-tag {
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+}
+
+.level-tag {
+  color: var(--archery-cyan);
+  border: 1px solid rgba(103, 244, 255, 0.3);
+  background: rgba(29, 112, 146, 0.13);
+}
+
+.boss-tag {
+  color: #ff83d9;
+  border: 1px solid rgba(255, 85, 200, 0.55);
+  background: rgba(180, 34, 133, 0.16);
+  animation: archery-boss-pulse 1.6s infinite alternate;
+}
+
+.archery-board {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 15px;
+  border: 1px solid rgba(103, 244, 255, 0.42);
+  background: #080b20;
+  box-shadow:
+    inset 0 0 30px rgba(69, 75, 200, 0.18),
+    0 0 20px rgba(72, 119, 255, 0.12);
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.archery-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 900 / 440;
+}
+
+.archery-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(4, 6, 23, 0.76);
+  backdrop-filter: blur(5px);
+  cursor: default;
+}
+
+.archery-result-card {
+  width: min(100%, 380px);
+  padding: 25px;
+  text-align: center;
+  border: 1px solid rgba(103, 244, 255, 0.55);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(23, 28, 69, 0.97), rgba(28, 13, 59, 0.97));
+  box-shadow: 0 0 30px rgba(100, 75, 255, 0.23);
+}
+
+.archery-result-icon {
+  font-size: 2rem;
+}
+
+.archery-result-card h3 {
+  color: var(--archery-cyan);
+  font-size: clamp(1.2rem, 3vw, 1.7rem);
+  margin: 12px 0 8px;
+  letter-spacing: 0.04em;
+}
+
+.archery-result-card p {
+  color: #c1c8e8;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.archery-result-card > strong {
+  display: block;
+  margin: 16px 0;
+  font-size: 1.3rem;
+  color: #ffe5a1;
+}
+
+.archery-result-card button {
+  width: 100%;
+  padding: 13px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(100deg, #7d45ff, #08c9f5);
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(105, 89, 255, 0.25);
+}
+
+.archery-result-card button:hover {
+  filter: brightness(1.12);
+}
+
+.archery-controls {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.archery-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 14px;
+  flex: 1;
+  border: 1px solid rgba(121, 111, 220, 0.25);
+  border-radius: 12px;
+  background: rgba(25, 25, 58, 0.7);
+}
+
+.archery-tip > span {
+  font-size: 1.3rem;
+  color: #ffe58a;
+}
+
+.archery-tip strong {
+  font-size: 0.8rem;
+  color: #e7e8ff;
+}
+
+.archery-tip p {
+  color: #aeb6d8;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin: 5px 0 0;
+}
+
+.archery-power-button {
+  min-width: 180px;
+  padding: 13px;
+  border: 1px solid rgba(255, 214, 93, 0.6);
+  border-radius: 12px;
+  color: #ffeaa4;
+  background: linear-gradient(140deg, rgba(102, 65, 24, 0.65), rgba(67, 32, 94, 0.7));
+  font-size: 0.8rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.archery-power-button span {
+  display: inline-block;
+  margin-left: 5px;
+  color: #fff;
+}
+
+.archery-power-button.active {
+  background: linear-gradient(120deg, #ad6d1c, #8543e6);
+  box-shadow: 0 0 17px rgba(255, 213, 91, 0.25);
+}
+
+.archery-power-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.archery-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(122, 119, 198, 0.2);
+  color: #aab3d7;
+  font-size: 0.77rem;
+}
+
+@keyframes archery-boss-pulse {
+  from {
+    box-shadow: 0 0 3px rgba(255, 85, 200, 0.15);
+  }
+  to {
+    box-shadow: 0 0 14px rgba(255, 85, 200, 0.45);
+  }
+}
+
+@media (max-width: 720px) {
+  .archery-game {
+    padding: 15px;
+    border-radius: 16px;
+  }
+
+  .archery-heading {
+    align-items: flex-start;
+  }
+
+  .archery-sound {
+    padding: 8px;
+    font-size: 0.72rem;
+  }
+
+  .archery-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .archery-stat:last-child {
+    grid-column: span 2;
+  }
+
+  .archery-controls {
+    flex-direction: column;
+  }
+
+  .archery-power-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .archery-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .archery-result-card {
+    padding: 16px;
+  }
+
+  .archery-result-card h3 {
+    margin-top: 7px;
+  }
+
+  .archery-result-card p {
+    margin: 8px 0;
+  }
+
+  .archery-result-card > strong {
+    margin: 10px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boss-tag {
+    animation: none;
+  }
+
+  .archery-sound,
+  .archery-footer button {
+    transition: none;
+  }
+}
