@@ -1,357 +1,157 @@
 
-.brick-breaker {
-  width: min(1120px, 100%);
-  margin: 48px auto;
-  padding: 32px;
-  overflow: hidden;
-  color: #f4f1ff;
-  background:
-    radial-gradient(ellipse at 15% 0%, rgba(135, 62, 255, 0.18), transparent 43%),
-    radial-gradient(ellipse at 90% 25%, rgba(0, 210, 255, 0.09), transparent 42%),
-    #090b18;
-  border: 1px solid rgba(156, 108, 255, 0.32);
-  border-radius: 22px;
-  box-shadow: 0 0 45px rgba(111, 54, 255, 0.12);
-  font-family: inherit;
+/* Nexora Brick Breaker upgrade additions */
+
+.brick-extra-stats {
+  margin-top: -4px;
 }
 
-.brick-heading {
-  margin-bottom: 26px;
-  text-align: center;
+.brick-power-label {
+  font-size: 0.85rem !important;
+  overflow-wrap: anywhere;
 }
 
-.brick-eyebrow {
-  color: #42eaff;
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-}
-
-.brick-heading h2 {
-  margin: 12px 0;
-  color: #fff;
-  font-size: clamp(1.8rem, 5vw, 3.1rem);
-  font-weight: 900;
-  letter-spacing: 0.04em;
-}
-
-.brick-heading h2 span {
-  color: #a47bff;
-  text-shadow: 0 0 22px rgba(164, 123, 255, 0.5);
-}
-
-.brick-heading p {
-  margin: 0;
-  color: #a7aac8;
-  font-size: 0.95rem;
-}
-
-.brick-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.brick-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  padding: 14px 18px;
-  background: rgba(20, 23, 47, 0.88);
-  border: 1px solid rgba(141, 117, 255, 0.25);
-  border-radius: 11px;
-}
-
-.brick-stat span {
-  color: #999dc1;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.13em;
-}
-
-.brick-stat strong {
-  color: #50e9ff;
-  font-size: 1.45rem;
-  font-weight: 900;
-  text-shadow: 0 0 15px rgba(80, 233, 255, 0.2);
-}
-
-.brick-game-frame {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  background: #0b1025;
-  border: 1px solid rgba(88, 223, 255, 0.35);
-  border-radius: 12px;
-  box-shadow:
-    0 0 0 1px rgba(138, 94, 255, 0.14),
-    0 0 26px rgba(0, 202, 255, 0.08);
-}
-
-.brick-canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 800 / 520;
-  touch-action: none;
-  cursor: crosshair;
-}
-
-.brick-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 18px;
-  background: rgba(5, 7, 20, 0.64);
-  backdrop-filter: blur(4px);
-}
-
-.brick-overlay-card {
-  width: min(390px, 100%);
-  padding: 26px 22px;
-  text-align: center;
-  background: rgba(15, 17, 39, 0.94);
-  border: 1px solid rgba(155, 115, 255, 0.5);
-  border-radius: 16px;
-  box-shadow: 0 0 35px rgba(111, 66, 255, 0.18);
-}
-
-.brick-overlay-symbol {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  color: #43eaff;
-  background: rgba(64, 221, 255, 0.1);
-  border: 1px solid rgba(64, 221, 255, 0.35);
-  border-radius: 50%;
-  font-size: 1.5rem;
-}
-
-.brick-overlay-card h3 {
-  margin: 15px 0 8px;
-  color: #fff;
-  font-size: 1.4rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-}
-
-.brick-overlay-card p {
-  margin: 0 0 19px;
-  color: #b9bbd5;
-  font-size: 0.85rem;
-  line-height: 1.6;
-}
-
-.brick-overlay-card button {
-  min-height: 44px;
-  padding: 11px 24px;
-  color: #07101c;
-  background: linear-gradient(100deg, #43eaff, #a887ff);
-  border: 0;
-  border-radius: 9px;
-  font: inherit;
-  font-weight: 900;
-  cursor: pointer;
-  transition: transform 0.2s, filter 0.2s;
-}
-
-.brick-overlay-card button:hover {
-  filter: brightness(1.12);
-  transform: translateY(-2px);
-}
-
-.brick-controls {
+.brick-notice {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 17px;
-}
-
-.brick-control-help {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  color: #a8abc7;
-  font-size: 0.82rem;
-}
-
-.brick-control-help kbd {
-  display: inline-block;
-  min-width: 27px;
-  padding: 5px 7px;
-  color: #e8e2ff;
-  text-align: center;
-  background: #1b1c37;
-  border: 1px solid #514374;
-  border-bottom-width: 2px;
-  border-radius: 5px;
-  font: inherit;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  color: #ffe66d;
+  background: rgba(255, 230, 109, 0.07);
+  border: 1px solid rgba(255, 230, 109, 0.3);
+  border-radius: 9px;
+  font-size: 0.85rem;
   font-weight: 800;
+  animation: brick-notice-in 0.25s ease-out;
 }
 
-.brick-help-separator {
-  color: #6f7191;
-}
-
-.brick-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 9px;
-}
-
-.brick-buttons button {
-  min-height: 40px;
-  padding: 9px 15px;
-  border-radius: 8px;
-  font: inherit;
-  font-size: 0.83rem;
-  font-weight: 800;
+.brick-notice button {
+  color: inherit;
+  background: transparent;
+  border: 0;
+  font-size: 1.35rem;
   cursor: pointer;
-  transition: transform 0.2s, background 0.2s;
 }
 
-.brick-buttons button:hover {
-  transform: translateY(-1px);
+@keyframes brick-notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.brick-primary {
+.brick-mobile-controls {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.brick-mobile-controls button {
+  min-height: 54px;
+  color: #e7e3ff;
+  background: rgba(25, 27, 53, 0.95);
+  border: 1px solid rgba(67, 234, 255, 0.4);
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 900;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.brick-mobile-controls button:active {
   color: #07121c;
   background: linear-gradient(100deg, #43eaff, #a887ff);
-  border: 0;
 }
 
-.brick-secondary {
-  color: #e7e3ff;
-  background: #191b35;
-  border: 1px solid rgba(157, 126, 255, 0.38);
+.brick-achievements {
+  margin-top: 22px;
+  padding: 18px;
+  background: rgba(12, 14, 34, 0.72);
+  border: 1px solid rgba(156, 108, 255, 0.25);
+  border-radius: 12px;
 }
 
-.brick-secondary:hover {
-  background: #282448;
+.brick-achievements h3 {
+  margin: 0 0 14px;
+  color: #43eaff;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
 }
 
-.brick-footer-tip {
+.brick-achievement-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.brick-achievement {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  margin-top: 22px;
-  padding: 15px 17px;
-  background: rgba(12, 190, 224, 0.06);
-  border: 1px solid rgba(62, 224, 255, 0.17);
-  border-radius: 11px;
+  gap: 10px;
+  padding: 12px;
+  color: #777b9e;
+  background: rgba(20, 23, 47, 0.7);
+  border: 1px solid rgba(141, 117, 255, 0.15);
+  border-radius: 9px;
 }
 
-.brick-footer-tip > span {
-  color: #43eaff;
-  font-size: 1.15rem;
+.brick-achievement > span {
+  font-size: 1.25rem;
 }
 
-.brick-footer-tip p {
-  margin: 0;
-  color: #b6bad5;
-  font-size: 0.84rem;
-  line-height: 1.65;
+.brick-achievement strong {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
 }
 
-.brick-footer-tip strong {
-  color: #67eaff;
-  font-size: 0.77rem;
-  letter-spacing: 0.08em;
+.brick-achievement p {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.brick-achievement.is-unlocked {
+  color: #dcd5ff;
+  background: rgba(91, 66, 160, 0.15);
+  border-color: rgba(164, 123, 255, 0.48);
+}
+
+.brick-achievement.is-unlocked > span {
+  color: #ffe66d;
+  text-shadow: 0 0 12px rgba(255, 230, 109, 0.5);
 }
 
 @media (max-width: 650px) {
-  .brick-breaker {
-    margin: 26px auto;
-    padding: 14px;
-    border-radius: 15px;
+  .brick-extra-stats {
+    margin-top: 0;
   }
 
-  .brick-heading {
-    margin-bottom: 19px;
-  }
-
-  .brick-heading p {
-    font-size: 0.85rem;
-  }
-
-  .brick-stats {
-    gap: 7px;
-  }
-
-  .brick-stat {
-    padding: 11px 10px;
-  }
-
-  .brick-stat span {
-    font-size: 0.62rem;
-  }
-
-  .brick-stat strong {
-    font-size: 1.15rem;
-  }
-
-  .brick-controls {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .brick-control-help {
-    font-size: 0.76rem;
-  }
-
-  .brick-buttons {
+  .brick-mobile-controls {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .brick-buttons button {
-    width: 100%;
-  }
-
-  .brick-overlay-card {
-    padding: 16px 12px;
-  }
-
-  .brick-overlay-symbol {
-    width: 35px;
-    height: 35px;
-    font-size: 1.1rem;
-  }
-
-  .brick-overlay-card h3 {
-    margin: 9px 0 5px;
-    font-size: 1.05rem;
-  }
-
-  .brick-overlay-card p {
-    margin-bottom: 11px;
-    font-size: 0.74rem;
-  }
-
-  .brick-overlay-card button {
-    min-height: 38px;
-    padding: 8px 15px;
-    font-size: 0.82rem;
-  }
-
-  .brick-footer-tip {
-    margin-top: 16px;
+  .brick-achievements {
     padding: 12px;
+  }
+
+  .brick-achievement-list {
+    grid-template-columns: 1fr;
+  }
+
+  .brick-notice {
+    font-size: 0.78rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .brick-breaker *,
-  .brick-breaker *::before,
-  .brick-breaker *::after {
-    transition: none !important;
+  .brick-notice {
+    animation: none;
   }
 }
