@@ -154,4 +154,93 @@
   .brick-notice {
     animation: none;
   }
+
+/* =========================================
+   NEON BRICK BREAKER - CENTERED FULLSCREEN
+========================================= */
+
+/* Center the game inside its available space */
+.brick-breaker {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box;
+}
+
+/* Center the heading */
+.brick-heading {
+  text-align: center;
+}
+
+/* Center the game canvas and its frame */
+.brick-game-frame {
+  width: 100%;
+  max-width: 800px;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Keep the canvas responsive */
+.brick-canvas {
+  display: block;
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* Center statistics and controls */
+.brick-stats,
+.brick-controls {
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Center the footer tip */
+.brick-footer-tip {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Fullscreen layout */
+:fullscreen .brick-breaker {
+  width: min(1200px, 100%);
+  min-height: 100vh;
+  margin: 0 auto !important;
+  padding: 30px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+:fullscreen .brick-game-frame {
+  width: min(800px, 90vw);
+  margin: 20px auto !important;
+}
+
+:fullscreen .brick-canvas {
+  width: 100%;
+  height: auto;
+}
+
+/* Smaller screens */
+@media (max-width: 768px) {
+  .brick-breaker {
+    padding: 16px;
+  }
+
+  .brick-stats {
+    flex-wrap: wrap;
+  }
+
+  .brick-game-frame {
+    width: 100%;
+  }
+}
+
 }
