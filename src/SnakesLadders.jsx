@@ -22,12 +22,119 @@ const JUMPS = {
 
 const SNAKES = new Set([17, 54, 62, 64, 87, 93, 95, 99]);
 
-const PLAYERS = [
-  { name: "Player 1", short: "P1", color: "#39e7ff", icon: "🔷" },
-  { name: "Player 2", short: "P2", color: "#ff63df", icon: "🟣" },
-];
-
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const TEXT = {
+  en: {
+    brand: "NEXORA",
+    arcade: "ARCADE",
+    neonBoardGame: "NEON BOARD GAME",
+    eyebrow: "ROLL · CLIMB · CONQUER",
+    title: "SNAKES",
+    subtitle: "One roll can change everything. Race to square 100!",
+    twoPlayers: "👥 Two Players",
+    vsComputer: "🤖 Vs Computer",
+    newGame: "↻ New Game",
+    gameBoard: "GAME BOARD",
+    squares: "100 SQUARES",
+    snakeLegend: "Snake: slide down",
+    ladderLegend: "Ladder: climb up",
+    winner: "GAME WINNER",
+    currentTurn: "CURRENT TURN",
+    champion: "Champion of the board!",
+    computerTurn: "Computer's turn",
+    ready: "Ready to roll",
+    rollDiceLabel: "Roll the dice",
+    rolling: "ROLLING...",
+    diceResult: "DICE RESULT",
+    computerThinking: "🤖 COMPUTER THINKING...",
+    gameFinished: "🏆 GAME FINISHED",
+    rollingDice: "ROLLING THE DICE...",
+    rollButton: "🎲 ROLL THE DICE",
+    playerPositions: "PLAYER POSITIONS",
+    computer: "Computer",
+    moveHistory: "MOVE HISTORY",
+    moves: "moves",
+    historyEmpty: "Your adventure begins with the first roll.",
+    footer: "✦ NEXORA AI ARCADE",
+    exactRoll: "Exact roll needed to reach 100",
+    startMessage: "Roll the dice to begin!",
+    rollingMessage: (name) => `${name} is rolling...`,
+    tooHighMessage: (name, result) =>
+      `${name} rolled ${result}. You need an exact roll to reach 100!`,
+    tooHighHistory: (name, result) =>
+      `${name} rolled ${result} — needs an exact roll.`,
+    snakeMessage: (name, position) =>
+      `Oh no! A snake sent ${name} down to ${position}.`,
+    ladderMessage: (name, position) =>
+      `Amazing! A ladder took ${name} up to ${position}.`,
+    moveHistoryEntry: (name, result, landed, finalPosition) =>
+      `${name}: rolled ${result}, landed on ${landed}${
+        finalPosition !== landed ? ` → ${finalPosition}` : ""
+      }.`,
+    movedMessage: (name, position) =>
+      `${name} moved to square ${position}.`,
+    winMessage: (name) => `🎉 ${name} wins the game!`,
+  },
+
+  zh: {
+    brand: "NEXORA",
+    arcade: "街机",
+    neonBoardGame: "霓虹棋盘游戏",
+    eyebrow: "掷骰 · 攀爬 · 冲刺",
+    title: "蛇",
+    subtitle: "一次掷骰就能改变一切！率先到达第 100 格！",
+    twoPlayers: "👥 双人游戏",
+    vsComputer: "🤖 对战电脑",
+    newGame: "↻ 新游戏",
+    gameBoard: "游戏棋盘",
+    squares: "100 个格子",
+    snakeLegend: "蛇：向下滑落",
+    ladderLegend: "梯子：向上攀爬",
+    winner: "获胜者",
+    currentTurn: "当前回合",
+    champion: "棋盘冠军！",
+    computerTurn: "电脑回合",
+    ready: "准备掷骰",
+    rollDiceLabel: "掷骰子",
+    rolling: "掷骰中...",
+    diceResult: "骰子结果",
+    computerThinking: "🤖 电脑思考中...",
+    gameFinished: "🏆 游戏结束",
+    rollingDice: "正在掷骰子...",
+    rollButton: "🎲 掷骰子",
+    playerPositions: "玩家位置",
+    computer: "电脑",
+    moveHistory: "移动记录",
+    moves: "步",
+    historyEmpty: "你的冒险将从第一次掷骰开始。",
+    footer: "✦ NEXORA AI 街机",
+    exactRoll: "必须掷出准确点数才能到达第 100 格",
+    startMessage: "掷骰子开始游戏！",
+    rollingMessage: (name) => `${name} 正在掷骰子...`,
+    tooHighMessage: (name, result) =>
+      `${name} 掷出了 ${result} 点。必须掷出准确点数才能到达第 100 格！`,
+    tooHighHistory: (name, result) =>
+      `${name} 掷出 ${result} 点 — 需要准确点数。`,
+    snakeMessage: (name, position) =>
+      `糟糕！${name} 被蛇带回了第 ${position} 格。`,
+    ladderMessage: (name, position) =>
+      `太棒了！${name} 通过梯子前进到第 ${position} 格。`,
+    moveHistoryEntry: (name, result, landed, finalPosition) =>
+      `${name}：掷出 ${result} 点，停在第 ${landed} 格${
+        finalPosition !== landed ? ` → 第 ${finalPosition} 格` : ""
+      }。`,
+    movedMessage: (name, position) =>
+      `${name} 前进到了第 ${position} 格。`,
+    winMessage: (name) => `🎉 ${name} 赢得了比赛！`,
+  },
+};
+
+function normalizeLanguage(language) {
+  return String(language || "en").toLowerCase().startsWith("zh")
+    ? "zh"
+    : "en";
+}
 
 function getCellPosition(square) {
   const safeSquare = Math.max(1, Math.min(100, square));
@@ -58,20 +165,72 @@ function makeBoardPath(from, to) {
   return `M ${x1} ${y1} C ${x1 + curve * direction} ${y1 - 20}, ${x2 - curve * direction} ${y2 + 20}, ${x2} ${y2}`;
 }
 
-export default function SnakesLadders() {
+export default function SnakesLadders({ language = "en" }) {
+  const lang = normalizeLanguage(language);
+  const t = TEXT[lang];
+
+  const PLAYERS = [
+    { name: lang === "zh" ? "玩家 1" : "Player 1", short: "P1", color: "#39e7ff", icon: "🔷" },
+    { name: lang === "zh" ? "玩家 2" : "Player 2", short: "P2", color: "#ff63df", icon: "🟣" },
+  ];
+
   const [mode, setMode] = useState("both");
   const [players, setPlayers] = useState([0, 0]);
   const [currentPlayer, setCurrentPlayer] = useState(0);
   const [dice, setDice] = useState(1);
   const [rolling, setRolling] = useState(false);
   const [winner, setWinner] = useState(null);
-  const [message, setMessage] = useState("Roll the dice to begin!");
+  const [message, setMessage] = useState({ key: "start" });
   const [history, setHistory] = useState([]);
   const [lastJump, setLastJump] = useState(null);
 
   const busyRef = useRef(false);
   const rollRef = useRef(null);
   const gameIdRef = useRef(0);
+
+  function getPlayerName(player) {
+    if (mode === "ai" && player === 1) {
+      return t.computer;
+    }
+
+    return PLAYERS[player].name;
+  }
+
+  function getMessage() {
+    switch (message.key) {
+      case "start":
+        return t.startMessage;
+      case "rolling":
+        return t.rollingMessage(getPlayerName(message.player));
+      case "tooHigh":
+        return t.tooHighMessage(getPlayerName(message.player), message.result);
+      case "snake":
+        return t.snakeMessage(getPlayerName(message.player), message.position);
+      case "ladder":
+        return t.ladderMessage(getPlayerName(message.player), message.position);
+      case "moved":
+        return t.movedMessage(getPlayerName(message.player), message.position);
+      case "win":
+        return t.winMessage(getPlayerName(message.player));
+      default:
+        return t.startMessage;
+    }
+  }
+
+  function getHistoryText(item) {
+    const name = getPlayerName(item.player);
+
+    if (item.key === "tooHigh") {
+      return t.tooHighHistory(name, item.result);
+    }
+
+    return t.moveHistoryEntry(
+      name,
+      item.result,
+      item.landed,
+      item.finalPosition
+    );
+  }
 
   function restartGame() {
     gameIdRef.current += 1;
@@ -82,7 +241,7 @@ export default function SnakesLadders() {
     setDice(1);
     setRolling(false);
     setWinner(null);
-    setMessage("Roll the dice to begin!");
+    setMessage({ key: "start" });
     setHistory([]);
     setLastJump(null);
   }
@@ -90,11 +249,7 @@ export default function SnakesLadders() {
   async function rollDice(fromComputer = false) {
     if (busyRef.current || winner !== null) return;
 
-    if (
-      mode === "ai" &&
-      currentPlayer === 1 &&
-      !fromComputer
-    ) {
+    if (mode === "ai" && currentPlayer === 1 && !fromComputer) {
       return;
     }
 
@@ -105,7 +260,7 @@ export default function SnakesLadders() {
 
     setRolling(true);
     setLastJump(null);
-    setMessage(`${PLAYERS[player].name} is rolling...`);
+    setMessage({ key: "rolling", player });
 
     for (let i = 0; i < 10; i++) {
       if (gameId !== gameIdRef.current) return;
@@ -125,12 +280,10 @@ export default function SnakesLadders() {
     const proposedPosition = oldPosition + result;
 
     if (proposedPosition > 100) {
-      setMessage(
-        `${PLAYERS[player].name} rolled ${result}. You need an exact roll to reach 100!`
-      );
+      setMessage({ key: "tooHigh", player, result });
 
       setHistory((prev) => [
-        `${PLAYERS[player].name} rolled ${result} — needs an exact roll.`,
+        { key: "tooHigh", player, result },
         ...prev,
       ]);
     } else {
@@ -153,21 +306,18 @@ export default function SnakesLadders() {
       if (gameId !== gameIdRef.current) return;
 
       let finalPosition = proposedPosition;
-      let jumpMessage = "";
+      let jumpType = null;
 
       if (JUMPS[proposedPosition]) {
         finalPosition = JUMPS[proposedPosition];
 
         const isSnake = SNAKES.has(proposedPosition);
-
-        jumpMessage = isSnake
-          ? `Oh no! A snake sent ${PLAYERS[player].name} down to ${finalPosition}.`
-          : `Amazing! A ladder took ${PLAYERS[player].name} up to ${finalPosition}.`;
+        jumpType = isSnake ? "snake" : "ladder";
 
         setLastJump({
           from: proposedPosition,
           to: finalPosition,
-          type: isSnake ? "snake" : "ladder",
+          type: jumpType,
         });
 
         setPlayers((prev) =>
@@ -182,25 +332,36 @@ export default function SnakesLadders() {
       if (gameId !== gameIdRef.current) return;
 
       setHistory((prev) => [
-        `${PLAYERS[player].name}: rolled ${result}, landed on ${proposedPosition}${
-          finalPosition !== proposedPosition
-            ? ` → ${finalPosition}`
-            : ""
-        }.`,
+        {
+          key: "move",
+          player,
+          result,
+          landed: proposedPosition,
+          finalPosition,
+        },
         ...prev,
       ]);
 
       if (finalPosition === 100) {
         setWinner(player);
-        setMessage(`🎉 ${PLAYERS[player].name} wins the game!`);
+        setMessage({ key: "win", player });
         busyRef.current = false;
         return;
       }
 
-      setMessage(
-        jumpMessage ||
-          `${PLAYERS[player].name} moved to square ${finalPosition}.`
-      );
+      if (jumpType) {
+        setMessage({
+          key: jumpType,
+          player,
+          position: finalPosition,
+        });
+      } else {
+        setMessage({
+          key: "moved",
+          player,
+          position: finalPosition,
+        });
+      }
     }
 
     if (gameId !== gameIdRef.current) return;
@@ -234,30 +395,30 @@ export default function SnakesLadders() {
     return { square, col, row };
   });
 
+  const computerTurn = mode === "ai" && currentPlayer === 1;
+
   return (
     <main className="snakes-game">
       <header className="snakes-header">
         <div className="snakes-brand">
           <span className="snakes-brand-icon">✦</span>
           <span>
-            NEXORA <b>ARCADE</b>
+            {t.brand} <b>{t.arcade}</b>
           </span>
         </div>
 
         <span className="snakes-online">
           <span className="snakes-live-dot" />
-          NEON BOARD GAME
+          {t.neonBoardGame}
         </span>
       </header>
 
       <section className="snakes-intro">
-        <p className="snakes-eyebrow">ROLL · CLIMB · CONQUER</p>
+        <p className="snakes-eyebrow">{t.eyebrow}</p>
         <h1>
-          SNAKES <span>&amp;</span> LADDERS
+          {t.title} <span>&amp;</span> {lang === "zh" ? "梯子" : "LADDERS"}
         </h1>
-        <p className="snakes-subtitle">
-          One roll can change everything. Race to square 100!
-        </p>
+        <p className="snakes-subtitle">{t.subtitle}</p>
       </section>
 
       <div className="snakes-mode-row">
@@ -269,7 +430,7 @@ export default function SnakesLadders() {
               setMode("both");
             }}
           >
-            👥 Two Players
+            {t.twoPlayers}
           </button>
 
           <button
@@ -279,20 +440,20 @@ export default function SnakesLadders() {
               setMode("ai");
             }}
           >
-            🤖 Vs Computer
+            {t.vsComputer}
           </button>
         </div>
 
         <button className="snakes-restart" onClick={restartGame}>
-          ↻ New Game
+          {t.newGame}
         </button>
       </div>
 
       <div className="snakes-layout">
         <section className="snakes-board-panel">
           <div className="snakes-board-topline">
-            <span>GAME BOARD</span>
-            <span>100 SQUARES</span>
+            <span>{t.gameBoard}</span>
+            <span>{t.squares}</span>
           </div>
 
           <div className="snakes-board">
@@ -390,10 +551,10 @@ export default function SnakesLadders() {
 
           <div className="snakes-legend">
             <span>
-              <i className="legend-snake" /> Snake: slide down
+              <i className="legend-snake" /> {t.snakeLegend}
             </span>
             <span>
-              <i className="legend-ladder" /> Ladder: climb up
+              <i className="legend-ladder" /> {t.ladderLegend}
             </span>
           </div>
         </section>
@@ -401,7 +562,7 @@ export default function SnakesLadders() {
         <aside className="snakes-sidebar">
           <section className="snakes-card snakes-turn-card">
             <p className="snakes-card-label">
-              {winner !== null ? "GAME WINNER" : "CURRENT TURN"}
+              {winner !== null ? t.winner : t.currentTurn}
             </p>
 
             <div className="snakes-turn-player">
@@ -418,18 +579,18 @@ export default function SnakesLadders() {
               <div>
                 <h2>
                   {winner !== null
-                    ? PLAYERS[winner].name
-                    : isComputerTurn(mode, currentPlayer)
-                      ? "Computer"
+                    ? getPlayerName(winner)
+                    : computerTurn
+                      ? t.computer
                       : PLAYERS[currentPlayer].name}
                 </h2>
 
                 <p>
                   {winner !== null
-                    ? "Champion of the board!"
-                    : isComputerTurn(mode, currentPlayer)
-                      ? "Computer's turn"
-                      : "Ready to roll"}
+                    ? t.champion
+                    : computerTurn
+                      ? t.computerTurn
+                      : t.ready}
                 </p>
               </div>
             </div>
@@ -443,15 +604,15 @@ export default function SnakesLadders() {
                 disabled={
                   rolling ||
                   winner !== null ||
-                  isComputerTurn(mode, currentPlayer)
+                  computerTurn
                 }
-                aria-label="Roll the dice"
+                aria-label={t.rollDiceLabel}
               >
                 {["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"][dice - 1]}
               </button>
 
               <span className="snakes-dice-caption">
-                {rolling ? "ROLLING..." : "DICE RESULT"}
+                {rolling ? t.rolling : t.diceResult}
               </span>
             </div>
 
@@ -461,25 +622,25 @@ export default function SnakesLadders() {
               disabled={
                 rolling ||
                 winner !== null ||
-                isComputerTurn(mode, currentPlayer)
+                computerTurn
               }
             >
-              {isComputerTurn(mode, currentPlayer)
-                ? "🤖 COMPUTER THINKING..."
+              {computerTurn
+                ? t.computerThinking
                 : winner !== null
-                  ? "🏆 GAME FINISHED"
+                  ? t.gameFinished
                   : rolling
-                    ? "ROLLING THE DICE..."
-                    : "🎲 ROLL THE DICE"}
+                    ? t.rollingDice
+                    : t.rollButton}
             </button>
 
             <p className="snakes-message" aria-live="polite">
-              {message}
+              {getMessage()}
             </p>
           </section>
 
           <section className="snakes-card snakes-score-card">
-            <p className="snakes-card-label">PLAYER POSITIONS</p>
+            <p className="snakes-card-label">{t.playerPositions}</p>
 
             {PLAYERS.map((player, index) => (
               <div className="snakes-score-row" key={player.short}>
@@ -491,7 +652,7 @@ export default function SnakesLadders() {
                   <div className="snakes-score-name">
                     <span>
                       {mode === "ai" && index === 1
-                        ? "Computer"
+                        ? t.computer
                         : player.name}
                     </span>
 
@@ -511,18 +672,20 @@ export default function SnakesLadders() {
 
           <section className="snakes-card snakes-history-card">
             <div className="snakes-history-heading">
-              <p className="snakes-card-label">MOVE HISTORY</p>
-              <span>{history.length} moves</span>
+              <p className="snakes-card-label">{t.moveHistory}</p>
+              <span>{history.length} {t.moves}</span>
             </div>
 
             {history.length === 0 ? (
               <p className="snakes-history-empty">
-                Your adventure begins with the first roll.
+                {t.historyEmpty}
               </p>
             ) : (
               <ul className="snakes-history-list">
                 {history.slice(0, 6).map((item, index) => (
-                  <li key={`${item}-${index}`}>{item}</li>
+                  <li key={`${item.key}-${item.player}-${index}`}>
+                    {getHistoryText(item)}
+                  </li>
                 ))}
               </ul>
             )}
@@ -531,13 +694,9 @@ export default function SnakesLadders() {
       </div>
 
       <footer className="snakes-footer">
-        <span>✦ NEXORA AI ARCADE</span>
-        <span>Exact roll needed to reach 100</span>
+        <span>{t.footer}</span>
+        <span>{t.exactRoll}</span>
       </footer>
     </main>
   );
-}
-
-function isComputerTurn(mode, currentPlayer) {
-  return mode === "ai" && currentPlayer === 1;
 }

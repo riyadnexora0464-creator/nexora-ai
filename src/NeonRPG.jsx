@@ -9,6 +9,74 @@ const GRAVITY = 1500;
 const PLAYER_SPEED = 300;
 const MAX_ENEMIES = 10;
 
+const TEXT = {
+  en: {
+    kicker: "NEXORA AI ARCADE",
+    title: "Neon Cyber Quest",
+    subtitle: "Fight the machines. Earn XP. Upgrade your legend.",
+    playAgain: "PLAY AGAIN",
+    restart: "RESTART GAME",
+    start: "START GAME",
+    health: "HEALTH",
+    level: "LEVEL",
+    experience: "EXPERIENCE",
+    credits: "CREDITS",
+    kills: "ROBOT KILLS",
+    controls: "KEYBOARD CONTROLS",
+    move: "Move",
+    jump: "Jump",
+    attack: "Attack",
+    moveLeft: "Move left",
+    moveRight: "Move right",
+    enterCity: "ENTER THE CITY. DEFEAT THE MACHINES.",
+    missionReady: "MISSION READY",
+    eliminate: "ELIMINATE THE ROBOTS",
+    levelUp: "LEVEL UP! LEVEL",
+    missionFailed: "MISSION FAILED",
+    robotsDefeated: "ROBOTS DEFEATED",
+    pressAgain: "PRESS PLAY AGAIN TO RETRY",
+    canvasLabel: "Neon Cyber Quest side-view sci-fi game",
+    space: "SPACE",
+    moveKeys: "MOVE: A / D     JUMP: W OR SPACE     ATTACK: J",
+    jumpButton: "JUMP",
+    attackButton: "ATTACK",
+  },
+  zh: {
+    kicker: "NEXORA AI 街机",
+    title: "霓虹赛博任务",
+    subtitle: "击败机器，获得经验，升级成为传奇。",
+    playAgain: "再次游戏",
+    restart: "重新开始",
+    start: "开始游戏",
+    health: "生命值",
+    level: "等级",
+    experience: "经验值",
+    credits: "金币",
+    kills: "击败机器人",
+    controls: "键盘操作",
+    move: "移动",
+    jump: "跳跃",
+    attack: "攻击",
+    moveLeft: "向左移动",
+    moveRight: "向右移动",
+    enterCity: "进入城市，击败机器。",
+    missionReady: "任务准备就绪",
+    eliminate: "消灭机器人",
+    levelUp: "升级！当前等级",
+    missionFailed: "任务失败",
+    robotsDefeated: "已击败机器人",
+    pressAgain: "点击再次游戏以重新挑战",
+    canvasLabel: "霓虹赛博任务科幻动作游戏",
+    space: "空格键",
+    moveKeys: "移动：A / D     跳跃：W 或空格     攻击：J",
+    jumpButton: "跳跃",
+    attackButton: "攻击",
+  },
+};
+
+const normalizeLanguage = (language) =>
+  String(language || "en").toLowerCase().startsWith("zh") ? "zh" : "en";
+
 function makeEnemy(x, id, level) {
   const health = 55 + level * 12;
 
@@ -57,7 +125,7 @@ function createWorld() {
     level: 1,
     credits: 0,
     kills: 0,
-    message: "MISSION READY",
+    message: "MISSION_READY",
     messageTimer: 2.5,
   };
 }
@@ -460,13 +528,17 @@ function addBurst(world, x, y, color, amount = 12) {
   }
 }
 
-export default function NeonRPG() {
+export default function NeonRPG({ language = "en" }) {
+  const lang = normalizeLanguage(language);
+  const t = TEXT[lang];
+
   const canvasRef = useRef(null);
   const worldRef = useRef(createWorld());
   const keysRef = useRef({});
   const lastTimeRef = useRef(0);
   const attackRef = useRef(null);
   const jumpRef = useRef(null);
+
   const [hud, setHud] = useState({
     health: 100,
     maxHealth: 100,
@@ -476,7 +548,7 @@ export default function NeonRPG() {
     kills: 0,
     running: false,
     gameOver: false,
-    message: "MISSION READY",
+    message: "MISSION_READY",
   });
 
   const syncHud = useCallback(() => {
@@ -497,7 +569,7 @@ export default function NeonRPG() {
   const startGame = useCallback(() => {
     const world = createWorld();
     world.running = true;
-    world.message = "ELIMINATE THE ROBOTS";
+    world.message = "ELIMINATE_ROBOTS";
     world.messageTimer = 2.5;
     world.enemies.push(makeEnemy(790, world.nextEnemyId++, world.level));
     world.enemies.push(makeEnemy(1030, world.nextEnemyId++, world.level));
@@ -558,7 +630,7 @@ export default function NeonRPG() {
             p.maxHealth += 10;
             p.health = Math.min(p.maxHealth, p.health + 25);
             w.credits += 50;
-            w.message = `LEVEL UP! LEVEL ${w.level}`;
+            w.message = `LEVEL_UP:${w.level}`;
             w.messageTimer = 2.5;
             addBurst(w, p.x, p.y - 50, "#f4ed75", 28);
           }
@@ -718,7 +790,7 @@ export default function NeonRPG() {
                 p.health = 0;
                 w.running = false;
                 w.gameOver = true;
-                w.message = "MISSION FAILED";
+                w.message = "MISSION_FAILED";
                 w.messageTimer = 999;
               }
             }
@@ -754,7 +826,14 @@ export default function NeonRPG() {
       drawCity(ctx, w.time);
 
       // Draw a subtle glow around the active fighting area.
-      const glow = ctx.createRadialGradient(p.x, GROUND - 40, 10, p.x, GROUND - 40, 230);
+      const glow = ctx.createRadialGradient(
+        p.x,
+        GROUND - 40,
+        10,
+        p.x,
+        GROUND - 40,
+        230
+      );
       glow.addColorStop(0, "rgba(29,210,255,0.08)");
       glow.addColorStop(1, "rgba(29,210,255,0)");
       ctx.fillStyle = glow;
@@ -762,14 +841,7 @@ export default function NeonRPG() {
 
       for (const enemy of w.enemies) {
         if (enemy.dead) continue;
-        if (enemy.damageTimer > 0) {
-          ctx.save();
-          ctx.globalAlpha = 0.7;
-          drawEnemy(ctx, enemy, w.time);
-          ctx.restore();
-        } else {
-          drawEnemy(ctx, enemy, w.time);
-        }
+        drawEnemy(ctx, enemy, w.time);
       }
 
       if (p.flash > 0) {
@@ -793,13 +865,25 @@ export default function NeonRPG() {
 
       // On-screen mission banner
       if (w.message && w.messageTimer > 0) {
+        let message = w.message;
+
+        if (message === "MISSION_READY") {
+          message = t.missionReady;
+        } else if (message === "ELIMINATE_ROBOTS") {
+          message = t.eliminate;
+        } else if (message === "MISSION_FAILED") {
+          message = t.missionFailed;
+        } else if (message.startsWith("LEVEL_UP:")) {
+          message = `${t.levelUp} ${message.split(":")[1]}`;
+        }
+
         ctx.save();
         ctx.textAlign = "center";
-        ctx.font = "bold 25px monospace";
+        ctx.font = lang === "zh" ? "bold 25px sans-serif" : "bold 25px monospace";
         ctx.shadowColor = "#34eaff";
         ctx.shadowBlur = 18;
         ctx.fillStyle = "#d8fbff";
-        ctx.fillText(w.message, WIDTH / 2, 85);
+        ctx.fillText(message, WIDTH / 2, 85);
         ctx.restore();
       }
 
@@ -808,29 +892,33 @@ export default function NeonRPG() {
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
         ctx.textAlign = "center";
         ctx.fillStyle = "#e6fbff";
-        ctx.font = "bold 38px monospace";
-        ctx.fillText("NEON CYBER QUEST", WIDTH / 2, 285);
-        ctx.font = "18px monospace";
+        ctx.font = lang === "zh" ? "bold 38px sans-serif" : "bold 38px monospace";
+        ctx.fillText(t.title.toUpperCase(), WIDTH / 2, 285);
+        ctx.font = lang === "zh" ? "18px sans-serif" : "18px monospace";
         ctx.fillStyle = "#6fefff";
-        ctx.fillText("ENTER THE CITY. DEFEAT THE MACHINES.", WIDTH / 2, 325);
-        ctx.font = "15px monospace";
+        ctx.fillText(t.enterCity, WIDTH / 2, 325);
+        ctx.font = lang === "zh" ? "15px sans-serif" : "15px monospace";
         ctx.fillStyle = "#d0c7ff";
-        ctx.fillText("MOVE: A / D     JUMP: W OR SPACE     ATTACK: J", WIDTH / 2, 365);
+        ctx.fillText(t.moveKeys, WIDTH / 2, 365);
       }
 
       if (w.gameOver) {
         ctx.fillStyle = "rgba(6,4,20,0.7)";
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
         ctx.textAlign = "center";
-        ctx.font = "bold 44px monospace";
+        ctx.font = lang === "zh" ? "bold 44px sans-serif" : "bold 44px monospace";
         ctx.fillStyle = "#ff579d";
-        ctx.fillText("MISSION FAILED", WIDTH / 2, 290);
-        ctx.font = "20px monospace";
+        ctx.fillText(t.missionFailed, WIDTH / 2, 290);
+        ctx.font = lang === "zh" ? "20px sans-serif" : "20px monospace";
         ctx.fillStyle = "#eafaff";
-        ctx.fillText(`ROBOTS DEFEATED: ${w.kills}   CREDITS: ${w.credits}`, WIDTH / 2, 335);
-        ctx.font = "16px monospace";
+        ctx.fillText(
+          `${t.robotsDefeated}: ${w.kills}   ${t.credits}: ${w.credits}`,
+          WIDTH / 2,
+          335
+        );
+        ctx.font = lang === "zh" ? "16px sans-serif" : "16px monospace";
         ctx.fillStyle = "#6fefff";
-        ctx.fillText("PRESS PLAY AGAIN TO RETRY", WIDTH / 2, 375);
+        ctx.fillText(t.pressAgain, WIDTH / 2, 375);
       }
     }
 
@@ -855,7 +943,7 @@ export default function NeonRPG() {
     animationFrame = requestAnimationFrame(frame);
 
     return () => cancelAnimationFrame(animationFrame);
-  }, [syncHud]);
+  }, [syncHud, lang, t]);
 
   const healthPercent = Math.max(0, (hud.health / hud.maxHealth) * 100);
   const xpPercent = Math.min(100, (hud.xp / (hud.level * 100)) * 100);
@@ -864,21 +952,19 @@ export default function NeonRPG() {
     <div className="neon-rpg">
       <div className="neon-rpg-header">
         <div>
-          <p className="neon-rpg-kicker">NEXORA AI ARCADE</p>
-          <h2>Neon Cyber Quest</h2>
-          <p className="neon-rpg-subtitle">
-            Fight the machines. Earn XP. Upgrade your legend.
-          </p>
+          <p className="neon-rpg-kicker">{t.kicker}</p>
+          <h2>{t.title}</h2>
+          <p className="neon-rpg-subtitle">{t.subtitle}</p>
         </div>
 
         <button className="neon-rpg-play" onClick={startGame}>
-          {hud.gameOver ? "PLAY AGAIN" : hud.running ? "RESTART GAME" : "START GAME"}
+          {hud.gameOver ? t.playAgain : hud.running ? t.restart : t.start}
         </button>
       </div>
 
       <div className="neon-rpg-hud">
         <div className="neon-rpg-stat">
-          <span>HEALTH</span>
+          <span>{t.health}</span>
           <div className="neon-rpg-bar">
             <div
               className="neon-rpg-health-fill"
@@ -889,12 +975,12 @@ export default function NeonRPG() {
         </div>
 
         <div className="neon-rpg-stat">
-          <span>LEVEL</span>
+          <span>{t.level}</span>
           <strong className="neon-rpg-stat-value">{hud.level}</strong>
         </div>
 
         <div className="neon-rpg-stat">
-          <span>EXPERIENCE</span>
+          <span>{t.experience}</span>
           <div className="neon-rpg-bar">
             <div
               className="neon-rpg-xp-fill"
@@ -905,12 +991,12 @@ export default function NeonRPG() {
         </div>
 
         <div className="neon-rpg-stat">
-          <span>CREDITS</span>
+          <span>{t.credits}</span>
           <strong className="neon-rpg-stat-value">{hud.credits}</strong>
         </div>
 
         <div className="neon-rpg-stat">
-          <span>ROBOT KILLS</span>
+          <span>{t.kills}</span>
           <strong className="neon-rpg-stat-value">{hud.kills}</strong>
         </div>
       </div>
@@ -920,22 +1006,22 @@ export default function NeonRPG() {
           ref={canvasRef}
           width={WIDTH}
           height={HEIGHT}
-          aria-label="Neon Cyber Quest side-view sci-fi game"
+          aria-label={t.canvasLabel}
         />
       </div>
 
       <div className="neon-rpg-controls">
         <div className="neon-rpg-instructions">
-          <strong>KEYBOARD CONTROLS</strong>
-          <span><kbd>A</kbd> <kbd>D</kbd> Move</span>
-          <span><kbd>W</kbd> / <kbd>SPACE</kbd> Jump</span>
-          <span><kbd>J</kbd> Attack</span>
+          <strong>{t.controls}</strong>
+          <span><kbd>A</kbd> <kbd>D</kbd> {t.move}</span>
+          <span><kbd>W</kbd> / <kbd>{t.space}</kbd> {t.jump}</span>
+          <span><kbd>J</kbd> {t.attack}</span>
         </div>
 
         <div className="neon-rpg-touch-controls">
           <div className="neon-rpg-direction-buttons">
             <button
-              aria-label="Move left"
+              aria-label={t.moveLeft}
               onPointerDown={() => { keysRef.current.a = true; }}
               onPointerUp={() => { keysRef.current.a = false; }}
               onPointerLeave={() => { keysRef.current.a = false; }}
@@ -943,8 +1029,9 @@ export default function NeonRPG() {
             >
               ◀
             </button>
+
             <button
-              aria-label="Move right"
+              aria-label={t.moveRight}
               onPointerDown={() => { keysRef.current.d = true; }}
               onPointerUp={() => { keysRef.current.d = false; }}
               onPointerLeave={() => { keysRef.current.d = false; }}
@@ -961,7 +1048,7 @@ export default function NeonRPG() {
               jumpRef.current?.();
             }}
           >
-            JUMP
+            {t.jumpButton}
           </button>
 
           <button
@@ -971,7 +1058,7 @@ export default function NeonRPG() {
               attackRef.current?.();
             }}
           >
-            ATTACK
+            {t.attackButton}
           </button>
         </div>
       </div>

@@ -392,33 +392,35 @@ function App() {
             <p>{t.labText}</p>
           </div>
 
-          <GameFullscreen title={t.gameTitles[0]}>
-            <NeonGame />
-          </GameFullscreen>
+          
+<GameFullscreen title={t.gameTitles[0]}>
+  <NeonGame language={language} />
+</GameFullscreen>
 
-          <GameFullscreen title={t.gameTitles[1]}>
-            <DartGame />
-          </GameFullscreen>
+<GameFullscreen title={t.gameTitles[1]}>
+  <DartGame language={language} />
+</GameFullscreen>
 
-          <GameFullscreen title={t.gameTitles[2]}>
-            <ChessGame />
-          </GameFullscreen>
+<GameFullscreen title={t.gameTitles[2]}>
+  <ChessGame language={language} />
+</GameFullscreen>
 
-          <GameFullscreen title={t.gameTitles[3]}>
-            <BrickBreaker />
-          </GameFullscreen>
+<GameFullscreen title={t.gameTitles[3]}>
+  <BrickBreaker language={language} />
+</GameFullscreen>
 
-          <GameFullscreen title={t.gameTitles[4]}>
-            <NeonRacing />
-          </GameFullscreen>
+<GameFullscreen title={t.gameTitles[4]}>
+  <NeonRacing language={language} />
+</GameFullscreen>
 
-          <GameFullscreen title={t.gameTitles[5]}>
-            <NeonRPG />
-          </GameFullscreen>
+<GameFullscreen title={t.gameTitles[5]}>
+  <NeonRPG language={language} />
+</GameFullscreen>
 
-          <GameFullscreen title={t.gameTitles[6]}>
-            <SnakesLadders />
-          </GameFullscreen>
+<GameFullscreen title={t.gameTitles[6]}>
+  <SnakesLadders language={language} />
+</GameFullscreen>
+
         
         </section>
 

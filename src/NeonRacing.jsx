@@ -11,6 +11,84 @@ const CAR_HEIGHT = 72;
 
 const TRAFFIC_COLORS = ['#ff4fd8', '#ffb454', '#a78bff', '#54eaff'];
 
+const normalizeLanguage = (language) =>
+  String(language || 'en').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+
+const TEXT = {
+  en: {
+    eyebrow: 'NEXORA AI ARCADE · GAME 05',
+    title: 'NEON',
+    racing: 'RACING',
+    tagline: 'Own the highway. Dodge the traffic. Beat your high score.',
+    yourScore: 'YOUR SCORE',
+    roadSpeed: 'ROAD SPEED',
+    raceStatus: 'RACE STATUS',
+    ready: 'READY',
+    racingStatus: 'RACING',
+    pausedStatus: 'PAUSED',
+    crashedStatus: 'CRASHED',
+    speed: 'SPEED',
+    kmh: 'KM/H',
+    readyTitle: 'READY, RACER?',
+    pausedTitle: 'RACE PAUSED',
+    overTitle: 'RACE OVER',
+    readyMessage: 'Start your engine and dodge the traffic.',
+    racingMessage: 'Race in progress — avoid the other cars!',
+    pausedMessage: 'Your race is paused.',
+    crashedMessage: 'CRASH! Start again and try to beat your score.',
+    start: 'Start Racing',
+    resume: 'Resume Race',
+    again: 'Race Again',
+    pause: 'Pause',
+    restart: 'Restart',
+    or: 'or',
+    steer: 'to steer',
+    left: 'LEFT',
+    right: 'RIGHT',
+    steerLeft: 'Steer left',
+    steerRight: 'Steer right',
+    canvasLabel: 'Neon Racing game. Use the left and right arrow keys or A and D to steer.',
+    tipTitle: 'RACING TIP:',
+    tip: 'Watch the lanes ahead. Small steering movements help you avoid traffic at higher speeds.',
+  },
+  zh: {
+    eyebrow: 'NEXORA AI 街机 · 游戏 05',
+    title: '霓虹',
+    racing: '赛车',
+    tagline: '驰骋高速公路，躲避车流，刷新你的最高分。',
+    yourScore: '你的得分',
+    roadSpeed: '行驶速度',
+    raceStatus: '比赛状态',
+    ready: '准备就绪',
+    racingStatus: '比赛中',
+    pausedStatus: '已暂停',
+    crashedStatus: '发生碰撞',
+    speed: '速度',
+    kmh: '公里/小时',
+    readyTitle: '准备好了吗，车手？',
+    pausedTitle: '比赛已暂停',
+    overTitle: '比赛结束',
+    readyMessage: '启动引擎，灵活躲避前方车辆。',
+    racingMessage: '比赛正在进行——小心避开其他车辆！',
+    pausedMessage: '比赛已暂停。',
+    crashedMessage: '发生碰撞！重新开始，挑战你的最高分。',
+    start: '开始比赛',
+    resume: '继续比赛',
+    again: '再次比赛',
+    pause: '暂停',
+    restart: '重新开始',
+    or: '或',
+    steer: '控制方向',
+    left: '左转',
+    right: '右转',
+    steerLeft: '向左转向',
+    steerRight: '向右转向',
+    canvasLabel: '霓虹赛车游戏。使用左右方向键或 A 和 D 键控制方向。',
+    tipTitle: '赛车提示：',
+    tip: '留意前方车道。在高速行驶时，轻微转向可以帮助你避开其他车辆。',
+  },
+};
+
 function makeTrafficCar(lane, y, color) {
   return {
     lane,
@@ -48,7 +126,6 @@ function roundedRect(ctx, x, y, width, height, radius) {
 function drawCar(ctx, x, y, color, player = false) {
   ctx.save();
 
-  // Neon glow.
   ctx.shadowColor = color;
   ctx.shadowBlur = player ? 22 : 12;
 
@@ -103,7 +180,9 @@ function drawCar(ctx, x, y, color, player = false) {
   ctx.restore();
 }
 
-function drawRace(ctx, game) {
+function drawRace(ctx, game, language) {
+  const t = TEXT[language];
+
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
   // Background.
@@ -186,21 +265,25 @@ function drawRace(ctx, game) {
 
   // Speed indicator.
   ctx.fillStyle = 'rgba(7, 10, 26, 0.8)';
-  roundedRect(ctx, 20, 20, 125, 51, 9);
+  roundedRect(ctx, 20, 20, 145, 51, 9);
   ctx.fill();
 
   ctx.fillStyle = '#9ba5ce';
   ctx.font = 'bold 11px sans-serif';
-  ctx.fillText('SPEED', 33, 39);
+  ctx.fillText(t.speed, 33, 39);
 
   ctx.fillStyle = '#53edff';
   ctx.font = 'bold 20px sans-serif';
-  ctx.fillText(`${Math.round(game.speed * 25)} KM/H`, 33, 59);
+  ctx.fillText(`${Math.round(game.speed * 25)} ${t.kmh}`, 33, 59);
 }
 
-export default function NeonRacing() {
+export default function NeonRacing({ language = 'en' }) {
+  const lang = normalizeLanguage(language);
+  const t = TEXT[lang];
+
   const canvasRef = useRef(null);
   const gameRef = useRef(createRace());
+
   const [score, setScore] = useState(0);
   const [status, setStatus] = useState('ready');
 
@@ -232,6 +315,7 @@ export default function NeonRacing() {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
+
     if (!canvas || !ctx) return undefined;
 
     let animationFrame;
@@ -288,6 +372,7 @@ export default function NeonRacing() {
           game.score += 10;
           setScore(game.score);
           car.y = -CAR_HEIGHT - Math.random() * 200;
+
           const lane = Math.floor(Math.random() * 4);
           car.lane = lane;
           car.x = ROAD_LEFT + lane * 105 + 31;
@@ -324,8 +409,10 @@ export default function NeonRacing() {
     function frame(time) {
       const delta = previousTime ? time - previousTime : 16.67;
       previousTime = time;
+
       update(delta);
-      drawRace(ctx, gameRef.current);
+      drawRace(ctx, gameRef.current, lang);
+
       animationFrame = window.requestAnimationFrame(frame);
     }
 
@@ -365,6 +452,7 @@ export default function NeonRacing() {
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
     window.addEventListener('blur', clearKeys);
+
     animationFrame = window.requestAnimationFrame(frame);
 
     return () => {
@@ -373,36 +461,55 @@ export default function NeonRacing() {
       window.removeEventListener('keyup', keyUp);
       window.removeEventListener('blur', clearKeys);
     };
-  }, []);
+  }, [lang]);
 
   const statusText = {
-    ready: 'Start your engine and dodge the traffic.',
-    racing: 'Race in progress — avoid the other cars!',
-    paused: 'Your race is paused.',
-    crashed: 'CRASH! Start again and try to beat your score.',
+    ready: t.readyMessage,
+    racing: t.racingMessage,
+    paused: t.pausedMessage,
+    crashed: t.crashedMessage,
+  }[status];
+
+  const statusLabel = {
+    ready: t.ready,
+    racing: t.racingStatus,
+    paused: t.pausedStatus,
+    crashed: t.crashedStatus,
+  }[status];
+
+  const overlayTitle = {
+    ready: t.readyTitle,
+    paused: t.pausedTitle,
+    crashed: t.overTitle,
   }[status];
 
   return (
     <section className="neon-racing" id="neon-racing">
       <header className="racing-heading">
-        <span className="racing-eyebrow">NEXORA AI ARCADE · GAME 05</span>
-        <h2>NEON <span>RACING</span></h2>
-        <p>Own the highway. Dodge the traffic. Beat your high score.</p>
+        <span className="racing-eyebrow">{t.eyebrow}</span>
+
+        <h2>
+          {t.title} <span>{t.racing}</span>
+        </h2>
+
+        <p>{t.tagline}</p>
       </header>
 
       <div className="racing-stats">
         <div>
-          <span>YOUR SCORE</span>
+          <span>{t.yourScore}</span>
           <strong>{score}</strong>
         </div>
+
         <div>
-          <span>ROAD SPEED</span>
-          <strong>{Math.round(100 + Math.min(score, 500))} KM/H</strong>
+          <span>{t.roadSpeed}</span>
+          <strong>{Math.round(100 + Math.min(score, 500))} {t.kmh}</strong>
         </div>
+
         <div>
-          <span>RACE STATUS</span>
+          <span>{t.raceStatus}</span>
           <strong className={status === 'crashed' ? 'racing-danger' : ''}>
-            {status === 'racing' ? 'RACING' : status === 'paused' ? 'PAUSED' : status === 'crashed' ? 'CRASHED' : 'READY'}
+            {statusLabel}
           </strong>
         </div>
       </div>
@@ -413,7 +520,7 @@ export default function NeonRacing() {
           width={WIDTH}
           height={HEIGHT}
           className="racing-canvas"
-          aria-label="Neon Racing game. Use the left and right arrow keys or A and D to steer."
+          aria-label={t.canvasLabel}
         />
 
         {status !== 'racing' && (
@@ -422,12 +529,17 @@ export default function NeonRacing() {
               <span className="racing-overlay-icon">
                 {status === 'crashed' ? '✕' : status === 'paused' ? 'Ⅱ' : '🏎'}
               </span>
-              <h3>
-                {status === 'crashed' ? 'RACE OVER' : status === 'paused' ? 'RACE PAUSED' : 'READY, RACER?'}
-              </h3>
+
+              <h3>{overlayTitle}</h3>
+
               <p>{statusText}</p>
+
               <button type="button" onClick={startRace}>
-                {status === 'paused' ? 'Resume Race' : status === 'crashed' ? 'Race Again' : 'Start Racing'}
+                {status === 'paused'
+                  ? t.resume
+                  : status === 'crashed'
+                    ? t.again
+                    : t.start}
               </button>
             </div>
           </div>
@@ -437,17 +549,26 @@ export default function NeonRacing() {
       <div className="racing-control-row">
         <div className="racing-help">
           <span><kbd>←</kbd> <kbd>→</kbd></span>
-          <span>or <kbd>A</kbd> <kbd>D</kbd> to steer</span>
+          <span>{t.or} <kbd>A</kbd> <kbd>D</kbd> {t.steer}</span>
         </div>
 
         <div className="racing-actions">
           {status === 'racing' && (
-            <button type="button" className="racing-secondary" onClick={pauseRace}>
-              Ⅱ Pause
+            <button
+              type="button"
+              className="racing-secondary"
+              onClick={pauseRace}
+            >
+              Ⅱ {t.pause}
             </button>
           )}
-          <button type="button" className="racing-secondary" onClick={resetRace}>
-            ↻ Restart
+
+          <button
+            type="button"
+            className="racing-secondary"
+            onClick={resetRace}
+          >
+            ↻ {t.restart}
           </button>
         </div>
       </div>
@@ -455,7 +576,7 @@ export default function NeonRacing() {
       <div className="racing-mobile-controls">
         <button
           type="button"
-          aria-label="Steer left"
+          aria-label={t.steerLeft}
           onPointerDown={(event) => {
             event.currentTarget.setPointerCapture(event.pointerId);
             setSteering('left', true);
@@ -464,11 +585,12 @@ export default function NeonRacing() {
           onPointerCancel={() => setSteering('left', false)}
           onLostPointerCapture={() => setSteering('left', false)}
         >
-          ← LEFT
+          ← {t.left}
         </button>
+
         <button
           type="button"
-          aria-label="Steer right"
+          aria-label={t.steerRight}
           onPointerDown={(event) => {
             event.currentTarget.setPointerCapture(event.pointerId);
             setSteering('right', true);
@@ -477,13 +599,15 @@ export default function NeonRacing() {
           onPointerCancel={() => setSteering('right', false)}
           onLostPointerCapture={() => setSteering('right', false)}
         >
-          RIGHT →
+          {t.right} →
         </button>
       </div>
 
       <div className="racing-tip">
         <span>✦</span>
-        <p><strong>RACING TIP:</strong> Watch the lanes ahead. Small steering movements help you avoid traffic at higher speeds.</p>
+        <p>
+          <strong>{t.tipTitle}</strong> {t.tip}
+        </p>
       </div>
     </section>
   );

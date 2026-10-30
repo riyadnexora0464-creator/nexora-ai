@@ -23,13 +23,171 @@ const BRICK_COLORS = [
 
 const POWER_TYPES = ['wide', 'multi', 'slow', 'life'];
 
-const ACHIEVEMENTS = [
-  { id: 'first', title: 'FIRST BREAK', description: 'Break your first brick', score: 10 },
-  { id: 'combo', title: 'COMBO MASTER', description: 'Reach a 5x combo', score: 0 },
-  { id: 'level', title: 'LEVEL CLEAR', description: 'Clear a level', score: 0 },
-  { id: 'score', title: 'NEON LEGEND', description: 'Score 500 points', score: 500 },
-  { id: 'survivor', title: 'SURVIVOR', description: 'Win with all 3 lives', score: 0 },
-];
+const TEXT = {
+  en: {
+    eyebrow: 'NEXORA AI ARCADE · GAME 04',
+    title: 'NEON',
+    titleAccent: 'BRICK BREAKER',
+    subtitle: 'Break the wall. Catch the ball. Beat every level.',
+    score: 'SCORE',
+    lives: 'LIVES',
+    level: 'LEVEL',
+    highScore: 'HIGH SCORE',
+    achievements: 'ACHIEVEMENTS',
+    powerUp: 'POWER-UP',
+    none: 'NONE',
+    ready: 'READY — press Start to launch the ball',
+    playing: 'IN GAME — keep the ball in play!',
+    paused: 'PAUSED — take a breath',
+    won: 'MISSION COMPLETE — you cleared every level!',
+    lost: 'GAME OVER — try again!',
+    youDidIt: 'YOU DID IT!',
+    gameOver: 'GAME OVER',
+    gamePaused: 'GAME PAUSED',
+    readyPlayer: 'READY, PLAYER?',
+    startGame: 'Start Game',
+    resumeGame: 'Resume Game',
+    playAgain: 'Play Again',
+    left: '◀ LEFT',
+    right: 'RIGHT ▶',
+    moveWith: 'or',
+    toMove: 'to move',
+    mouseTouch: 'Mouse or touch also works',
+    soundOff: '🔇 Sound Off',
+    soundOn: '🔊 Sound On',
+    pause: 'Ⅱ Pause',
+    resume: '▶ Resume',
+    restart: '↻ Restart',
+    achievementHeading: '🏆 ACHIEVEMENTS',
+    strategyHeading: 'ARCADE TIP:',
+    strategyText: 'Hit the ball with the edge of your paddle to change its angle. Collect falling power-ups. ◆ grey bricks are unbreakable; yellow + bricks award bonus points.',
+    dismiss: 'Dismiss notification',
+    moveLeft: 'Move paddle left',
+    moveRight: 'Move paddle right',
+    canvasLabel: 'Neon Brick Breaker. Move the paddle with arrow keys, A and D, mouse, touch, or mobile controls.',
+    achievementTitles: {
+      first: 'FIRST BREAK',
+      combo: 'COMBO MASTER',
+      level: 'LEVEL CLEAR',
+      score: 'NEON LEGEND',
+      survivor: 'SURVIVOR',
+    },
+    achievementDescriptions: {
+      first: 'Break your first brick',
+      combo: 'Reach a 5x combo',
+      level: 'Clear a level',
+      score: 'Score 500 points',
+      survivor: 'Win with all 3 lives',
+    },
+    powerNames: {
+      wide: 'WIDE PADDLE',
+      multi: 'MULTI-BALL',
+      slow: 'SLOW BALL',
+      life: 'EXTRA LIFE',
+    },
+    notices: {
+      wide: 'WIDE PADDLE · 12 seconds',
+      multi: 'MULTI-BALL ACTIVATED!',
+      slow: 'SLOW BALL ACTIVATED!',
+      life: 'EXTRA LIFE +1',
+    },
+    levelReady: (level) => `LEVEL ${level} READY`,
+    combo: (count) => `${count}x COMBO!`,
+    livesDisplay: (lives) => '♥ '.repeat(lives).trim() || '—',
+    levelDisplay: (level) => `${level} / 5`,
+    achievementCount: (count, total) => `${count} / ${total}`,
+  },
+
+  zh: {
+    eyebrow: 'NEXORA AI 游戏中心 · 游戏 04',
+    title: '霓虹',
+    titleAccent: '打砖块',
+    subtitle: '击碎砖墙，接住弹球，挑战所有关卡。',
+    score: '得分',
+    lives: '生命',
+    level: '关卡',
+    highScore: '最高分',
+    achievements: '成就',
+    powerUp: '道具',
+    none: '无',
+    ready: '准备就绪 — 点击开始发射弹球',
+    playing: '游戏进行中 — 不要让球掉下去！',
+    paused: '游戏暂停 — 休息一下',
+    won: '任务完成 — 你已经通过所有关卡！',
+    lost: '游戏结束 — 再试一次！',
+    youDidIt: '你做到了！',
+    gameOver: '游戏结束',
+    gamePaused: '游戏已暂停',
+    readyPlayer: '准备好了吗？',
+    startGame: '开始游戏',
+    resumeGame: '继续游戏',
+    playAgain: '再玩一次',
+    left: '◀ 左移',
+    right: '右移 ▶',
+    moveWith: '或',
+    toMove: '移动挡板',
+    mouseTouch: '也可以使用鼠标或触屏',
+    soundOff: '🔇 关闭声音',
+    soundOn: '🔊 开启声音',
+    pause: 'Ⅱ 暂停',
+    resume: '▶ 继续',
+    restart: '↻ 重新开始',
+    achievementHeading: '🏆 游戏成就',
+    strategyHeading: '街机技巧：',
+    strategyText: '使用挡板边缘击球可以改变弹球角度。收集掉落的道具。◆ 灰色砖块无法击碎；黄色 + 砖块可以获得额外分数。',
+    dismiss: '关闭通知',
+    moveLeft: '挡板向左移动',
+    moveRight: '挡板向右移动',
+    canvasLabel: '霓虹打砖块游戏。使用方向键、A 和 D、鼠标、触屏或手机控制按钮移动挡板。',
+    achievementTitles: {
+      first: '首次击碎',
+      combo: '连击大师',
+      level: '通关达人',
+      score: '霓虹传奇',
+      survivor: '生存专家',
+    },
+    achievementDescriptions: {
+      first: '击碎你的第一块砖',
+      combo: '达到 5 倍连击',
+      level: '完成一个关卡',
+      score: '获得 500 分',
+      survivor: '保留全部 3 条生命获胜',
+    },
+    powerNames: {
+      wide: '加宽挡板',
+      multi: '多重弹球',
+      slow: '减速弹球',
+      life: '额外生命',
+    },
+    notices: {
+      wide: '挡板加宽 · 持续 12 秒',
+      multi: '多重弹球已激活！',
+      slow: '弹球减速已激活！',
+      life: '额外生命 +1',
+    },
+    levelReady: (level) => `第 ${level} 关准备就绪`,
+    combo: (count) => `${count} 倍连击！`,
+    livesDisplay: (lives) => '♥ '.repeat(lives).trim() || '—',
+    levelDisplay: (level) => `${level} / 5`,
+    achievementCount: (count, total) => `${count} / ${total}`,
+  },
+};
+
+function normalizeLanguage(language) {
+  return language === 'zh' || language === 'zh-CN' || language === 'zh-cn'
+    ? 'zh'
+    : 'en';
+}
+
+function getAchievements(t) {
+  return [
+    { id: 'first', title: t.achievementTitles.first, description: t.achievementDescriptions.first, score: 10 },
+    { id: 'combo', title: t.achievementTitles.combo, description: t.achievementDescriptions.combo, score: 0 },
+    { id: 'level', title: t.achievementTitles.level, description: t.achievementDescriptions.level, score: 0 },
+    { id: 'score', title: t.achievementTitles.score, description: t.achievementDescriptions.score, score: 500 },
+    { id: 'survivor', title: t.achievementTitles.survivor, description: t.achievementDescriptions.survivor, score: 0 },
+  ];
+}
 
 function createBricks(level) {
   const bricks = [];
@@ -125,7 +283,7 @@ function addParticles(game, x, y, color, count = 12) {
   }
 }
 
-function drawGame(ctx, game, now) {
+function drawGame(ctx, game, now, t) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
   const background = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
@@ -154,7 +312,6 @@ function drawGame(ctx, game, now) {
   }
   ctx.restore();
 
-  // Bricks, including bonus and unbreakable types.
   for (const brick of game.bricks) {
     if (!brick.alive) continue;
 
@@ -194,7 +351,6 @@ function drawGame(ctx, game, now) {
     ctx.restore();
   }
 
-  // Falling power-ups.
   for (const power of game.powerUps) {
     ctx.save();
     ctx.shadowColor = power.color;
@@ -212,7 +368,6 @@ function drawGame(ctx, game, now) {
     ctx.restore();
   }
 
-  // Particle explosions.
   for (const particle of game.particles) {
     ctx.save();
     ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
@@ -225,7 +380,6 @@ function drawGame(ctx, game, now) {
     ctx.restore();
   }
 
-  // Paddle.
   const paddleGradient = ctx.createLinearGradient(
     game.paddle.x,
     0,
@@ -251,7 +405,6 @@ function drawGame(ctx, game, now) {
   ctx.fill();
   ctx.restore();
 
-  // Ball trails and balls.
   for (const ball of game.balls) {
     if (!ball.active) continue;
 
@@ -303,12 +456,16 @@ function drawGame(ctx, game, now) {
     ctx.fillStyle = '#ffe66d';
     ctx.shadowColor = '#ffb52e';
     ctx.shadowBlur = 15;
-    ctx.fillText(`${game.combo}x COMBO!`, WIDTH / 2, HEIGHT - 85);
+    ctx.fillText(t.combo(game.combo), WIDTH / 2, HEIGHT - 85);
     ctx.restore();
   }
 }
 
-export default function BrickBreaker() {
+export default function BrickBreaker({ language = 'en' }) {
+  const lang = normalizeLanguage(language);
+  const t = TEXT[lang];
+  const achievementList = getAchievements(t);
+
   const canvasRef = useRef(null);
   const gameRef = useRef(createGame());
   const animationRef = useRef(null);
@@ -321,6 +478,7 @@ export default function BrickBreaker() {
   const [level, setLevel] = useState(1);
   const [status, setStatus] = useState('ready');
   const [muted, setMuted] = useState(false);
+
   const [highScore, setHighScore] = useState(() => {
     try {
       return Number(localStorage.getItem('nexora-brick-high-score')) || 0;
@@ -328,6 +486,7 @@ export default function BrickBreaker() {
       return 0;
     }
   });
+
   const [achievements, setAchievements] = useState(() => {
     try {
       return JSON.parse(
@@ -337,20 +496,23 @@ export default function BrickBreaker() {
       return [];
     }
   });
+
   const [notice, setNotice] = useState('');
   const [activePower, setActivePower] = useState('');
 
   const unlock = useCallback((id) => {
     setAchievements((old) => {
       if (old.includes(id)) return old;
+
       const next = [...old, id];
+
       try {
         localStorage.setItem('nexora-brick-achievements', JSON.stringify(next));
       } catch {
         // Storage may be unavailable in private browsing.
       }
-      const achievement = ACHIEVEMENTS.find((item) => item.id === id);
-      if (achievement) setNotice(`🏆 ${achievement.title}`);
+
+      setNotice(id);
       return next;
     });
   }, []);
@@ -361,14 +523,17 @@ export default function BrickBreaker() {
     try {
       const AudioContextClass =
         window.AudioContext || window.webkitAudioContext;
+
       if (!AudioContextClass) return;
 
       if (!audioRef.current) audioRef.current = new AudioContextClass();
+
       const audio = audioRef.current;
       if (audio.state === 'suspended') audio.resume();
 
       const oscillator = audio.createOscillator();
       const gain = audio.createGain();
+
       oscillator.type = type;
       oscillator.frequency.setValueAtTime(frequency, audio.currentTime);
       gain.gain.setValueAtTime(0.07, audio.currentTime);
@@ -376,6 +541,7 @@ export default function BrickBreaker() {
         0.001,
         audio.currentTime + duration,
       );
+
       oscillator.connect(gain);
       gain.connect(audio.destination);
       oscillator.start();
@@ -393,7 +559,7 @@ export default function BrickBreaker() {
   }, []);
 
   const resetGame = useCallback(() => {
-    gameRef.current = createGame(1);
+    gameRef.current = createGame();
     keysRef.current = { left: false, right: false };
     setScore(0);
     setLives(3);
@@ -405,7 +571,7 @@ export default function BrickBreaker() {
 
   const startGame = useCallback(() => {
     if (status === 'won' || status === 'lost') {
-      gameRef.current = createGame(1);
+      gameRef.current = createGame();
       setScore(0);
       setLives(3);
       setLevel(1);
@@ -453,10 +619,11 @@ export default function BrickBreaker() {
       if (type === 'wide') {
         paddle.width = Math.min(180, PADDLE_WIDTH * 1.5);
         paddle.wideUntil = performance.now() + 12000;
-        setActivePower('WIDE PADDLE');
-        setNotice('WIDE PADDLE · 12 seconds');
+        setActivePower(t.powerNames.wide);
+        setNotice('wide');
       } else if (type === 'multi') {
         const source = game.balls.find((ball) => ball.active);
+
         if (source) {
           for (const direction of [-1, 1]) {
             game.balls.push({
@@ -467,20 +634,22 @@ export default function BrickBreaker() {
             });
           }
         }
-        setActivePower('MULTI-BALL');
-        setNotice('MULTI-BALL ACTIVATED!');
+
+        setActivePower(t.powerNames.multi);
+        setNotice('multi');
       } else if (type === 'slow') {
         game.balls.forEach((ball) => {
           ball.vx *= 0.7;
           ball.vy *= 0.7;
         });
-        setActivePower('SLOW BALL');
-        setNotice('SLOW BALL ACTIVATED!');
+
+        setActivePower(t.powerNames.slow);
+        setNotice('slow');
       } else if (type === 'life' && game.lives < 5) {
         game.lives += 1;
         setLives(game.lives);
-        setActivePower('EXTRA LIFE');
-        setNotice('EXTRA LIFE +1');
+        setActivePower(t.powerNames.life);
+        setNotice('life');
       }
 
       playSound(880, 0.2, 'triangle');
@@ -491,6 +660,7 @@ export default function BrickBreaker() {
       const factor = Math.min(delta / 16.67, 2);
 
       game.particles = game.particles.filter((particle) => particle.life > 0);
+
       for (const particle of game.particles) {
         particle.x += particle.vx * factor;
         particle.y += particle.vy * factor;
@@ -507,16 +677,19 @@ export default function BrickBreaker() {
 
       if (!game.playing) {
         const ball = game.balls[0];
+
         if (ball) {
           ball.x = game.paddle.x + game.paddle.width / 2;
           ball.y = game.paddle.y - ball.radius - 2;
         }
+
         return;
       }
 
       if (keysRef.current.left || game.keys.left) {
         game.paddle.x -= game.paddle.speed * factor;
       }
+
       if (keysRef.current.right || game.keys.right) {
         game.paddle.x += game.paddle.speed * factor;
       }
@@ -537,17 +710,20 @@ export default function BrickBreaker() {
           ball.vx = Math.abs(ball.vx);
           playSound(250, 0.03);
         }
+
         if (ball.x + ball.radius >= WIDTH) {
           ball.x = WIDTH - ball.radius;
           ball.vx = -Math.abs(ball.vx);
           playSound(250, 0.03);
         }
+
         if (ball.y - ball.radius <= 0) {
           ball.y = ball.radius;
           ball.vy = Math.abs(ball.vy);
         }
 
         const paddle = game.paddle;
+
         if (
           ball.vy > 0 &&
           ball.y + ball.radius >= paddle.y &&
@@ -556,9 +732,11 @@ export default function BrickBreaker() {
           ball.x <= paddle.x + paddle.width
         ) {
           ball.y = paddle.y - ball.radius;
+
           const hitPosition =
             (ball.x - (paddle.x + paddle.width / 2)) /
             (paddle.width / 2);
+
           ball.vx = hitPosition * (6 + game.level * 0.35);
           ball.vy = -Math.max(4.5, Math.abs(ball.vy));
           playSound(360, 0.04);
@@ -581,26 +759,37 @@ export default function BrickBreaker() {
 
           if (brick.hits <= 0) {
             brick.alive = false;
+
             game.combo = now < game.comboUntil ? game.combo + 1 : 1;
             game.comboUntil = now + 1800;
 
             const points =
               (brick.bonus ? 30 : 10) * Math.min(game.combo, 5);
+
             game.score += points;
             setScore(game.score);
+
             playSound(brick.bonus ? 900 : 520, 0.07, 'triangle');
 
             if (brick.bonus || Math.random() < 0.16) {
               const type = POWER_TYPES[
                 Math.floor(Math.random() * POWER_TYPES.length)
               ];
-              const symbols = { wide: 'W', multi: 'M', slow: 'S', life: '+' };
+
+              const symbols = {
+                wide: 'W',
+                multi: 'M',
+                slow: 'S',
+                life: '+',
+              };
+
               const colors = {
                 wide: '#43eaff',
                 multi: '#f15ce8',
                 slow: '#a887ff',
                 life: '#7dff9b',
               };
+
               game.powerUps.push({
                 id: game.nextPowerId++,
                 x: brick.x + brick.width / 2,
@@ -612,11 +801,13 @@ export default function BrickBreaker() {
             }
 
             unlock('first');
+
             if (game.combo >= 5) unlock('combo');
             if (game.score >= 500) unlock('score');
 
             if (game.score > highScore) {
               setHighScore(game.score);
+
               try {
                 localStorage.setItem(
                   'nexora-brick-high-score',
@@ -631,6 +822,7 @@ export default function BrickBreaker() {
             setScore(game.score);
             playSound(420, 0.04);
           }
+
           break;
         }
 
@@ -659,7 +851,9 @@ export default function BrickBreaker() {
 
       for (const power of game.powerUps) {
         power.y += 2.4 * factor;
+
         const paddle = game.paddle;
+
         if (
           power.y + 10 >= paddle.y &&
           power.y - 10 <= paddle.y + paddle.height &&
@@ -683,15 +877,17 @@ export default function BrickBreaker() {
           if (game.lives === 3) unlock('survivor');
         } else {
           unlock('level');
+
           game.level += 1;
           game.bricks = createBricks(game.level);
           game.powerUps = [];
           game.paddle.width = PADDLE_WIDTH;
           game.paddle.wideUntil = 0;
+
           resetBall(game);
           setLevel(game.level);
           setActivePower('');
-          setNotice(`LEVEL ${game.level} READY`);
+          setNotice('levelReady');
           setStatus('ready');
         }
       }
@@ -700,30 +896,51 @@ export default function BrickBreaker() {
     function frame(time) {
       const delta = previousTime ? time - previousTime : 16.67;
       previousTime = time;
+
       update(delta, time);
-      drawGame(ctx, gameRef.current, time);
+      drawGame(ctx, gameRef.current, time, t);
+
       animationRef.current = window.requestAnimationFrame(frame);
     }
 
     function handleKeyDown(event) {
       const key = event.key.toLowerCase();
-      if (['arrowleft', 'arrowright', ' '].includes(key) || key === 'a' || key === 'd') {
+
+      if (
+        ['arrowleft', 'arrowright', ' '].includes(key) ||
+        key === 'a' ||
+        key === 'd'
+      ) {
         event.preventDefault();
       }
-      if (key === 'arrowleft' || key === 'a') gameRef.current.keys.left = true;
-      if (key === 'arrowright' || key === 'd') gameRef.current.keys.right = true;
+
+      if (key === 'arrowleft' || key === 'a') {
+        gameRef.current.keys.left = true;
+      }
+
+      if (key === 'arrowright' || key === 'd') {
+        gameRef.current.keys.right = true;
+      }
     }
 
     function handleKeyUp(event) {
       const key = event.key.toLowerCase();
-      if (key === 'arrowleft' || key === 'a') gameRef.current.keys.left = false;
-      if (key === 'arrowright' || key === 'd') gameRef.current.keys.right = false;
+
+      if (key === 'arrowleft' || key === 'a') {
+        gameRef.current.keys.left = false;
+      }
+
+      if (key === 'arrowright' || key === 'd') {
+        gameRef.current.keys.right = false;
+      }
     }
 
     function handlePointerMove(event) {
       if (event.pointerType === 'touch') event.preventDefault();
+
       const rect = canvas.getBoundingClientRect();
       const x = (event.clientX - rect.left) * (WIDTH / rect.width);
+
       gameRef.current.paddle.x = Math.max(
         0,
         Math.min(
@@ -738,6 +955,7 @@ export default function BrickBreaker() {
     canvas.addEventListener('pointermove', handlePointerMove);
     canvas.addEventListener('pointerdown', handlePointerMove);
     canvas.style.touchAction = 'none';
+
     animationRef.current = window.requestAnimationFrame(frame);
 
     return () => {
@@ -747,58 +965,83 @@ export default function BrickBreaker() {
       canvas.removeEventListener('pointermove', handlePointerMove);
       canvas.removeEventListener('pointerdown', handlePointerMove);
     };
-  }, [highScore, playSound, unlock]);
+  }, [highScore, playSound, unlock, t]);
 
   const statusText = {
-    ready: 'READY — press Start to launch the ball',
-    playing: 'IN GAME — keep the ball in play!',
-    paused: 'PAUSED — take a breath',
-    won: 'MISSION COMPLETE — you cleared every level!',
-    lost: 'GAME OVER — try again!',
+    ready: t.ready,
+    playing: t.playing,
+    paused: t.paused,
+    won: t.won,
+    lost: t.lost,
   }[status];
+
+  const noticeText = notice === 'levelReady'
+    ? t.levelReady(level)
+    : notice === 'wide' || notice === 'multi' || notice === 'slow' || notice === 'life'
+      ? t.notices[notice]
+      : achievementList.find((item) => item.id === notice)
+        ? `🏆 ${achievementList.find((item) => item.id === notice).title}`
+        : notice;
 
   return (
     <section className="brick-breaker" id="brick-breaker">
       <div className="brick-heading">
-        <span className="brick-eyebrow">NEXORA AI ARCADE · GAME 04</span>
-        <h2>NEON <span>BRICK BREAKER</span></h2>
-        <p>Break the wall. Catch the ball. Beat every level.</p>
+        <span className="brick-eyebrow">{t.eyebrow}</span>
+        <h2>
+          {t.title} <span>{t.titleAccent}</span>
+        </h2>
+        <p>{t.subtitle}</p>
       </div>
 
       <div className="brick-stats">
         <div className="brick-stat">
-          <span>SCORE</span>
+          <span>{t.score}</span>
           <strong>{score}</strong>
         </div>
+
         <div className="brick-stat">
-          <span>LIVES</span>
-          <strong>{'♥ '.repeat(lives).trim() || '—'}</strong>
+          <span>{t.lives}</span>
+          <strong>{t.livesDisplay(lives)}</strong>
         </div>
+
         <div className="brick-stat">
-          <span>LEVEL</span>
-          <strong>{level} / 5</strong>
+          <span>{t.level}</span>
+          <strong>{t.levelDisplay(level)}</strong>
         </div>
       </div>
 
       <div className="brick-stats brick-extra-stats">
         <div className="brick-stat">
-          <span>HIGH SCORE</span>
+          <span>{t.highScore}</span>
           <strong>{Math.max(score, highScore)}</strong>
         </div>
+
         <div className="brick-stat">
-          <span>ACHIEVEMENTS</span>
-          <strong>{achievements.length} / {ACHIEVEMENTS.length}</strong>
+          <span>{t.achievements}</span>
+          <strong>
+            {t.achievementCount(achievements.length, achievementList.length)}
+          </strong>
         </div>
+
         <div className="brick-stat">
-          <span>POWER-UP</span>
-          <strong className="brick-power-label">{activePower || 'NONE'}</strong>
+          <span>{t.powerUp}</span>
+          <strong className="brick-power-label">
+            {activePower || t.none}
+          </strong>
         </div>
       </div>
 
-      {notice && (
+      {noticeText && (
         <div className="brick-notice" role="status">
-          <span>{notice}</span>
-          <button type="button" onClick={() => setNotice('')} aria-label="Dismiss notification">×</button>
+          <span>{noticeText}</span>
+
+          <button
+            type="button"
+            onClick={() => setNotice('')}
+            aria-label={t.dismiss}
+          >
+            ×
+          </button>
         </div>
       )}
 
@@ -808,82 +1051,128 @@ export default function BrickBreaker() {
           className="brick-canvas"
           width={WIDTH}
           height={HEIGHT}
-          aria-label="Neon Brick Breaker. Move the paddle with arrow keys, A and D, mouse, touch, or mobile controls."
+          aria-label={t.canvasLabel}
         />
 
         {status !== 'playing' && (
           <div className="brick-overlay">
             <div className="brick-overlay-card">
               <span className="brick-overlay-symbol">
-                {status === 'won' ? '✦' : status === 'lost' ? '✕' : status === 'paused' ? 'Ⅱ' : '▶'}
+                {status === 'won'
+                  ? '✦'
+                  : status === 'lost'
+                    ? '✕'
+                    : status === 'paused'
+                      ? 'Ⅱ'
+                      : '▶'}
               </span>
+
               <h3>
                 {status === 'won'
-                  ? 'YOU DID IT!'
+                  ? t.youDidIt
                   : status === 'lost'
-                    ? 'GAME OVER'
+                    ? t.gameOver
                     : status === 'paused'
-                      ? 'GAME PAUSED'
-                      : 'READY, PLAYER?'}
+                      ? t.gamePaused
+                      : t.readyPlayer}
               </h3>
+
               <p>{statusText}</p>
+
               <button type="button" onClick={startGame}>
-                {status === 'paused' ? 'Resume Game' : status === 'ready' ? 'Start Game' : 'Play Again'}
+                {status === 'paused'
+                  ? t.resumeGame
+                  : status === 'ready'
+                    ? t.startGame
+                    : t.playAgain}
               </button>
             </div>
           </div>
         )}
       </div>
 
-      <div className="brick-mobile-controls" aria-label="Mobile paddle controls">
+      <div className="brick-mobile-controls" aria-label={t.canvasLabel}>
         <button
           type="button"
           onPointerDown={() => movePaddle('left')}
           onPointerUp={() => movePaddle('')}
           onPointerLeave={() => movePaddle('')}
           onPointerCancel={() => movePaddle('')}
-          aria-label="Move paddle left"
-        >◀ LEFT</button>
+          aria-label={t.moveLeft}
+        >
+          {t.left}
+        </button>
+
         <button
           type="button"
           onPointerDown={() => movePaddle('right')}
           onPointerUp={() => movePaddle('')}
           onPointerLeave={() => movePaddle('')}
           onPointerCancel={() => movePaddle('')}
-          aria-label="Move paddle right"
-        >RIGHT ▶</button>
+          aria-label={t.moveRight}
+        >
+          {t.right}
+        </button>
       </div>
 
       <div className="brick-controls">
         <div className="brick-control-help">
           <span><kbd>←</kbd> <kbd>→</kbd></span>
-          <span>or <kbd>A</kbd> <kbd>D</kbd> to move</span>
+          <span>{t.moveWith} <kbd>A</kbd> <kbd>D</kbd> {t.toMove}</span>
           <span className="brick-help-separator">·</span>
-          <span>Mouse or touch also works</span>
+          <span>{t.mouseTouch}</span>
         </div>
 
         <div className="brick-buttons">
-          <button type="button" className="brick-secondary" onClick={toggleMute}>
-            {muted ? '🔇 Sound Off' : '🔊 Sound On'}
+          <button
+            type="button"
+            className="brick-secondary"
+            onClick={toggleMute}
+          >
+            {muted ? t.soundOff : t.soundOn}
           </button>
+
           {status === 'playing' ? (
-            <button type="button" className="brick-secondary" onClick={pauseGame}>Ⅱ Pause</button>
+            <button
+              type="button"
+              className="brick-secondary"
+              onClick={pauseGame}
+            >
+              {t.pause}
+            </button>
           ) : status === 'paused' ? (
-            <button type="button" className="brick-primary" onClick={startGame}>▶ Resume</button>
+            <button
+              type="button"
+              className="brick-primary"
+              onClick={startGame}
+            >
+              {t.resume}
+            </button>
           ) : null}
-          <button type="button" className="brick-secondary" onClick={resetGame}>↻ Restart</button>
+
+          <button
+            type="button"
+            className="brick-secondary"
+            onClick={resetGame}
+          >
+            {t.restart}
+          </button>
         </div>
       </div>
 
       <div className="brick-achievements">
-        <h3>🏆 ACHIEVEMENTS</h3>
+        <h3>{t.achievementHeading}</h3>
+
         <div className="brick-achievement-list">
-          {ACHIEVEMENTS.map((item) => (
+          {achievementList.map((item) => (
             <div
               className={`brick-achievement ${achievements.includes(item.id) ? 'is-unlocked' : ''}`}
               key={item.id}
             >
-              <span>{achievements.includes(item.id) ? '✦' : '◇'}</span>
+              <span>
+                {achievements.includes(item.id) ? '✦' : '◇'}
+              </span>
+
               <div>
                 <strong>{item.title}</strong>
                 <p>{item.description}</p>
@@ -896,8 +1185,7 @@ export default function BrickBreaker() {
       <div className="brick-footer-tip">
         <span>✦</span>
         <p>
-          <strong>ARCADE TIP:</strong> Hit the ball with the edge of your paddle to change its angle.
-          Collect falling power-ups. ◆ grey bricks are unbreakable; yellow + bricks award bonus points.
+          <strong>{t.strategyHeading}</strong> {t.strategyText}
         </p>
       </div>
     </section>
