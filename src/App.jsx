@@ -1,6 +1,6 @@
-
 import { useEffect, useMemo, useState } from 'react';
 import './App.css';
+
 import NeonGame from './NeonGame';
 import DartGame from './DartGame';
 import ChessGame from './ChessGame';
@@ -15,12 +15,6 @@ const COPY = {
     nav: ['Home', 'Command Center', 'Games', 'AI Coach'],
     launch: 'Launch a game ↗',
     online: 'NEXORA SYSTEMS ONLINE',
-    heroTag: 'YOUR NEXT-GEN AI GAMING HUB',
-    heroTitle: 'PLAY BEYOND',
-    heroAccent: 'LIMITS.',
-    heroText: 'Discover your next challenge, sharpen your skills and build your player profile in one intelligent gaming universe.',
-    explore: 'Explore the platform',
-    assistant: 'Meet your AI assistant',
     dashboard: 'PLAYER COMMAND CENTER',
     welcome: 'Welcome back, Player',
     overview: 'Your gaming universe at a glance.',
@@ -95,12 +89,6 @@ const COPY = {
     nav: ['首页', '控制中心', '游戏', 'AI 教练'],
     launch: '开始游戏 ↗',
     online: 'NEXORA 系统在线',
-    heroTag: '新一代 AI 游戏中心',
-    heroTitle: '突破游戏',
-    heroAccent: '极限。',
-    heroText: '发现新的挑战，磨练游戏技巧，并在一个智能游戏世界中建立你的玩家档案。',
-    explore: '探索平台',
-    assistant: '认识 AI 助手',
     dashboard: '玩家控制中心',
     welcome: '欢迎回来，玩家',
     overview: '一览你的游戏世界。',
@@ -220,17 +208,15 @@ function App() {
   const level = Math.floor(player.xp / 100) + 1;
   const missionDone = player.missions;
 
-  const games = useMemo(
-    () =>
-      t.names.map((name, index) => ({
-        name,
-        index,
-        icon: GAME_ICONS[index],
-        category: t.categories[index],
-        description: t.descriptions[index]
-      })),
-    [t]
-  );
+  const games = useMemo(() => {
+    return t.names.map((name, index) => ({
+      name,
+      index,
+      icon: GAME_ICONS[index],
+      category: t.categories[index],
+      description: t.descriptions[index]
+    }));
+  }, [t]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE, JSON.stringify(player));
@@ -311,10 +297,15 @@ function App() {
   return (
     <div className="site-shell">
 
+      {/* NAVIGATION */}
       <header className="navbar">
+
         <a className="brand" href="#home">
-          <span className="brand-mark">N</span>
-          <span>NEXORA <b>AI</b></span>
+          <span className="brand-mark" aria-hidden="true">X</span>
+          <span className="brand-wordmark">
+            NEXORA
+            <b>AI GAMING</b>
+          </span>
         </a>
 
         <nav>
@@ -322,9 +313,12 @@ function App() {
           <a href="#dashboard">{t.nav[1]}</a>
           <a href="#games">{t.nav[2]}</a>
           <a href="#coach">{t.nav[3]}</a>
+          <a href="#features">About</a>
+          <a href="#footer">Contact</a>
         </nav>
 
         <div className="navbar-actions">
+
           <div className="language-switcher" aria-label="Choose language">
             <button
               type="button"
@@ -354,96 +348,90 @@ function App() {
           <a className="nav-cta" href="#games">
             {t.launch}
           </a>
+
         </div>
       </header>
 
       <main>
 
+        {/* HERO SECTION */}
         <section className="hero" id="home">
+
           <div className="hero-grid" />
 
           <div className="hero-copy">
+
             <span className="eyebrow">
-              <i className="status-dot" /> {t.online}
+              <i className="status-dot" />
+              {t.online}
             </span>
 
-            <div className="hero-tag">{t.heroTag}</div>
+            <div className="hero-brand-lockup">
+              <span className="hero-x">X</span>
 
-            <h1>
-              {t.heroTitle}
-              <br />
-              <span>{t.heroAccent}</span>
+              <div>
+                <strong>NEXORA</strong>
+                <b>AI GAMING</b>
+              </div>
+            </div>
+
+            <h1 className="reference-tagline">
+              {language === 'en'
+                ? 'Play smarter. Learn faster. Level up.'
+                : '更聪明地玩，更快速地学习，不断升级。'}
             </h1>
 
-            <h2>
+            <p>
               {language === 'en'
-                ? 'A smarter way to enter the game.'
-                : '以更智能的方式进入游戏世界。'}
-            </h2>
-
-            <p>{t.heroText}</p>
+                ? 'Next-gen AI powered games, personalized training, and endless fun — all in one place.'
+                : '新一代 AI 游戏、个性化训练和无限乐趣，尽在一个平台。'}
+            </p>
 
             <div className="hero-actions">
               <a className="button primary" href="#games">
-                {t.explore}
+                {language === 'en' ? 'Start Playing →' : '开始游戏 →'}
               </a>
 
-              <button
-                className="button secondary"
-                onClick={() => setAssistantOpen(true)}
-              >
-                {t.assistant}
-              </button>
+              <a className="button secondary" href="#games">
+                {language === 'en' ? 'Explore Games' : '探索游戏'}
+              </a>
             </div>
 
             <div className="hero-microstats">
               <span>
-                <b>07</b>
-                {language === 'en' ? 'PLAYABLE WORLDS' : '个可玩世界'}
+                <b>100+</b>
+                {language === 'en' ? 'AI GAMES' : 'AI 游戏'}
               </span>
 
               <span>
-                <b>02</b>
-                {language === 'en' ? 'LANGUAGES' : '种语言'}
+                <b>50K+</b>
+                {language === 'en' ? 'ACTIVE PLAYERS' : '活跃玩家'}
               </span>
 
               <span>
-                <b>∞</b>
-                {language === 'en' ? 'WAYS TO IMPROVE' : '种提升方式'}
+                <b>99%</b>
+                {language === 'en' ? 'SATISFACTION RATE' : '满意度'}
               </span>
             </div>
+
           </div>
 
+          {/* LARGE GAMER IMAGE */}
           <div className="hero-visual">
-            <div className="hero-visual-ring ring-a" />
-            <div className="hero-visual-ring ring-b" />
+            <img
+              className="hero-gamer-image"
+              src="/nexora-assets/nexora-hero.jpg"
+              alt="Futuristic Nexora gamer in a neon gaming city"
+            />
 
-            <div className="core-orb">
-              <div className="core-inner">
-                N<span>AI</span>
-              </div>
-            </div>
-
-            <div className="visual-chip chip-one">
-              ◈ <span>{language === 'en' ? 'PLAYER LINK' : '玩家连接'}</span>
-              <b>ACTIVE</b>
-            </div>
-
-            <div className="visual-chip chip-two">
-              ✦ <span>{language === 'en' ? 'NEURAL CORE' : '智能核心'}</span>
-              <b>ONLINE</b>
-            </div>
-
-            <div className="visual-chip chip-three">
-              ⌁ <span>{language === 'en' ? 'GAME ENGINE' : '游戏引擎'}</span>
-              <b>READY</b>
-            </div>
-
-            <div className="visual-scanline" />
+            <div className="hero-image-glow" />
           </div>
+
         </section>
 
+        {/* PLAYER DASHBOARD */}
         <section className="dashboard-section" id="dashboard">
+
           <div className="dashboard-heading">
             <div>
               <span className="eyebrow">{t.dashboard}</span>
@@ -451,16 +439,18 @@ function App() {
               <p>{t.overview}</p>
             </div>
 
-            <div className="level-pill">✦ LVL {level}</div>
+            <div className="level-pill">
+              ✦ LVL {level}
+            </div>
           </div>
 
           <div className="stat-grid">
+
             <article className="stat-card">
               <span>◈ {t.level}</span>
               <strong>{level}</strong>
               <small>
-                {level * 100 - player.xp} XP{' '}
-                {language === 'en' ? 'to next level' : '升级所需经验'}
+                {level * 100 - player.xp} XP {language === 'en' ? 'to next level' : '升级所需经验'}
               </small>
             </article>
 
@@ -468,9 +458,7 @@ function App() {
               <span>⚡ {t.xp}</span>
               <strong>{player.xp}</strong>
               <small>
-                {language === 'en'
-                  ? 'Earn XP by exploring'
-                  : '探索即可获得经验'}
+                {language === 'en' ? 'Earn XP by exploring' : '探索即可获得经验'}
               </small>
             </article>
 
@@ -491,10 +479,13 @@ function App() {
                   : `已体验 ${player.played.length} 款`}
               </small>
             </article>
+
           </div>
 
           <div className="dashboard-bottom">
+
             <div className="mini-panel">
+
               <div className="panel-title">
                 <h3>{t.quick}</h3>
                 <a href="#games">{t.allGames} ↗</a>
@@ -506,15 +497,23 @@ function App() {
                     key={game.index}
                     onClick={() => openGame(game.index)}
                   >
-                    <span>{game.icon}</span>
+                    <span
+                      className={`quick-game-art quick-game-art-${game.index + 1}`}
+                      aria-hidden="true"
+                    >
+                      {game.icon}
+                    </span>
+
                     <b>{game.name}</b>
                     <small>OPEN ↗</small>
                   </button>
                 ))}
               </div>
+
             </div>
 
             <div className="mini-panel mission-panel">
+
               <div className="panel-title">
                 <h3>{t.missionTitle}</h3>
                 <span>{missionDone.length}/3</span>
@@ -523,19 +522,19 @@ function App() {
               <p>{t.missionText}</p>
 
               <div className="mission-progress">
-                <span
-                  style={{
-                    width: `${missionDone.length / 3 * 100}%`
-                  }}
-                />
+                <span style={{ width: `${missionDone.length / 3 * 100}%` }} />
               </div>
 
               <small>{t.progress}</small>
+
             </div>
+
           </div>
         </section>
 
+        {/* GAME LIBRARY */}
         <section className="games-section section" id="games">
+
           <div className="section-heading">
             <span className="eyebrow">{t.quick}</span>
             <h2>{t.gamesTitle}</h2>
@@ -543,9 +542,10 @@ function App() {
           </div>
 
           <div className="game-tools">
+
             <input
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={event => setSearch(event.target.value)}
               placeholder={t.search}
               aria-label={t.search}
             />
@@ -554,34 +554,32 @@ function App() {
               {['all', 'action', 'strategy', 'racing', 'adventure'].map(key => (
                 <button
                   key={key}
-                  className={
-                    category === key
-                      ? 'filter-chip selected'
-                      : 'filter-chip'
-                  }
+                  className={category === key ? 'filter-chip selected' : 'filter-chip'}
                   onClick={() => setCategory(key)}
                 >
                   {t[key]}
                 </button>
               ))}
             </div>
+
           </div>
 
           <div className="game-grid">
+
             {filteredGames.map(game => (
               <article
                 className={`game-card game-card-${game.index + 1}`}
                 key={game.index}
               >
+
                 <div className="game-art">
                   <span>{game.icon}</span>
-                  <small>
-                    NX-{String(game.index + 1).padStart(2, '0')}
-                  </small>
+                  <small>NX-{String(game.index + 1).padStart(2, '0')}</small>
                 </div>
 
                 <div className="game-meta">
                   <span>{game.category}</span>
+
                   <span>
                     {player.played.includes(game.index)
                       ? '✓ EXPLORED'
@@ -598,6 +596,7 @@ function App() {
                 >
                   {t.play}
                 </button>
+
               </article>
             ))}
 
@@ -608,10 +607,13 @@ function App() {
                   : '没有找到符合条件的游戏。'}
               </p>
             )}
+
           </div>
         </section>
 
+        {/* DAILY MISSIONS */}
         <section className="mission-section">
+
           <div>
             <span className="eyebrow">{t.mission}</span>
             <h2>{t.missionTitle}</h2>
@@ -619,15 +621,11 @@ function App() {
           </div>
 
           <div className="mission-list">
+
             {t.missionItems.map((item, index) => (
               <div className="mission-row" key={item}>
-                <span
-                  className={
-                    missionDone.includes(index)
-                      ? 'mission-check checked'
-                      : 'mission-check'
-                  }
-                >
+
+                <span className={missionDone.includes(index) ? 'mission-check checked' : 'mission-check'}>
                   {missionDone.includes(index) ? '✓' : `0${index + 1}`}
                 </span>
 
@@ -639,12 +637,16 @@ function App() {
                 >
                   {missionDone.includes(index) ? t.done : t.mark}
                 </button>
+
               </div>
             ))}
+
           </div>
         </section>
 
+        {/* AI COACH */}
         <section className="coach-section" id="coach">
+
           <div className="coach-intro">
             <span className="eyebrow">{t.coachTitle}</span>
             <h2>{t.coachSub}</h2>
@@ -653,6 +655,7 @@ function App() {
           </div>
 
           <form className="coach-box" onSubmit={askCoach}>
+
             <div className="coach-title">
               <span>✦</span>
 
@@ -677,7 +680,7 @@ function App() {
             <input
               id="coachQuestion"
               value={question}
-              onChange={e => setQuestion(e.target.value)}
+              onChange={event => setQuestion(event.target.value)}
               placeholder={t.placeholder}
             />
 
@@ -688,19 +691,20 @@ function App() {
             {answer && (
               <div className="coach-answer">
                 <strong>
-                  {language === 'en'
-                    ? 'NEXORA SUGGESTION'
-                    : 'NEXORA 建议'}
+                  {language === 'en' ? 'NEXORA SUGGESTION' : 'NEXORA 建议'}
                 </strong>
                 <p>{answer}</p>
               </div>
             )}
 
             <small className="coach-hint">{t.coachHint}</small>
+
           </form>
         </section>
 
-        <section className="feature-strip">
+        {/* FEATURES */}
+        <section className="feature-strip" id="features">
+
           <span className="eyebrow">{t.features}</span>
           <h2>{t.featuresTitle}</h2>
 
@@ -713,26 +717,32 @@ function App() {
               </article>
             ))}
           </div>
+
         </section>
 
       </main>
 
-      <footer>
+      {/* FOOTER */}
+      <footer id="footer">
+
         <a className="brand" href="#home">
-          <span className="brand-mark">N</span>
-          <span>NEXORA <b>AI</b></span>
+          <span className="brand-mark" aria-hidden="true">X</span>
+          <span className="brand-wordmark">
+            NEXORA
+            <b>AI GAMING</b>
+          </span>
         </a>
 
         <p>{t.footer}</p>
 
         <span>
-          © {new Date().getFullYear()} NEXORA AI ·{' '}
-          {language === 'en'
-            ? 'BUILT FOR THE NEXT LEVEL'
-            : '为下一等级而打造'}
+          © {new Date().getFullYear()} NEXORA AI ·
+          {language === 'en' ? ' BUILT FOR THE NEXT LEVEL' : ' 为下一等级而打造'}
         </span>
+
       </footer>
 
+      {/* FLOATING AI ASSISTANT */}
       <button
         className="assistant-fab"
         onClick={() => setAssistantOpen(open => !open)}
@@ -743,8 +753,10 @@ function App() {
 
       {assistantOpen && (
         <div className="assistant-popover">
+
           <div className="assistant-popover-head">
             <strong>✦ NEXORA AI</strong>
+
             <button
               onClick={() => setAssistantOpen(false)}
               aria-label="Close assistant"
@@ -763,13 +775,13 @@ function App() {
               });
             }}
           >
-            {language === 'en'
-              ? 'Open gaming coach ↗'
-              : '打开游戏教练 ↗'}
+            {language === 'en' ? 'Open gaming coach ↗' : '打开游戏教练 ↗'}
           </button>
+
         </div>
       )}
 
+      {/* GAME WINDOW */}
       {activeGame !== null && (
         <div
           className="game-modal"
@@ -777,7 +789,9 @@ function App() {
           aria-modal="true"
           aria-label={t.names[activeGame]}
         >
+
           <div className="game-modal-header">
+
             <div>
               <span className="eyebrow">NEXORA GAME SESSION</span>
               <h2>{t.names[activeGame]}</h2>
@@ -789,6 +803,7 @@ function App() {
             >
               ×
             </button>
+
           </div>
 
           <div className="game-modal-content">
@@ -799,6 +814,7 @@ function App() {
               })()}
             </GameFullscreen>
           </div>
+
         </div>
       )}
 
