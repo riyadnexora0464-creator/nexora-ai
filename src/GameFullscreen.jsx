@@ -16,10 +16,7 @@ export default function GameFullscreen({ children, title = 'Game' }) {
     document.addEventListener('fullscreenchange', updateFullscreen);
 
     return () => {
-      document.removeEventListener(
-        'fullscreenchange',
-        updateFullscreen
-      );
+      document.removeEventListener('fullscreenchange', updateFullscreen);
     };
   }, []);
 
@@ -38,7 +35,9 @@ export default function GameFullscreen({ children, title = 'Game' }) {
   return (
     <div
       ref={containerRef}
-      className="game-fullscreen-shell"
+      className={`game-fullscreen-shell ${
+        isFullscreen ? 'is-fullscreen' : ''
+      }`}
     >
       <div className="game-fullscreen-toolbar">
         <span>{title}</span>
