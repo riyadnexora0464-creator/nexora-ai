@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 import NeonGame from './NeonGame';
 import DartGame from './DartGame';
@@ -9,250 +10,307 @@ import NeonRPG from './NeonRPG';
 import GameFullscreen from './GameFullscreen';
 import SnakesLadders from './SnakesLadders';
 
-
-const translations = {
+const COPY = {
   en: {
-    home: 'Home',
-    featuresNav: 'Features',
-    labNav: 'AI Bot Lab',
-    gamesNav: 'Games',
-    coachNav: 'AI Coach',
-    getStarted: 'Get Started ↗',
-    eyebrow: '✦ THE NEXT GENERATION OF GAMING',
-    heroTitle1: 'LEVEL UP',
-    heroTitle2: 'WITH',
-    heroSubtitle: 'Smarter Bots. Better Players. Bigger Dreams.',
-    heroText: 'Discover how artificial intelligence transforms gaming — from intelligent opponents to personal training partners. Your next level starts here.',
-    exploreFeatures: 'Explore AI Features ↗',
-    tryLab: 'Try the Bot Lab ▷',
-    practiceAnytime: 'Practice anytime',
-    gamingCategories: 'Gaming categories',
-    waysImprove: 'Ways to improve',
-    featureEyebrow: 'POWERED BY INTELLIGENCE',
-    featureTitle: 'Why AI Bots Change',
-    everything: 'Everything',
-    featureSubtitle: "AI isn't just a feature — it's your new gaming advantage.",
-    discoverMore: 'Discover more',
-    labEyebrow: 'INTERACTIVE EXPERIENCE',
-    labTitle: 'Welcome to the',
-    botLab: 'AI Bot Lab',
-    labText: 'Test your skills, hit the neon targets, and beat your high score. Use your mouse, keyboard, or mobile touch controls.',
-    gamesEyebrow: 'FIND YOUR PLAYSTYLE',
-    gamesTitle: 'Explore Gaming',
-    universes: 'Universes',
-    gamesSubtitle: 'Different games. Different skills. One smarter way to improve.',
-    trainGame: 'Train for this game ↗',
-    coachEyebrow: 'YOUR PERSONAL STRATEGY PARTNER',
-    coachTitle: 'Meet Your',
-    gamingCoach: 'AI Gaming Coach',
-    coachText: 'Ask for general gaming advice and get a helpful training tip instantly.',
-    aim: 'Aim',
+    nav: ['Home', 'Command Center', 'Games', 'AI Coach'],
+    launch: 'Launch a game ↗',
+    online: 'NEXORA SYSTEMS ONLINE',
+    heroTag: 'YOUR NEXT-GEN AI GAMING HUB',
+    heroTitle: 'PLAY BEYOND',
+    heroAccent: 'LIMITS.',
+    heroText: 'Discover your next challenge, sharpen your skills and build your player profile in one intelligent gaming universe.',
+    explore: 'Explore the platform',
+    assistant: 'Meet your AI assistant',
+    dashboard: 'PLAYER COMMAND CENTER',
+    welcome: 'Welcome back, Player',
+    overview: 'Your gaming universe at a glance.',
+    level: 'PLAYER LEVEL',
+    xp: 'TOTAL XP',
+    best: 'BEST SCORE',
+    sessions: 'GAMES AVAILABLE',
+    quick: 'QUICK ACCESS',
+    allGames: 'Explore all games',
+    gamesTitle: 'Choose your next universe',
+    gamesText: 'Seven ways to play. One place to level up.',
+    search: 'Search games...',
+    all: 'All games',
+    action: 'Action',
     strategy: 'Strategy',
-    teamwork: 'Teamwork',
-    coachName: 'NEXORA COACH',
-    demoOnline: 'DEMO ASSISTANT · ONLINE',
-    questionLabel: 'What do you want to improve?',
-    questionPlaceholder: 'e.g. How can I improve my aim?',
-    getAdvice: 'Get Training Advice ↗',
-    trainingTip: 'YOUR TRAINING TIP',
-    demoNote: 'This demo uses built-in tips, not a live AI model.',
-    finalEyebrow: 'YOUR NEXT LEVEL IS WAITING',
-    finalTitle: 'Ready to Play',
-    smarter: 'Smarter?',
-    finalText: 'Explore AI-powered training ideas and start building better gaming habits.',
-    enterLab: 'Enter the Bot Lab ↗',
-    footerText: 'Play smarter. Train better. Level up.',
-    footerCopyright: 'Gaming, reimagined.',
-    featureItems: [
-      {
-        icon: '🎯',
-        title: 'Training Bots',
-        text: 'Practice your aim, sharpen your reflexes, and build confidence before facing real players.',
-      },
-      {
-        icon: '🤖',
-        title: 'Smart Enemies',
-        text: 'Discover game opponents that react to your actions and create new challenges.',
-      },
-      {
-        icon: '🧠',
-        title: 'AI Gaming Coach',
-        text: 'Get personalized tips to improve your strategy, movement, and decision-making.',
-      },
-      {
-        icon: '👥',
-        title: 'AI Teammates',
-        text: 'Fill empty team slots and learn the game with helpful virtual teammates.',
-      },
+    racing: 'Racing',
+    adventure: 'Adventure',
+    play: 'Play now ↗',
+    coachTitle: 'NEXORA AI COMPANION',
+    coachSub: 'Your gaming co-pilot',
+    coachText: 'Ask for training ideas, game recommendations or ways to improve your play.',
+    ask: 'Ask Nexora',
+    placeholder: 'e.g. How can I improve my aim?',
+    coachHint: 'This assistant currently uses built-in guidance. Connect an AI API to enable live AI responses.',
+    mission: 'DAILY MISSIONS',
+    missionTitle: 'Your next objectives',
+    missionText: 'Small challenges. Real progress.',
+    missionItems: [
+      'Play any game for 5 minutes',
+      'Try a game you have not played before',
+      'Ask the Nexora Coach for one tip'
     ],
-    gameItems: [
-      { name: 'FPS', icon: '🎯', text: 'Aim better. React faster.', type: 'Action' },
-      { name: 'Strategy', icon: '♟️', text: 'Build smarter. Win bigger.', type: 'Strategy' },
-      { name: 'Racing', icon: '🏎️', text: 'Perfect your lines. Beat the clock.', type: 'Racing' },
-      { name: 'RPG', icon: '⚔️', text: 'Explore worlds. Level up.', type: 'Adventure' },
+    done: 'Completed',
+    mark: 'Mark complete',
+    progress: 'MISSION PROGRESS',
+    features: 'WHY NEXORA',
+    featuresTitle: 'More than a game library',
+    featureCards: [
+      ['🧠', 'Learn as you play', 'Use practical training ideas to build better habits and sharpen your decisions.'],
+      ['⚡', 'Instant game access', 'Jump into your favourite mini-games from one central launcher.'],
+      ['🏆', 'Track your journey', 'Keep your best scores and mission progress together on this device.'],
+      ['🌐', 'One connected universe', 'Explore action, strategy, racing and adventure in one destination.']
     ],
-    gameTitles: [
+    footer: 'Play smarter. Explore further. Level up.',
+    tipAim: 'Keep your crosshair around head height, use small controlled movements and practise tracking for a few minutes each session.',
+    tipTeam: 'Communicate one clear plan, stay close enough to support teammates and avoid taking fights alone.',
+    tipStrategy: 'Set one clear objective before acting. Watch your opponent, manage resources and avoid making rushed moves.',
+    tipGeneral: 'Choose one skill to practise at a time. Play a short focused session, then think about one thing you can improve.',
+    recommendation: 'Try Neon Shooter for aim practice, Neon Chess for planning, or Neon Racing for reaction and timing.',
+    categories: ['Action', 'Action', 'Strategy', 'Action', 'Racing', 'Adventure', 'Strategy'],
+    names: [
       'Neon Shooter',
       'Neon Archery',
       'Neon Chess',
       'Neon Brick Breaker',
       'Neon Racing',
       'Neon Cyber Quest',
-      'Snakes and Ladders',
+      'Snakes and Ladders'
     ],
-    tips: [
-      'Warm up for 10 minutes, practice one skill at a time, and review your mistakes.',
-      'Use cover, watch your positioning, and avoid rushing into fights without a plan.',
-      'Take short breaks, adjust your sensitivity gradually, and focus on consistency.',
-    ],
-    aimAnswer: 'Aim tip: keep your crosshair at head height, use short controlled movements, and practice tracking targets daily.',
-    teamAnswer: 'Team tip: communicate clearly, stay near your teammates, and coordinate your moves before engaging.',
+    descriptions: [
+      'Train your aim and reaction speed.',
+      'Hit the targets and beat your score.',
+      'Think ahead and plan your moves.',
+      'Break through the neon wall.',
+      'Race through the neon streets.',
+      'Explore, fight and level up.',
+      'A classic board-game challenge.'
+    ]
   },
 
   zh: {
-    home: '首页',
-    featuresNav: '功能介绍',
-    labNav: 'AI 机器人实验室',
-    gamesNav: '游戏',
-    coachNav: 'AI 教练',
-    getStarted: '立即开始 ↗',
-    eyebrow: '✦ 新一代游戏体验',
-    heroTitle1: '突破极限',
-    heroTitle2: '与 AI',
-    heroSubtitle: '更聪明的机器人，更强的玩家，更大的梦想。',
-    heroText: '探索人工智能如何改变游戏世界——从智能对手到专属训练伙伴。你的进阶之旅从这里开始。',
-    exploreFeatures: '探索 AI 功能 ↗',
-    tryLab: '体验机器人实验室 ▷',
-    practiceAnytime: '随时练习',
-    gamingCategories: '游戏类别',
-    waysImprove: '进步方式',
-    featureEyebrow: '智能驱动游戏',
-    featureTitle: '为什么 AI 机器人能改变',
-    everything: '一切',
-    featureSubtitle: 'AI 不只是一个功能，更是你提升游戏实力的优势。',
-    discoverMore: '了解更多',
-    labEyebrow: '互动游戏体验',
-    labTitle: '欢迎来到',
-    botLab: 'AI 机器人实验室',
-    labText: '测试你的技巧，击中霓虹目标，刷新最高分。支持鼠标、键盘和手机触控操作。',
-    gamesEyebrow: '找到你的游戏风格',
-    gamesTitle: '探索游戏',
-    universes: '世界',
-    gamesSubtitle: '不同的游戏，不同的技巧，用更聪明的方式不断进步。',
-    trainGame: '开始游戏训练 ↗',
-    coachEyebrow: '你的专属策略伙伴',
-    coachTitle: '认识你的',
-    gamingCoach: 'AI 游戏教练',
-    coachText: '询问游戏技巧，立即获取实用的训练建议。',
-    aim: '瞄准',
+    nav: ['首页', '控制中心', '游戏', 'AI 教练'],
+    launch: '开始游戏 ↗',
+    online: 'NEXORA 系统在线',
+    heroTag: '新一代 AI 游戏中心',
+    heroTitle: '突破游戏',
+    heroAccent: '极限。',
+    heroText: '发现新的挑战，磨练游戏技巧，并在一个智能游戏世界中建立你的玩家档案。',
+    explore: '探索平台',
+    assistant: '认识 AI 助手',
+    dashboard: '玩家控制中心',
+    welcome: '欢迎回来，玩家',
+    overview: '一览你的游戏世界。',
+    level: '玩家等级',
+    xp: '累计经验',
+    best: '最佳成绩',
+    sessions: '可玩游戏',
+    quick: '快速入口',
+    allGames: '探索所有游戏',
+    gamesTitle: '选择你的下一个世界',
+    gamesText: '七种玩法，一个不断进步的地方。',
+    search: '搜索游戏...',
+    all: '全部游戏',
+    action: '动作',
     strategy: '策略',
-    teamwork: '团队合作',
-    coachName: 'NEXORA 教练',
-    demoOnline: '演示助手 · 在线',
-    questionLabel: '你想提升哪方面的能力？',
-    questionPlaceholder: '例如：怎样提高我的瞄准能力？',
-    getAdvice: '获取训练建议 ↗',
-    trainingTip: '你的训练建议',
-    demoNote: '此演示使用内置建议，并非实时 AI 模型。',
-    finalEyebrow: '你的下一个等级正在等你',
-    finalTitle: '准备好更',
-    smarter: '聪明地游戏了吗？',
-    finalText: '探索 AI 游戏训练技巧，培养更好的游戏习惯。',
-    enterLab: '进入机器人实验室 ↗',
-    footerText: '聪明游戏，认真训练，不断进步。',
-    footerCopyright: '重新定义游戏体验。',
-    featureItems: [
-      {
-        icon: '🎯',
-        title: '训练机器人',
-        text: '练习瞄准、提升反应速度，在面对真实玩家之前建立信心。',
-      },
-      {
-        icon: '🤖',
-        title: '智能敌人',
-        text: '体验能够根据你的行动作出反应并带来全新挑战的游戏对手。',
-      },
-      {
-        icon: '🧠',
-        title: 'AI 游戏教练',
-        text: '获取个性化建议，改善你的策略、移动技巧和决策能力。',
-      },
-      {
-        icon: '👥',
-        title: 'AI 队友',
-        text: '让虚拟队友填补空缺位置，帮助你学习并提升游戏技巧。',
-      },
+    racing: '竞速',
+    adventure: '冒险',
+    play: '立即游玩 ↗',
+    coachTitle: 'NEXORA AI 助手',
+    coachSub: '你的游戏伙伴',
+    coachText: '询问训练建议、游戏推荐或提升技巧的方法。',
+    ask: '询问 Nexora',
+    placeholder: '例如：怎样提高瞄准能力？',
+    coachHint: '目前助手使用内置建议。连接 AI API 后即可启用实时 AI 回复。',
+    mission: '每日任务',
+    missionTitle: '你的下一个目标',
+    missionText: '完成小挑战，积累真实进步。',
+    missionItems: [
+      '任意游戏游玩 5 分钟',
+      '尝试一款以前没玩过的游戏',
+      '向 Nexora 教练询问一个建议'
     ],
-    gameItems: [
-      { name: '第一人称射击', icon: '🎯', text: '瞄得更准，反应更快。', type: '动作' },
-      { name: '策略游戏', icon: '♟️', text: '策略更聪明，胜利更进一步。', type: '策略' },
-      { name: '赛车', icon: '🏎️', text: '优化路线，挑战最快纪录。', type: '竞速' },
-      { name: '角色扮演', icon: '⚔️', text: '探索世界，不断升级。', type: '冒险' },
+    done: '已完成',
+    mark: '标记完成',
+    progress: '任务进度',
+    features: 'NEXORA 的优势',
+    featuresTitle: '不只是游戏库',
+    featureCards: [
+      ['🧠', '边玩边学习', '通过实用训练建议培养更好的习惯并提升判断力。'],
+      ['⚡', '快速进入游戏', '从一个中心游戏启动器打开你喜欢的小游戏。'],
+      ['🏆', '记录你的旅程', '在此设备上保存最佳成绩和任务进度。'],
+      ['🌐', '连接游戏世界', '在一个平台探索动作、策略、竞速和冒险游戏。']
     ],
-    gameTitles: [
+    footer: '聪明地玩，探索更多，不断升级。',
+    tipAim: '将准星保持在头部附近，使用小幅稳定移动，并在每次游戏中练习几分钟追踪目标。',
+    tipTeam: '清晰表达一个计划，与队友保持支援距离，避免独自交战。',
+    tipStrategy: '行动前设定一个明确目标。观察对手、管理资源，避免仓促行动。',
+    tipGeneral: '每次专注练习一项技能。进行短时间训练，然后思考一个可以改进的地方。',
+    recommendation: '试试霓虹射击练习瞄准，霓虹国际象棋练习规划，或霓虹赛车练习反应和节奏。',
+    categories: ['动作', '动作', '策略', '动作', '竞速', '冒险', '策略'],
+    names: [
       '霓虹射击',
       '霓虹射箭',
       '霓虹国际象棋',
       '霓虹打砖块',
       '霓虹赛车',
       '霓虹赛博冒险',
-      '蛇梯棋',
+      '蛇梯棋'
     ],
-    tips: [
-      '先热身 10 分钟，每次专注练习一项技能，并回顾自己的失误。',
-      '善用掩体，注意站位，不要在没有计划的情况下贸然参战。',
-      '适当休息，逐步调整操作灵敏度，并保持稳定的练习节奏。',
-    ],
-    aimAnswer: '瞄准建议：将准星保持在头部高度，使用短而稳定的移动，并每天练习追踪目标。',
-    teamAnswer: '团队建议：清晰沟通，与队友保持配合，并在交战前协调行动。',
-  },
+    descriptions: [
+      '训练瞄准和反应速度。',
+      '击中目标并刷新成绩。',
+      '提前思考并规划每一步。',
+      '击碎霓虹砖墙。',
+      '穿越霓虹城市竞速。',
+      '探索、战斗并升级。',
+      '经典棋盘游戏挑战。'
+    ]
+  }
 };
+
+const GAME_COMPONENTS = [
+  NeonGame,
+  DartGame,
+  ChessGame,
+  BrickBreaker,
+  NeonRacing,
+  NeonRPG,
+  SnakesLadders
+];
+
+const GAME_ICONS = ['🎯', '🏹', '♟️', '🧱', '🏎️', '⚔️', '🎲'];
+const STORAGE = 'nexora-player-v1';
+
+function readPlayer() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE) || '{}');
+
+    return {
+      xp: Number(saved.xp) || 0,
+      best: Number(saved.best) || 0,
+      played: Array.isArray(saved.played) ? saved.played : [],
+      missions: Array.isArray(saved.missions) ? saved.missions : []
+    };
+  } catch {
+    return {
+      xp: 0,
+      best: 0,
+      played: [],
+      missions: []
+    };
+  }
+}
 
 function App() {
   const [language, setLanguage] = useState('en');
+  const [player, setPlayer] = useState(readPlayer);
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
+  const [activeGame, setActiveGame] = useState(null);
+  const [assistantOpen, setAssistantOpen] = useState(false);
 
-  const t = translations[language];
-  const features = t.featureItems;
-  const games = t.gameItems;
+  const t = COPY[language];
 
-  function changeLanguage(nextLanguage) {
-    setLanguage(nextLanguage);
-    setAnswer('');
+  const level = Math.floor(player.xp / 100) + 1;
+  const missionDone = player.missions;
+
+  const games = useMemo(
+    () =>
+      t.names.map((name, index) => ({
+        name,
+        index,
+        icon: GAME_ICONS[index],
+        category: t.categories[index],
+        description: t.descriptions[index]
+      })),
+    [t]
+  );
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE, JSON.stringify(player));
+  }, [player]);
+
+  function openGame(index) {
+    setActiveGame(index);
+
+    setPlayer(current => ({
+      ...current,
+      xp: current.xp + 10,
+      played: current.played.includes(index)
+        ? current.played
+        : [...current.played, index]
+    }));
+  }
+
+  function completeMission(index) {
+    setPlayer(current => {
+      if (current.missions.includes(index)) {
+        return current;
+      }
+
+      return {
+        ...current,
+        missions: [...current.missions, index],
+        xp: current.xp + 25
+      };
+    });
   }
 
   function askCoach(event) {
     event.preventDefault();
 
-    if (!question.trim()) return;
+    const q = question.trim().toLowerCase();
 
-    const lowerQuestion = question.toLowerCase();
+    if (!q) return;
 
-    if (
-      lowerQuestion.includes('aim') ||
-      lowerQuestion.includes('瞄准')
-    ) {
-      setAnswer(t.aimAnswer);
+    let response = t.tipGeneral;
+
+    if (q.includes('aim') || q.includes('瞄准')) {
+      response = t.tipAim;
     } else if (
-      lowerQuestion.includes('team') ||
-      lowerQuestion.includes('团队') ||
-      lowerQuestion.includes('队友')
+      q.includes('team') ||
+      q.includes('团队') ||
+      q.includes('队友')
     ) {
-      setAnswer(t.teamAnswer);
-    } else {
-      setAnswer(t.tips[Math.floor(Math.random() * t.tips.length)]);
+      response = t.tipTeam;
+    } else if (
+      q.includes('strategy') ||
+      q.includes('策略') ||
+      q.includes('chess')
+    ) {
+      response = t.tipStrategy;
+    } else if (
+      q.includes('recommend') ||
+      q.includes('推荐') ||
+      q.includes('which game')
+    ) {
+      response = t.recommendation;
     }
+
+    setAnswer(response);
   }
 
-  function scrollToLab() {
-    document.querySelector('#lab')?.scrollIntoView({
-      behavior: 'smooth',
-    });
-  }
+  const filteredGames = games.filter(game => {
+    const matchesSearch =
+      `${game.name} ${game.description} ${game.category}`
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+    const matchesCategory =
+      category === 'all' || game.category === t[category];
+
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="site-shell">
+
       <header className="navbar">
         <a className="brand" href="#home">
           <span className="brand-mark">N</span>
@@ -260,11 +318,10 @@ function App() {
         </a>
 
         <nav>
-          <a href="#home">{t.home}</a>
-          <a href="#features">{t.featuresNav}</a>
-          <a href="#lab">{t.labNav}</a>
-          <a href="#games">{t.gamesNav}</a>
-          <a href="#coach">{t.coachNav}</a>
+          <a href="#home">{t.nav[0]}</a>
+          <a href="#dashboard">{t.nav[1]}</a>
+          <a href="#games">{t.nav[2]}</a>
+          <a href="#coach">{t.nav[3]}</a>
         </nav>
 
         <div className="navbar-actions">
@@ -272,247 +329,392 @@ function App() {
             <button
               type="button"
               className={language === 'en' ? 'language-button active' : 'language-button'}
-              onClick={() => changeLanguage('en')}
+              onClick={() => {
+                setLanguage('en');
+                setAnswer('');
+              }}
               aria-pressed={language === 'en'}
             >
               EN
             </button>
+
             <button
               type="button"
               className={language === 'zh' ? 'language-button active' : 'language-button'}
-              onClick={() => changeLanguage('zh')}
+              onClick={() => {
+                setLanguage('zh');
+                setAnswer('');
+              }}
               aria-pressed={language === 'zh'}
             >
               中文
             </button>
           </div>
 
-          <a className="nav-cta" href="#lab">
-            {t.getStarted}
+          <a className="nav-cta" href="#games">
+            {t.launch}
           </a>
         </div>
       </header>
 
       <main>
+
         <section className="hero" id="home">
           <div className="hero-grid" />
 
           <div className="hero-copy">
-            <span className="eyebrow">{t.eyebrow}</span>
+            <span className="eyebrow">
+              <i className="status-dot" /> {t.online}
+            </span>
+
+            <div className="hero-tag">{t.heroTag}</div>
 
             <h1>
-              {t.heroTitle1}
+              {t.heroTitle}
               <br />
-              {t.heroTitle2} <span>AI.</span>
+              <span>{t.heroAccent}</span>
             </h1>
 
-            <h2>{t.heroSubtitle}</h2>
+            <h2>
+              {language === 'en'
+                ? 'A smarter way to enter the game.'
+                : '以更智能的方式进入游戏世界。'}
+            </h2>
+
             <p>{t.heroText}</p>
 
             <div className="hero-actions">
-              <a className="button primary" href="#features">
-                {t.exploreFeatures}
+              <a className="button primary" href="#games">
+                {t.explore}
               </a>
-              <a className="button secondary" href="#lab">
-                {t.tryLab}
-              </a>
+
+              <button
+                className="button secondary"
+                onClick={() => setAssistantOpen(true)}
+              >
+                {t.assistant}
+              </button>
             </div>
 
-            <div className="hero-stats">
-              <div>
-                <strong>24/7</strong>
-                <span>{t.practiceAnytime}</span>
-              </div>
-              <div>
-                <strong>4</strong>
-                <span>{t.gamingCategories}</span>
-              </div>
-              <div>
-                <strong>∞</strong>
-                <span>{t.waysImprove}</span>
-              </div>
+            <div className="hero-microstats">
+              <span>
+                <b>07</b>
+                {language === 'en' ? 'PLAYABLE WORLDS' : '个可玩世界'}
+              </span>
+
+              <span>
+                <b>02</b>
+                {language === 'en' ? 'LANGUAGES' : '种语言'}
+              </span>
+
+              <span>
+                <b>∞</b>
+                {language === 'en' ? 'WAYS TO IMPROVE' : '种提升方式'}
+              </span>
             </div>
           </div>
 
-          <div
-            className="hero-art"
-            aria-label="Futuristic AI gaming robot illustration"
-          >
-            <img
-              className="robot-image"
-              src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80"
-              alt="Futuristic robot"
+          <div className="hero-visual">
+            <div className="hero-visual-ring ring-a" />
+            <div className="hero-visual-ring ring-b" />
+
+            <div className="core-orb">
+              <div className="core-inner">
+                N<span>AI</span>
+              </div>
+            </div>
+
+            <div className="visual-chip chip-one">
+              ◈ <span>{language === 'en' ? 'PLAYER LINK' : '玩家连接'}</span>
+              <b>ACTIVE</b>
+            </div>
+
+            <div className="visual-chip chip-two">
+              ✦ <span>{language === 'en' ? 'NEURAL CORE' : '智能核心'}</span>
+              <b>ONLINE</b>
+            </div>
+
+            <div className="visual-chip chip-three">
+              ⌁ <span>{language === 'en' ? 'GAME ENGINE' : '游戏引擎'}</span>
+              <b>READY</b>
+            </div>
+
+            <div className="visual-scanline" />
+          </div>
+        </section>
+
+        <section className="dashboard-section" id="dashboard">
+          <div className="dashboard-heading">
+            <div>
+              <span className="eyebrow">{t.dashboard}</span>
+              <h2>{t.welcome}</h2>
+              <p>{t.overview}</p>
+            </div>
+
+            <div className="level-pill">✦ LVL {level}</div>
+          </div>
+
+          <div className="stat-grid">
+            <article className="stat-card">
+              <span>◈ {t.level}</span>
+              <strong>{level}</strong>
+              <small>
+                {level * 100 - player.xp} XP{' '}
+                {language === 'en' ? 'to next level' : '升级所需经验'}
+              </small>
+            </article>
+
+            <article className="stat-card">
+              <span>⚡ {t.xp}</span>
+              <strong>{player.xp}</strong>
+              <small>
+                {language === 'en'
+                  ? 'Earn XP by exploring'
+                  : '探索即可获得经验'}
+              </small>
+            </article>
+
+            <article className="stat-card">
+              <span>🏆 {t.best}</span>
+              <strong>{player.best || '—'}</strong>
+              <small>
+                {language === 'en' ? 'Personal record' : '个人纪录'}
+              </small>
+            </article>
+
+            <article className="stat-card">
+              <span>🎮 {t.sessions}</span>
+              <strong>07</strong>
+              <small>
+                {language === 'en'
+                  ? `${player.played.length} explored so far`
+                  : `已体验 ${player.played.length} 款`}
+              </small>
+            </article>
+          </div>
+
+          <div className="dashboard-bottom">
+            <div className="mini-panel">
+              <div className="panel-title">
+                <h3>{t.quick}</h3>
+                <a href="#games">{t.allGames} ↗</a>
+              </div>
+
+              <div className="quick-games">
+                {games.slice(0, 4).map(game => (
+                  <button
+                    key={game.index}
+                    onClick={() => openGame(game.index)}
+                  >
+                    <span>{game.icon}</span>
+                    <b>{game.name}</b>
+                    <small>OPEN ↗</small>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mini-panel mission-panel">
+              <div className="panel-title">
+                <h3>{t.missionTitle}</h3>
+                <span>{missionDone.length}/3</span>
+              </div>
+
+              <p>{t.missionText}</p>
+
+              <div className="mission-progress">
+                <span
+                  style={{
+                    width: `${missionDone.length / 3 * 100}%`
+                  }}
+                />
+              </div>
+
+              <small>{t.progress}</small>
+            </div>
+          </div>
+        </section>
+
+        <section className="games-section section" id="games">
+          <div className="section-heading">
+            <span className="eyebrow">{t.quick}</span>
+            <h2>{t.gamesTitle}</h2>
+            <p>{t.gamesText}</p>
+          </div>
+
+          <div className="game-tools">
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder={t.search}
+              aria-label={t.search}
             />
 
-            <div className="orbit orbit-one" />
-            <div className="orbit orbit-two" />
-
-            <div className="floating-card card-top">
-              AI SYSTEM <b>ONLINE ●</b>
+            <div className="category-filters">
+              {['all', 'action', 'strategy', 'racing', 'adventure'].map(key => (
+                <button
+                  key={key}
+                  className={
+                    category === key
+                      ? 'filter-chip selected'
+                      : 'filter-chip'
+                  }
+                  onClick={() => setCategory(key)}
+                >
+                  {t[key]}
+                </button>
+              ))}
             </div>
-
-            <div className="floating-card card-bottom">
-              PLAYER STATUS <b>READY TO LEVEL UP</b>
-            </div>
-
-            <div className="hero-glow" />
-          </div>
-        </section>
-
-        <section className="section" id="features">
-          <div className="section-heading">
-            <span className="eyebrow">{t.featureEyebrow}</span>
-            <h2>
-              {t.featureTitle} <span>{t.everything}</span>
-            </h2>
-            <p>{t.featureSubtitle}</p>
-          </div>
-
-          <div className="feature-grid">
-            {features.map((feature, index) => (
-              <article className="feature-card" key={feature.title}>
-                <div className="feature-icon">{feature.icon}</div>
-                <span className="card-number">0{index + 1}</span>
-                <h3>{feature.title}</h3>
-                <p>{feature.text}</p>
-                <a href="#lab">
-                  {t.discoverMore} <span>↗</span>
-                </a>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="lab-section" id="lab">
-          <div className="lab-copy">
-            <span className="eyebrow">{t.labEyebrow}</span>
-            <h2>
-              {t.labTitle} <span>{t.botLab}</span>
-            </h2>
-            <p>{t.labText}</p>
-          </div>
-
-          
-<GameFullscreen title={t.gameTitles[0]}>
-  <NeonGame language={language} />
-</GameFullscreen>
-
-<GameFullscreen title={t.gameTitles[1]}>
-  <DartGame language={language} />
-</GameFullscreen>
-
-<GameFullscreen title={t.gameTitles[2]}>
-  <ChessGame language={language} />
-</GameFullscreen>
-
-<GameFullscreen title={t.gameTitles[3]}>
-  <BrickBreaker language={language} />
-</GameFullscreen>
-
-<GameFullscreen title={t.gameTitles[4]}>
-  <NeonRacing language={language} />
-</GameFullscreen>
-
-<GameFullscreen title={t.gameTitles[5]}>
-  <NeonRPG language={language} />
-</GameFullscreen>
-
-<GameFullscreen title={t.gameTitles[6]}>
-  <SnakesLadders language={language} />
-</GameFullscreen>
-
-        
-        </section>
-
-        <section className="section games-section" id="games">
-          <div className="section-heading">
-            <span className="eyebrow">{t.gamesEyebrow}</span>
-            <h2>
-              {t.gamesTitle} <span>{t.universes}</span>
-            </h2>
-            <p>{t.gamesSubtitle}</p>
           </div>
 
           <div className="game-grid">
-            {games.map((game, index) => (
+            {filteredGames.map(game => (
               <article
-                className={`game-card game-${index + 1}`}
-                key={game.name}
+                className={`game-card game-card-${game.index + 1}`}
+                key={game.index}
               >
-                <div className="game-art">{game.icon}</div>
-                <span className="game-type">{game.type}</span>
-                <h3>{game.name} {language === 'en' ? 'GAMING' : '游戏'}</h3>
-                <p>{game.text}</p>
+                <div className="game-art">
+                  <span>{game.icon}</span>
+                  <small>
+                    NX-{String(game.index + 1).padStart(2, '0')}
+                  </small>
+                </div>
+
+                <div className="game-meta">
+                  <span>{game.category}</span>
+                  <span>
+                    {player.played.includes(game.index)
+                      ? '✓ EXPLORED'
+                      : '● READY'}
+                  </span>
+                </div>
+
+                <h3>{game.name}</h3>
+                <p>{game.description}</p>
+
                 <button
-                  className="text-button"
-                  onClick={scrollToLab}
-                  type="button"
+                  className="game-launch"
+                  onClick={() => openGame(game.index)}
                 >
-                  {t.trainGame}
+                  {t.play}
                 </button>
               </article>
+            ))}
+
+            {filteredGames.length === 0 && (
+              <p className="empty-state">
+                {language === 'en'
+                  ? 'No games match your search.'
+                  : '没有找到符合条件的游戏。'}
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section className="mission-section">
+          <div>
+            <span className="eyebrow">{t.mission}</span>
+            <h2>{t.missionTitle}</h2>
+            <p>{t.missionText}</p>
+          </div>
+
+          <div className="mission-list">
+            {t.missionItems.map((item, index) => (
+              <div className="mission-row" key={item}>
+                <span
+                  className={
+                    missionDone.includes(index)
+                      ? 'mission-check checked'
+                      : 'mission-check'
+                  }
+                >
+                  {missionDone.includes(index) ? '✓' : `0${index + 1}`}
+                </span>
+
+                <p>{item}</p>
+
+                <button
+                  disabled={missionDone.includes(index)}
+                  onClick={() => completeMission(index)}
+                >
+                  {missionDone.includes(index) ? t.done : t.mark}
+                </button>
+              </div>
             ))}
           </div>
         </section>
 
         <section className="coach-section" id="coach">
-          <div>
-            <span className="eyebrow">{t.coachEyebrow}</span>
-            <h2>
-              {t.coachTitle} <span>{t.gamingCoach}</span>
-            </h2>
+          <div className="coach-intro">
+            <span className="eyebrow">{t.coachTitle}</span>
+            <h2>{t.coachSub}</h2>
             <p>{t.coachText}</p>
-
-            <div className="coach-tags">
-              <span>🎯 {t.aim}</span>
-              <span>🧠 {t.strategy}</span>
-              <span>🤝 {t.teamwork}</span>
-            </div>
+            <div className="coach-orbit">🤖</div>
           </div>
 
           <form className="coach-box" onSubmit={askCoach}>
             <div className="coach-title">
-              <span>🤖</span>
+              <span>✦</span>
+
               <div>
-                <strong>{t.coachName}</strong>
-                <small>{t.demoOnline}</small>
+                <strong>NEXORA AI</strong>
+                <small>
+                  {language === 'en'
+                    ? 'GAMING COMPANION · DEMO MODE'
+                    : '游戏助手 · 演示模式'}
+                </small>
               </div>
+
+              <i className="status-dot" />
             </div>
 
-            <label htmlFor="coachQuestion">{t.questionLabel}</label>
+            <label htmlFor="coachQuestion">
+              {language === 'en'
+                ? 'WHAT WOULD YOU LIKE HELP WITH?'
+                : '你需要哪方面的帮助？'}
+            </label>
 
             <input
               id="coachQuestion"
               value={question}
-              onChange={(event) => setQuestion(event.target.value)}
-              placeholder={t.questionPlaceholder}
+              onChange={e => setQuestion(e.target.value)}
+              placeholder={t.placeholder}
             />
 
             <button className="button primary full-button" type="submit">
-              {t.getAdvice}
+              {t.ask} ↗
             </button>
 
             {answer && (
               <div className="coach-answer">
-                <strong>{t.trainingTip}</strong>
+                <strong>
+                  {language === 'en'
+                    ? 'NEXORA SUGGESTION'
+                    : 'NEXORA 建议'}
+                </strong>
                 <p>{answer}</p>
               </div>
             )}
 
-            <small className="demo-note">{t.demoNote}</small>
+            <small className="coach-hint">{t.coachHint}</small>
           </form>
         </section>
 
-        <section className="final-cta">
-          <span className="eyebrow">{t.finalEyebrow}</span>
-          <h2>
-            {t.finalTitle} <span>{t.smarter}</span>
-          </h2>
-          <p>{t.finalText}</p>
-          <a href="#lab" className="button primary">
-            {t.enterLab}
-          </a>
+        <section className="feature-strip">
+          <span className="eyebrow">{t.features}</span>
+          <h2>{t.featuresTitle}</h2>
+
+          <div className="feature-grid">
+            {t.featureCards.map(([icon, title, text]) => (
+              <article className="feature-card" key={title}>
+                <span>{icon}</span>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </article>
+            ))}
+          </div>
         </section>
+
       </main>
 
       <footer>
@@ -521,12 +723,85 @@ function App() {
           <span>NEXORA <b>AI</b></span>
         </a>
 
-        <p>{t.footerText}</p>
+        <p>{t.footer}</p>
 
         <span>
-          © {new Date().getFullYear()} NEXORA AI · {t.footerCopyright}
+          © {new Date().getFullYear()} NEXORA AI ·{' '}
+          {language === 'en'
+            ? 'BUILT FOR THE NEXT LEVEL'
+            : '为下一等级而打造'}
         </span>
       </footer>
+
+      <button
+        className="assistant-fab"
+        onClick={() => setAssistantOpen(open => !open)}
+        aria-label="Open Nexora assistant"
+      >
+        ✦
+      </button>
+
+      {assistantOpen && (
+        <div className="assistant-popover">
+          <div className="assistant-popover-head">
+            <strong>✦ NEXORA AI</strong>
+            <button
+              onClick={() => setAssistantOpen(false)}
+              aria-label="Close assistant"
+            >
+              ×
+            </button>
+          </div>
+
+          <p>{t.coachText}</p>
+
+          <button
+            onClick={() => {
+              setAssistantOpen(false);
+              document.querySelector('#coach')?.scrollIntoView({
+                behavior: 'smooth'
+              });
+            }}
+          >
+            {language === 'en'
+              ? 'Open gaming coach ↗'
+              : '打开游戏教练 ↗'}
+          </button>
+        </div>
+      )}
+
+      {activeGame !== null && (
+        <div
+          className="game-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.names[activeGame]}
+        >
+          <div className="game-modal-header">
+            <div>
+              <span className="eyebrow">NEXORA GAME SESSION</span>
+              <h2>{t.names[activeGame]}</h2>
+            </div>
+
+            <button
+              onClick={() => setActiveGame(null)}
+              aria-label="Close game"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="game-modal-content">
+            <GameFullscreen title={t.names[activeGame]}>
+              {(() => {
+                const Game = GAME_COMPONENTS[activeGame];
+                return <Game language={language} />;
+              })()}
+            </GameFullscreen>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

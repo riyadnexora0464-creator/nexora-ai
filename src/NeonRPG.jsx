@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./NeonRPG.css";
 
@@ -17,6 +16,8 @@ const TEXT = {
     playAgain: "PLAY AGAIN",
     restart: "RESTART GAME",
     start: "START GAME",
+    pause: "PAUSE",
+    resume: "RESUME",
     health: "HEALTH",
     level: "LEVEL",
     experience: "EXPERIENCE",
@@ -33,6 +34,7 @@ const TEXT = {
     eliminate: "ELIMINATE THE ROBOTS",
     levelUp: "LEVEL UP! LEVEL",
     missionFailed: "MISSION FAILED",
+    paused: "GAME PAUSED",
     robotsDefeated: "ROBOTS DEFEATED",
     pressAgain: "PRESS PLAY AGAIN TO RETRY",
     canvasLabel: "Neon Cyber Quest side-view sci-fi game",
@@ -40,6 +42,7 @@ const TEXT = {
     moveKeys: "MOVE: A / D     JUMP: W OR SPACE     ATTACK: J",
     jumpButton: "JUMP",
     attackButton: "ATTACK",
+    best: "BEST KILLS",
   },
   zh: {
     kicker: "NEXORA AI 街机",
@@ -48,6 +51,8 @@ const TEXT = {
     playAgain: "再次游戏",
     restart: "重新开始",
     start: "开始游戏",
+    pause: "暂停",
+    resume: "继续",
     health: "生命值",
     level: "等级",
     experience: "经验值",
@@ -64,6 +69,7 @@ const TEXT = {
     eliminate: "消灭机器人",
     levelUp: "升级！当前等级",
     missionFailed: "任务失败",
+    paused: "游戏已暂停",
     robotsDefeated: "已击败机器人",
     pressAgain: "点击再次游戏以重新挑战",
     canvasLabel: "霓虹赛博任务科幻动作游戏",
@@ -71,6 +77,7 @@ const TEXT = {
     moveKeys: "移动：A / D     跳跃：W 或空格     攻击：J",
     jumpButton: "跳跃",
     attackButton: "攻击",
+    best: "最高击杀",
   },
 };
 
@@ -89,7 +96,6 @@ function makeEnemy(x, id, level) {
     health,
     maxHealth: health,
     speed: 65 + Math.min(level * 5, 70),
-    damageTimer: 0,
     attackTimer: Math.random() * 0.8,
     facing: -1,
     dead: false,
@@ -99,6 +105,7 @@ function makeEnemy(x, id, level) {
 function createWorld() {
   return {
     running: false,
+    paused: false,
     gameOver: false,
     time: 0,
     spawnTimer: 0,
@@ -139,7 +146,6 @@ function drawCity(ctx, time) {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-  // Distant moon
   const moonGlow = ctx.createRadialGradient(940, 125, 5, 940, 125, 100);
   moonGlow.addColorStop(0, "rgba(92,220,255,0.25)");
   moonGlow.addColorStop(1, "rgba(92,220,255,0)");
@@ -151,7 +157,6 @@ function drawCity(ctx, time) {
   ctx.arc(940, 125, 34, 0, Math.PI * 2);
   ctx.fill();
 
-  // Stars
   for (let i = 0; i < 65; i++) {
     const x = (i * 197 + 41) % WIDTH;
     const y = (i * 83 + 22) % 330;
@@ -160,7 +165,6 @@ function drawCity(ctx, time) {
     ctx.fillRect(x, y, 2, 2);
   }
 
-  // Distant skyline
   for (let i = 0; i < 19; i++) {
     const x = i * 70 - 15;
     const buildingHeight = 130 + ((i * 47) % 170);
@@ -182,7 +186,6 @@ function drawCity(ctx, time) {
     ctx.globalAlpha = 1;
   }
 
-  // Neon signs
   ctx.save();
   ctx.shadowBlur = 18;
   ctx.font = "bold 20px monospace";
@@ -194,7 +197,6 @@ function drawCity(ctx, time) {
   ctx.fillText("CYBER ZONE", 820, 300);
   ctx.restore();
 
-  // Ground
   const groundGradient = ctx.createLinearGradient(0, GROUND, 0, HEIGHT);
   groundGradient.addColorStop(0, "#151a39");
   groundGradient.addColorStop(1, "#080b18");
@@ -207,7 +209,6 @@ function drawCity(ctx, time) {
   ctx.fillRect(0, GROUND, WIDTH, 3);
   ctx.shadowBlur = 0;
 
-  // Floor perspective grid
   ctx.strokeStyle = "rgba(49,201,255,0.22)";
   ctx.lineWidth = 1;
 
@@ -228,23 +229,19 @@ function drawCity(ctx, time) {
 }
 
 function drawHero(ctx, p, time) {
-  const x = p.x;
-  const y = p.y;
-  const moving = Math.abs(p.vx) > 5 && p.onGround;
-  const walk = moving ? Math.sin(time * 13) * 7 : 0;
+  const walk =
+    Math.abs(p.vx) > 5 && p.onGround ? Math.sin(time * 13) * 7 : 0;
   const facing = p.facing || 1;
 
   ctx.save();
-  ctx.translate(x, y);
+  ctx.translate(p.x, p.y);
   ctx.scale(facing, 1);
 
-  // Ground shadow
   ctx.fillStyle = "rgba(0,0,0,0.38)";
   ctx.beginPath();
   ctx.ellipse(0, 1, 37, 8, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Cape
   ctx.fillStyle = "#4a176e";
   ctx.beginPath();
   ctx.moveTo(-12, -72);
@@ -254,12 +251,10 @@ function drawHero(ctx, p, time) {
   ctx.lineTo(-6, -62);
   ctx.closePath();
   ctx.fill();
-
   ctx.strokeStyle = "#d84dff";
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Legs
   ctx.fillStyle = "#222a4d";
   ctx.beginPath();
   ctx.moveTo(-13, -31);
@@ -279,16 +274,13 @@ function drawHero(ctx, p, time) {
   ctx.closePath();
   ctx.fill();
 
-  // Boots
   ctx.fillStyle = "#11182f";
   ctx.fillRect(-23 + walk, -9, 17, 8);
   ctx.fillRect(7 - walk, -9, 18, 8);
   ctx.strokeStyle = "#30eaff";
-  ctx.lineWidth = 2;
   ctx.strokeRect(-23 + walk, -9, 17, 8);
   ctx.strokeRect(7 - walk, -9, 18, 8);
 
-  // Torso armor
   const armor = ctx.createLinearGradient(-20, -75, 20, -30);
   armor.addColorStop(0, "#4e5b8b");
   armor.addColorStop(0.55, "#222b50");
@@ -303,12 +295,9 @@ function drawHero(ctx, p, time) {
   ctx.lineTo(-21, -44);
   ctx.closePath();
   ctx.fill();
-
   ctx.strokeStyle = "#38eaff";
-  ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Chest energy core
   ctx.save();
   ctx.shadowColor = "#36f4ff";
   ctx.shadowBlur = 16;
@@ -322,23 +311,16 @@ function drawHero(ctx, p, time) {
   ctx.fill();
   ctx.restore();
 
-  // Arms
   ctx.fillStyle = "#323e68";
   ctx.fillRect(-21, -68, 10, 27);
   ctx.fillRect(12, -68, 10, 24);
   ctx.fillStyle = "#10172b";
   ctx.fillRect(-22, -45, 12, 7);
   ctx.fillRect(11, -47, 13, 7);
-  ctx.strokeStyle = "#b04dff";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(-22, -45, 12, 7);
-  ctx.strokeRect(11, -47, 13, 7);
 
-  // Neck
   ctx.fillStyle = "#a5b7d7";
   ctx.fillRect(-5, -81, 10, 12);
 
-  // Helmet
   ctx.fillStyle = "#343f65";
   ctx.beginPath();
   ctx.moveTo(-16, -84);
@@ -350,10 +332,8 @@ function drawHero(ctx, p, time) {
   ctx.closePath();
   ctx.fill();
   ctx.strokeStyle = "#d0faff";
-  ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Visor
   ctx.save();
   ctx.shadowColor = "#24f0ff";
   ctx.shadowBlur = 14;
@@ -361,7 +341,6 @@ function drawHero(ctx, p, time) {
   ctx.fillRect(-11, -87, 23, 7);
   ctx.restore();
 
-  // Helmet crest
   ctx.fillStyle = "#e45cff";
   ctx.beginPath();
   ctx.moveTo(-5, -96);
@@ -370,7 +349,6 @@ function drawHero(ctx, p, time) {
   ctx.closePath();
   ctx.fill();
 
-  // Sword during attack
   if (p.attackTimer > 0) {
     const progress = 1 - p.attackTimer / 0.24;
     const angle = -1.15 + progress * 1.8;
@@ -389,7 +367,6 @@ function drawHero(ctx, p, time) {
     ctx.fillRect(-4, -7, 9, 14);
     ctx.restore();
 
-    // Slash arc
     ctx.strokeStyle = "rgba(75,245,255,0.8)";
     ctx.lineWidth = 4;
     ctx.beginPath();
@@ -401,21 +378,17 @@ function drawHero(ctx, p, time) {
 }
 
 function drawEnemy(ctx, enemy, time) {
-  const x = enemy.x;
-  const y = enemy.y;
   const bob = Math.sin(time * 7 + enemy.id) * 2;
 
   ctx.save();
-  ctx.translate(x, y + bob);
+  ctx.translate(enemy.x, enemy.y + bob);
   ctx.scale(enemy.facing || -1, 1);
 
-  // Shadow
   ctx.fillStyle = "rgba(0,0,0,0.4)";
   ctx.beginPath();
   ctx.ellipse(0, 1, 31, 7, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Legs
   ctx.fillStyle = "#2a1c43";
   ctx.fillRect(-16, -28, 12, 25);
   ctx.fillRect(6, -28, 12, 25);
@@ -424,7 +397,6 @@ function drawEnemy(ctx, enemy, time) {
   ctx.fillRect(-18, -8, 16, 6);
   ctx.fillRect(5, -8, 16, 6);
 
-  // Body
   const body = ctx.createLinearGradient(-22, -72, 23, -28);
   body.addColorStop(0, "#6e2d85");
   body.addColorStop(0.5, "#35244e");
@@ -439,12 +411,10 @@ function drawEnemy(ctx, enemy, time) {
   ctx.lineTo(-23, -41);
   ctx.closePath();
   ctx.fill();
-
   ctx.strokeStyle = "#ff4d9b";
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Core
   ctx.save();
   ctx.shadowColor = "#ff347e";
   ctx.shadowBlur = 13;
@@ -452,7 +422,6 @@ function drawEnemy(ctx, enemy, time) {
   ctx.fillRect(-7, -57, 14, 13);
   ctx.restore();
 
-  // Arms and claws
   ctx.fillStyle = "#49315e";
   ctx.fillRect(-25, -66, 9, 27);
   ctx.fillRect(16, -66, 10, 25);
@@ -460,7 +429,6 @@ function drawEnemy(ctx, enemy, time) {
   ctx.fillRect(-27, -43, 13, 5);
   ctx.fillRect(15, -44, 14, 5);
 
-  // Head
   ctx.fillStyle = "#423259";
   ctx.beginPath();
   ctx.moveTo(-17, -78);
@@ -474,7 +442,6 @@ function drawEnemy(ctx, enemy, time) {
   ctx.strokeStyle = "#b88bff";
   ctx.stroke();
 
-  // Red visor
   ctx.save();
   ctx.shadowColor = "#ff2d77";
   ctx.shadowBlur = 14;
@@ -482,8 +449,6 @@ function drawEnemy(ctx, enemy, time) {
   ctx.fillRect(-11, -83, 23, 6);
   ctx.restore();
 
-  // Enemy health bar
-  ctx.scale(enemy.facing || -1, 1);
   const barWidth = 54;
   const healthRatio = Math.max(0, enemy.health / enemy.maxHealth);
 
@@ -547,12 +512,22 @@ export default function NeonRPG({ language = "en" }) {
     credits: 0,
     kills: 0,
     running: false,
+    paused: false,
     gameOver: false,
     message: "MISSION_READY",
   });
 
+  const [bestKills, setBestKills] = useState(() => {
+    try {
+      return Number(localStorage.getItem("nexora-rpg-best") || 0);
+    } catch {
+      return 0;
+    }
+  });
+
   const syncHud = useCallback(() => {
     const w = worldRef.current;
+
     setHud({
       health: Math.max(0, Math.ceil(w.player.health)),
       maxHealth: w.player.maxHealth,
@@ -561,6 +536,7 @@ export default function NeonRPG({ language = "en" }) {
       credits: w.credits,
       kills: w.kills,
       running: w.running,
+      paused: w.paused,
       gameOver: w.gameOver,
       message: w.message,
     });
@@ -573,17 +549,27 @@ export default function NeonRPG({ language = "en" }) {
     world.messageTimer = 2.5;
     world.enemies.push(makeEnemy(790, world.nextEnemyId++, world.level));
     world.enemies.push(makeEnemy(1030, world.nextEnemyId++, world.level));
+
     worldRef.current = world;
     keysRef.current = {};
     lastTimeRef.current = 0;
     syncHud();
   }, [syncHud]);
 
+  const togglePause = useCallback(() => {
+    const w = worldRef.current;
+    if (w.gameOver || !w.running) return;
+
+    w.paused = !w.paused;
+    keysRef.current = {};
+    syncHud();
+  }, [syncHud]);
+
   const jump = useCallback(() => {
     const w = worldRef.current;
-    if (!w.running || w.gameOver) return;
-    const p = w.player;
+    if (!w.running || w.paused || w.gameOver) return;
 
+    const p = w.player;
     if (p.onGround) {
       p.vy = -590;
       p.onGround = false;
@@ -593,7 +579,7 @@ export default function NeonRPG({ language = "en" }) {
 
   const attack = useCallback(() => {
     const w = worldRef.current;
-    if (!w.running || w.gameOver) return;
+    if (!w.running || w.paused || w.gameOver) return;
 
     const p = w.player;
     if (p.attackCooldown > 0) return;
@@ -612,7 +598,6 @@ export default function NeonRPG({ language = "en" }) {
 
       if (inFront && dy < 115) {
         enemy.health -= 38 + (w.level - 1) * 5;
-        enemy.damageTimer = 0.15;
         addBurst(w, enemy.x, enemy.y - 48, "#ff5baf", 9);
         hitSomething = true;
 
@@ -652,18 +637,15 @@ export default function NeonRPG({ language = "en" }) {
     const onKeyDown = (event) => {
       const key = event.key.toLowerCase();
       const gameKeys = [
-        "a",
-        "d",
-        "w",
-        " ",
-        "arrowleft",
-        "arrowright",
-        "arrowup",
-        "j",
-        "k",
+        "a", "d", "w", " ", "arrowleft", "arrowright", "arrowup", "j", "k",
       ];
 
       if (gameKeys.includes(key)) event.preventDefault();
+
+      if (key === "escape" || key === "p") {
+        if (!event.repeat) togglePause();
+        return;
+      }
 
       keysRef.current[key] = true;
 
@@ -693,7 +675,7 @@ export default function NeonRPG({ language = "en" }) {
       window.removeEventListener("keyup", onKeyUp);
       window.removeEventListener("blur", onBlur);
     };
-  }, []);
+  }, [togglePause]);
 
   useEffect(() => {
     let animationFrame;
@@ -707,7 +689,7 @@ export default function NeonRPG({ language = "en" }) {
       const w = worldRef.current;
       const p = w.player;
 
-      if (w.running && !w.gameOver) {
+      if (w.running && !w.paused && !w.gameOver) {
         w.time += dt;
         w.spawnTimer += dt;
 
@@ -727,7 +709,6 @@ export default function NeonRPG({ language = "en" }) {
         p.x += p.vx * dt;
         p.x = Math.max(30, Math.min(WIDTH - 30, p.x));
 
-        // Jumping and gravity
         p.vy += GRAVITY * dt;
         p.y += p.vy * dt;
 
@@ -744,15 +725,18 @@ export default function NeonRPG({ language = "en" }) {
         p.invincible = Math.max(0, p.invincible - dt);
         p.flash = Math.max(0, p.flash - dt);
 
-        // Keep enemies coming from both sides of the screen.
+        const aliveEnemies = w.enemies.filter((enemy) => !enemy.dead);
         const spawnDelay = Math.max(0.65, 2.0 - w.level * 0.08);
+
         if (
           w.spawnTimer >= spawnDelay &&
-          w.enemies.filter((enemy) => !enemy.dead).length < MAX_ENEMIES
+          aliveEnemies.length < MAX_ENEMIES
         ) {
           w.spawnTimer = 0;
-          const side = Math.random() < 0.5 ? -1 : 1;
-          const spawnX = side < 0 ? 35 : WIDTH - 35;
+
+          const spawnSide = Math.random() < 0.5 ? -1 : 1;
+          const spawnX = spawnSide < 0 ? 35 : WIDTH - 35;
+
           w.enemies.push(
             makeEnemy(spawnX, w.nextEnemyId++, w.level)
           );
@@ -761,9 +745,6 @@ export default function NeonRPG({ language = "en" }) {
         for (const enemy of w.enemies) {
           if (enemy.dead) continue;
 
-          enemy.damageTimer = Math.max(0, enemy.damageTimer - dt);
-          enemy.attackTimer -= dt;
-
           const dx = p.x - enemy.x;
           enemy.facing = dx >= 0 ? 1 : -1;
 
@@ -771,8 +752,8 @@ export default function NeonRPG({ language = "en" }) {
             enemy.x += Math.sign(dx) * enemy.speed * dt;
           }
 
-          // Robots stay on the platform.
           enemy.y = GROUND;
+          enemy.attackTimer -= dt;
 
           if (
             Math.abs(dx) < 54 &&
@@ -780,6 +761,7 @@ export default function NeonRPG({ language = "en" }) {
             enemy.attackTimer <= 0
           ) {
             enemy.attackTimer = 0.95;
+
             if (p.invincible <= 0) {
               p.health -= 9 + Math.floor(w.level * 0.8);
               p.invincible = 0.65;
@@ -790,33 +772,41 @@ export default function NeonRPG({ language = "en" }) {
                 p.health = 0;
                 w.running = false;
                 w.gameOver = true;
+                w.paused = false;
                 w.message = "MISSION_FAILED";
                 w.messageTimer = 999;
+
+                setBestKills((previous) => {
+                  const next = Math.max(previous, w.kills);
+
+                  try {
+                    localStorage.setItem("nexora-rpg-best", String(next));
+                  } catch {
+                    // The game still works if browser storage is unavailable.
+                  }
+
+                  return next;
+                });
               }
             }
           }
         }
 
-        w.enemies = w.enemies.filter(
-          (enemy) => !enemy.dead || enemy.health > -500
-        );
+        // Remove defeated robots instead of keeping them in the game.
+        w.enemies = w.enemies.filter((enemy) => !enemy.dead);
+      }
 
-        // Keep the list from growing forever.
-        if (w.enemies.length > 30) {
-          w.enemies = w.enemies.filter((enemy) => !enemy.dead);
+      if (!w.paused) {
+        for (const particle of w.particles) {
+          particle.life -= dt;
+          particle.x += particle.vx * dt;
+          particle.y += particle.vy * dt;
+          particle.vx *= 0.97;
+          particle.vy += 220 * dt;
         }
-      }
 
-      // Particle effects continue to fade while the game is paused.
-      for (const particle of w.particles) {
-        particle.life -= dt;
-        particle.x += particle.vx * dt;
-        particle.y += particle.vy * dt;
-        particle.vx *= 0.97;
-        particle.vy += 220 * dt;
+        w.particles = w.particles.filter((particle) => particle.life > 0);
       }
-
-      w.particles = w.particles.filter((particle) => particle.life > 0);
     }
 
     function render() {
@@ -825,14 +815,8 @@ export default function NeonRPG({ language = "en" }) {
 
       drawCity(ctx, w.time);
 
-      // Draw a subtle glow around the active fighting area.
       const glow = ctx.createRadialGradient(
-        p.x,
-        GROUND - 40,
-        10,
-        p.x,
-        GROUND - 40,
-        230
+        p.x, GROUND - 40, 10, p.x, GROUND - 40, 230
       );
       glow.addColorStop(0, "rgba(29,210,255,0.08)");
       glow.addColorStop(1, "rgba(29,210,255,0)");
@@ -840,8 +824,7 @@ export default function NeonRPG({ language = "en" }) {
       ctx.fillRect(p.x - 230, GROUND - 270, 460, 270);
 
       for (const enemy of w.enemies) {
-        if (enemy.dead) continue;
-        drawEnemy(ctx, enemy, w.time);
+        if (!enemy.dead) drawEnemy(ctx, enemy, w.time);
       }
 
       if (p.flash > 0) {
@@ -852,7 +835,6 @@ export default function NeonRPG({ language = "en" }) {
         ctx.restore();
         ctx.filter = "none";
       } else if (p.invincible > 0 && Math.floor(w.time * 18) % 2 === 0) {
-        // Blink while briefly protected from damage.
         ctx.save();
         ctx.globalAlpha = 0.45;
         drawHero(ctx, p, w.time);
@@ -863,17 +845,13 @@ export default function NeonRPG({ language = "en" }) {
 
       drawParticles(ctx, w.particles);
 
-      // On-screen mission banner
       if (w.message && w.messageTimer > 0) {
         let message = w.message;
 
-        if (message === "MISSION_READY") {
-          message = t.missionReady;
-        } else if (message === "ELIMINATE_ROBOTS") {
-          message = t.eliminate;
-        } else if (message === "MISSION_FAILED") {
-          message = t.missionFailed;
-        } else if (message.startsWith("LEVEL_UP:")) {
+        if (message === "MISSION_READY") message = t.missionReady;
+        else if (message === "ELIMINATE_ROBOTS") message = t.eliminate;
+        else if (message === "MISSION_FAILED") message = t.missionFailed;
+        else if (message.startsWith("LEVEL_UP:")) {
           message = `${t.levelUp} ${message.split(":")[1]}`;
         }
 
@@ -902,8 +880,20 @@ export default function NeonRPG({ language = "en" }) {
         ctx.fillText(t.moveKeys, WIDTH / 2, 365);
       }
 
+      if (w.paused) {
+        ctx.fillStyle = "rgba(6,4,20,0.72)";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        ctx.textAlign = "center";
+        ctx.font = lang === "zh" ? "bold 48px sans-serif" : "bold 48px monospace";
+        ctx.fillStyle = "#65f3ff";
+        ctx.shadowColor = "#65f3ff";
+        ctx.shadowBlur = 20;
+        ctx.fillText(t.paused, WIDTH / 2, HEIGHT / 2);
+        ctx.shadowBlur = 0;
+      }
+
       if (w.gameOver) {
-        ctx.fillStyle = "rgba(6,4,20,0.7)";
+        ctx.fillStyle = "rgba(6,4,20,0.78)";
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
         ctx.textAlign = "center";
         ctx.font = lang === "zh" ? "bold 44px sans-serif" : "bold 44px monospace";
@@ -945,8 +935,18 @@ export default function NeonRPG({ language = "en" }) {
     return () => cancelAnimationFrame(animationFrame);
   }, [syncHud, lang, t]);
 
-  const healthPercent = Math.max(0, (hud.health / hud.maxHealth) * 100);
-  const xpPercent = Math.min(100, (hud.xp / (hud.level * 100)) * 100);
+  const healthPercent = Math.max(
+    0,
+    Math.min(100, (hud.health / hud.maxHealth) * 100)
+  );
+  const xpPercent = Math.min(
+    100,
+    (hud.xp / (hud.level * 100)) * 100
+  );
+
+  const setMoveKey = (key, pressed) => {
+    keysRef.current[key] = pressed;
+  };
 
   return (
     <div className="neon-rpg">
@@ -957,9 +957,20 @@ export default function NeonRPG({ language = "en" }) {
           <p className="neon-rpg-subtitle">{t.subtitle}</p>
         </div>
 
-        <button className="neon-rpg-play" onClick={startGame}>
-          {hud.gameOver ? t.playAgain : hud.running ? t.restart : t.start}
-        </button>
+        <div className="neon-rpg-header-actions">
+          {hud.running && !hud.gameOver && (
+            <button
+              className="neon-rpg-pause"
+              onClick={togglePause}
+            >
+              {hud.paused ? t.resume : t.pause}
+            </button>
+          )}
+
+          <button className="neon-rpg-play" onClick={startGame}>
+            {hud.gameOver ? t.playAgain : hud.running ? t.restart : t.start}
+          </button>
+        </div>
       </div>
 
       <div className="neon-rpg-hud">
@@ -999,6 +1010,11 @@ export default function NeonRPG({ language = "en" }) {
           <span>{t.kills}</span>
           <strong className="neon-rpg-stat-value">{hud.kills}</strong>
         </div>
+
+        <div className="neon-rpg-stat neon-rpg-best">
+          <span>{t.best}</span>
+          <strong className="neon-rpg-stat-value">{bestKills}</strong>
+        </div>
       </div>
 
       <div className="neon-rpg-screen">
@@ -1016,26 +1032,35 @@ export default function NeonRPG({ language = "en" }) {
           <span><kbd>A</kbd> <kbd>D</kbd> {t.move}</span>
           <span><kbd>W</kbd> / <kbd>{t.space}</kbd> {t.jump}</span>
           <span><kbd>J</kbd> {t.attack}</span>
+          <span><kbd>P</kbd> {t.pause}</span>
         </div>
 
         <div className="neon-rpg-touch-controls">
           <div className="neon-rpg-direction-buttons">
             <button
               aria-label={t.moveLeft}
-              onPointerDown={() => { keysRef.current.a = true; }}
-              onPointerUp={() => { keysRef.current.a = false; }}
-              onPointerLeave={() => { keysRef.current.a = false; }}
-              onPointerCancel={() => { keysRef.current.a = false; }}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                setMoveKey("a", true);
+              }}
+              onPointerUp={() => setMoveKey("a", false)}
+              onPointerCancel={() => setMoveKey("a", false)}
+              onLostPointerCapture={() => setMoveKey("a", false)}
             >
               ◀
             </button>
 
             <button
               aria-label={t.moveRight}
-              onPointerDown={() => { keysRef.current.d = true; }}
-              onPointerUp={() => { keysRef.current.d = false; }}
-              onPointerLeave={() => { keysRef.current.d = false; }}
-              onPointerCancel={() => { keysRef.current.d = false; }}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                setMoveKey("d", true);
+              }}
+              onPointerUp={() => setMoveKey("d", false)}
+              onPointerCancel={() => setMoveKey("d", false)}
+              onLostPointerCapture={() => setMoveKey("d", false)}
             >
               ▶
             </button>

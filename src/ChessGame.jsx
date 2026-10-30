@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Chess } from 'chess.js';
 import './ChessGame.css';
 
@@ -8,22 +8,14 @@ const PIECES = {
   b: { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟︎' },
 };
 
-const PIECE_VALUES = {
-  p: 100,
-  n: 320,
-  b: 335,
-  r: 500,
-  q: 900,
-  k: 20000,
-};
-
+const VALUES = { p: 100, n: 320, b: 335, r: 500, q: 900, k: 20000 };
 const FILES = 'abcdefgh';
 
 const TEXT = {
   en: {
     eyebrow: 'NEXORA AI ARCADE',
     title: 'NEON',
-    titleAccent: 'CHESS',
+    accent: 'CHESS',
     subtitle: 'Challenge the computer. Plan your moves. Own the board.',
     board: 'Chess board',
     white: 'White',
@@ -56,31 +48,38 @@ const TEXT = {
     easy: 'Easy',
     medium: 'Medium',
     hard: 'Hard',
-    easyNote: 'Easy: relaxed play with more varied moves.',
-    mediumNote: 'Medium: searches ahead and considers captures.',
-    hardNote: 'Hard: searches deeper to find stronger moves.',
+    easyNote: 'Easy: relaxed play with varied moves.',
+    mediumNote: 'Medium: searches ahead and considers tactics.',
+    hardNote: 'Hard: searches deeper for stronger moves.',
     history: 'MOVE HISTORY',
     emptyHistory: 'Your moves will appear here once the game begins.',
     strategy: 'STRATEGY TIP',
     strategyText: 'Control the center, develop your pieces, and protect your king.',
     computerError: 'The computer could not find a move. Please restart.',
     illegalMove: 'That move is not legal. Please choose another square.',
+    hint: 'AI MOVE COACH',
+    getHint: 'Find Best Move',
+    analyzing: 'Analyzing position...',
+    bestMove: 'Recommended move',
+    hintEmpty: 'Ask the AI to analyze your current position.',
+    analysis: 'MOVE ANALYSIS',
+    capture: 'This move captures an opponent piece.',
+    checkMove: 'This move puts the opponent in check.',
+    castle: 'Castling helps protect your king.',
+    promotion: 'This move promotes your pawn.',
+    normalMove: 'Develop your pieces and improve your position.',
+    yourMove: 'Your move',
     whitePiece: 'white',
     blackPiece: 'black',
     pieceNames: {
-      k: 'king',
-      q: 'queen',
-      r: 'rook',
-      b: 'bishop',
-      n: 'knight',
-      p: 'pawn',
+      k: 'king', q: 'queen', r: 'rook',
+      b: 'bishop', n: 'knight', p: 'pawn',
     },
   },
-
   zh: {
     eyebrow: 'NEXORA AI 游戏中心',
     title: '霓虹',
-    titleAccent: '国际象棋',
+    accent: '国际象棋',
     subtitle: '挑战电脑，规划每一步，掌控整个棋盘。',
     board: '国际象棋棋盘',
     white: '白方',
@@ -114,31 +113,47 @@ const TEXT = {
     medium: '中等',
     hard: '困难',
     easyNote: '简单：电脑采用较轻松且变化更多的走法。',
-    mediumNote: '中等：电脑会提前计算并考虑吃子。',
-    hardNote: '困难：电脑会进行更深层的计算，寻找更强的走法。',
+    mediumNote: '中等：电脑会提前计算并考虑战术。',
+    hardNote: '困难：电脑会进行更深层的计算。',
     history: '走棋记录',
     emptyHistory: '游戏开始后，你的走棋记录会显示在这里。',
     strategy: '策略提示',
     strategyText: '控制中心，发展棋子，并保护你的国王。',
     computerError: '电脑无法找到可行走法，请重新开始。',
     illegalMove: '这不是合法走法，请选择其他棋格。',
+    hint: 'AI 走棋教练',
+    getHint: '寻找最佳走法',
+    analyzing: '正在分析局面...',
+    bestMove: '推荐走法',
+    hintEmpty: '让 AI 分析当前棋局。',
+    analysis: '走棋分析',
+    capture: '这一步可以吃掉对方棋子。',
+    checkMove: '这一步可以将军。',
+    castle: '王车易位可以帮助保护国王。',
+    promotion: '这一步可以让兵升变。',
+    normalMove: '发展棋子并改善你的局面。',
+    yourMove: '你的走法',
     whitePiece: '白方',
     blackPiece: '黑方',
     pieceNames: {
-      k: '国王',
-      q: '皇后',
-      r: '城堡',
-      b: '象',
-      n: '马',
-      p: '兵',
+      k: '国王', q: '皇后', r: '城堡',
+      b: '象', n: '马', p: '兵',
     },
   },
 };
 
 function normalizeLanguage(language) {
-  return language === 'zh' || language === 'zh-CN' || language === 'zh-cn'
-    ? 'zh'
-    : 'en';
+  return ['zh', 'zh-CN', 'zh-cn'].includes(language) ? 'zh' : 'en';
+}
+
+function cloneMove(game, move) {
+  const next = new Chess(game.fen());
+  next.move({
+    from: move.from,
+    to: move.to,
+    promotion: move.promotion || 'q',
+  });
+  return next;
 }
 
 function evaluatePosition(game) {
@@ -149,31 +164,46 @@ function evaluatePosition(game) {
   if (game.isDraw()) return 0;
 
   let score = 0;
-  const board = game.board();
 
-  board.forEach((row, r) => {
+  game.board().forEach((row, r) => {
     row.forEach((piece, c) => {
       if (!piece) return;
 
-      const value = PIECE_VALUES[piece.type];
       const direction = piece.color === 'w' ? 1 : -1;
+      const center =
+        (3.5 - Math.abs(3.5 - c)) * 5 +
+        (3.5 - Math.abs(3.5 - r)) * 5;
 
-      const centerBonus =
-        (3.5 - Math.abs(3.5 - c)) * 4 +
-        (3.5 - Math.abs(3.5 - r)) * 4;
-
-      let bonus = centerBonus;
+      let bonus = center;
 
       if (piece.type === 'p') {
         const advance = piece.color === 'w' ? 6 - r : r - 1;
-        bonus += advance * 7;
+        bonus += advance * 8;
       }
 
-      score += direction * (value + bonus);
+      if (piece.type === 'n' || piece.type === 'b') {
+        if (r >= 2 && r <= 5 && c >= 2 && c <= 5) {
+          bonus += 12;
+        }
+      }
+
+      score += direction * (VALUES[piece.type] + bonus);
     });
   });
 
   return score;
+}
+
+function orderMoves(moves) {
+  return [...moves].sort((a, b) => {
+    const score = (move) =>
+      (move.captured ? VALUES[move.captured] * 10 : 0) +
+      (move.promotion ? VALUES[move.promotion] : 0) +
+      (move.san.includes('+') ? 40 : 0) +
+      (move.san.includes('#') ? 100000 : 0);
+
+    return score(b) - score(a);
+  });
 }
 
 function searchBestMove(game, depth, alpha, beta) {
@@ -181,26 +211,13 @@ function searchBestMove(game, depth, alpha, beta) {
     return evaluatePosition(game);
   }
 
-  const moves = game.moves({ verbose: true });
-
-  moves.sort((a, b) => {
-    const aValue = a.captured ? PIECE_VALUES[a.captured] : 0;
-    const bValue = b.captured ? PIECE_VALUES[b.captured] : 0;
-    return bValue - aValue;
-  });
+  const moves = orderMoves(game.moves({ verbose: true }));
 
   if (game.turn() === 'w') {
     let best = -Infinity;
 
     for (const move of moves) {
-      const next = new Chess(game.fen());
-
-      next.move({
-        from: move.from,
-        to: move.to,
-        promotion: move.promotion || 'q',
-      });
-
+      const next = cloneMove(game, move);
       best = Math.max(
         best,
         searchBestMove(next, depth - 1, alpha, beta),
@@ -216,14 +233,7 @@ function searchBestMove(game, depth, alpha, beta) {
   let best = Infinity;
 
   for (const move of moves) {
-    const next = new Chess(game.fen());
-
-    next.move({
-      from: move.from,
-      to: move.to,
-      promotion: move.promotion || 'q',
-    });
-
+    const next = cloneMove(game, move);
     best = Math.min(
       best,
       searchBestMove(next, depth - 1, alpha, beta),
@@ -236,60 +246,55 @@ function searchBestMove(game, depth, alpha, beta) {
   return best;
 }
 
-function chooseComputerMove(game, difficulty, botColor) {
-  const depthByLevel = {
-    Easy: 1,
-    Medium: 2,
-    Hard: 3,
-  };
+function scoreMoves(game, depth) {
+  const moves = orderMoves(game.moves({ verbose: true }));
 
-  const depth = depthByLevel[difficulty] || 2;
-  const moves = game.moves({ verbose: true });
-
-  if (!moves.length) return null;
-
-  const scoredMoves = moves.map((move) => {
-    const next = new Chess(game.fen());
-
-    next.move({
-      from: move.from,
-      to: move.to,
-      promotion: move.promotion || 'q',
-    });
-
-    return {
-      move,
-      score: searchBestMove(next, depth - 1, -Infinity, Infinity),
-    };
-  });
-
-  if (difficulty === 'Easy') {
-    scoredMoves.sort((a, b) =>
-      botColor === 'w'
-        ? b.score - a.score
-        : a.score - b.score,
-    );
-
-    const pool = scoredMoves.slice(
-      0,
-      Math.max(1, Math.ceil(scoredMoves.length * 0.65)),
-    );
-
-    return pool[Math.floor(Math.random() * pool.length)].move;
-  }
-
-  scoredMoves.sort((a, b) =>
-    botColor === 'w'
+  return moves.map((move) => ({
+    move,
+    score: searchBestMove(
+      cloneMove(game, move),
+      depth - 1,
+      -Infinity,
+      Infinity,
+    ),
+  })).sort((a, b) =>
+    game.turn() === 'w'
       ? b.score - a.score
       : a.score - b.score,
   );
+}
 
-  const bestScore = scoredMoves[0].score;
-  const equallyGood = scoredMoves.filter(
-    (item) => item.score === bestScore,
-  );
+function chooseComputerMove(game, difficulty) {
+  const depth = {
+    Easy: 1,
+    Medium: 2,
+    Hard: 3,
+  }[difficulty] || 2;
 
-  return equallyGood[Math.floor(Math.random() * equallyGood.length)].move;
+  const scored = scoreMoves(game, depth);
+
+  if (!scored.length) return null;
+
+  if (difficulty === 'Easy') {
+    const pool = scored.slice(
+      0,
+      Math.max(1, Math.ceil(scored.length * 0.6)),
+    );
+    return pool[Math.floor(Math.random() * pool.length)].move;
+  }
+
+  const bestScore = scored[0].score;
+  const bestMoves = scored.filter((item) => item.score === bestScore);
+
+  return bestMoves[Math.floor(Math.random() * bestMoves.length)].move;
+}
+
+function explainMove(move, t) {
+  if (move.promotion) return t.promotion;
+  if (move.flags.includes('k') || move.flags.includes('q')) return t.castle;
+  if (move.san.includes('+') || move.san.includes('#')) return t.checkMove;
+  if (move.captured || move.flags.includes('e')) return t.capture;
+  return t.normalMove;
 }
 
 function getGameStatus(game, mode, playerColor, thinking, t) {
@@ -309,21 +314,18 @@ function getGameStatus(game, mode, playerColor, thinking, t) {
   if (game.isThreefoldRepetition()) return t.repetition;
   if (game.isInsufficientMaterial()) return t.insufficient;
   if (game.isDraw()) return t.draw;
-
   if (thinking) return t.thinking;
 
-  const sideToMove = game.turn() === 'w' ? t.white : t.black;
-  const checkText = game.isCheck() ? t.check : '';
+  const side = game.turn() === 'w' ? t.white : t.black;
+  const check = game.isCheck() ? t.check : '';
 
   if (mode === 'computer') {
-    if (game.turn() === playerColor) {
-      return `${t.yourTurn} (${sideToMove})${checkText}`;
-    }
-
-    return `${t.computerTurn} (${sideToMove})${checkText}`;
+    return game.turn() === playerColor
+      ? `${t.yourTurn} (${side})${check}`
+      : `${t.computerTurn} (${side})${check}`;
   }
 
-  return `${sideToMove} ${t.toMove}${checkText}`;
+  return `${side} ${t.toMove}${check}`;
 }
 
 export default function ChessGame({ language = 'en' }) {
@@ -341,9 +343,15 @@ export default function ChessGame({ language = 'en' }) {
   const [flipped, setFlipped] = useState(false);
   const [message, setMessage] = useState('');
   const [promotion, setPromotion] = useState(null);
+  const [hint, setHint] = useState(null);
+  const [hintLoading, setHintLoading] = useState(false);
+  const [lastAnalysis, setLastAnalysis] = useState('');
 
   const gameOver = game.isGameOver();
-  const botColor = playerColor === 'w' ? 'b' : 'w';
+  const lastMove = useMemo(
+    () => game.history({ verbose: true }).slice(-1)[0],
+    [game],
+  );
 
   useEffect(() => {
     if (
@@ -356,36 +364,35 @@ export default function ChessGame({ language = 'en' }) {
       return undefined;
     }
 
+    let cancelled = false;
     setThinking(true);
 
     const timer = setTimeout(() => {
       try {
-        const botMove = chooseComputerMove(game, difficulty, botColor);
+        const botMove = chooseComputerMove(game, difficulty);
 
-        if (botMove) {
-          const next = new Chess(game.fen());
-
-          next.move({
-            from: botMove.from,
-            to: botMove.to,
-            promotion: botMove.promotion || 'q',
-          });
-
+        if (botMove && !cancelled) {
+          const next = cloneMove(game, botMove);
           setGame(next);
           setHistory(next.history());
           setSelectedSquare(null);
           setLegalTargets([]);
+          setHint(null);
+          setLastAnalysis(explainMove(botMove, t));
           setMessage('');
         }
-      } catch (error) {
-        setMessage(t.computerError);
+      } catch {
+        if (!cancelled) setMessage(t.computerError);
       } finally {
-        setThinking(false);
+        if (!cancelled) setThinking(false);
       }
     }, 350);
 
-    return () => clearTimeout(timer);
-  }, [game, mode, playerColor, difficulty, botColor, gameOver, promotion, t]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [game, mode, playerColor, difficulty, gameOver, promotion, t]);
 
   function startNewGame(
     nextMode = mode,
@@ -401,12 +408,15 @@ export default function ChessGame({ language = 'en' }) {
     setDifficulty(nextDifficulty);
     setThinking(false);
     setPromotion(null);
+    setHint(null);
+    setHintLoading(false);
+    setLastAnalysis('');
     setMessage('');
     setFlipped(nextMode === 'computer' && nextColor === 'b');
   }
 
   function undoMove() {
-    if (thinking) return;
+    if (thinking || hintLoading) return;
 
     const next = new Chess(game.fen());
     if (!next.history().length) return;
@@ -426,11 +436,35 @@ export default function ChessGame({ language = 'en' }) {
     setSelectedSquare(null);
     setLegalTargets([]);
     setPromotion(null);
+    setHint(null);
+    setLastAnalysis('');
     setMessage('');
   }
 
+  function makeMove(from, to, promotionPiece = 'q') {
+    try {
+      const next = new Chess(game.fen());
+      const move = next.move({
+        from,
+        to,
+        promotion: promotionPiece,
+      });
+
+      setGame(next);
+      setHistory(next.history());
+      setSelectedSquare(null);
+      setLegalTargets([]);
+      setPromotion(null);
+      setHint(null);
+      setLastAnalysis(explainMove(move, t));
+      setMessage('');
+    } catch {
+      setMessage(t.illegalMove);
+    }
+  }
+
   function selectSquare(square) {
-    if (gameOver || thinking || promotion) return;
+    if (gameOver || thinking || promotion || hintLoading) return;
     if (mode === 'computer' && game.turn() !== playerColor) return;
 
     const piece = game.get(square);
@@ -445,10 +479,7 @@ export default function ChessGame({ language = 'en' }) {
 
       if (chosen) {
         if (chosen.flags.includes('p')) {
-          setPromotion({
-            from: chosen.from,
-            to: chosen.to,
-          });
+          setPromotion({ from: chosen.from, to: chosen.to });
           return;
         }
 
@@ -459,7 +490,6 @@ export default function ChessGame({ language = 'en' }) {
 
     if (piece && piece.color === game.turn()) {
       const moves = game.moves({ square, verbose: true });
-
       setSelectedSquare(square);
       setLegalTargets(moves.map((move) => move.to));
       setMessage('');
@@ -469,30 +499,39 @@ export default function ChessGame({ language = 'en' }) {
     }
   }
 
-  function makeMove(from, to, promotionPiece = 'q') {
-    try {
-      const next = new Chess(game.fen());
+  function requestHint() {
+    if (gameOver || thinking || hintLoading || promotion) return;
+    if (mode === 'computer' && game.turn() !== playerColor) return;
 
-      next.move({
-        from,
-        to,
-        promotion: promotionPiece,
-      });
+    setHintLoading(true);
+    setHint(null);
 
-      setGame(next);
-      setHistory(next.history());
-      setSelectedSquare(null);
-      setLegalTargets([]);
-      setPromotion(null);
-      setMessage('');
-    } catch {
-      setMessage(t.illegalMove);
-    }
-  }
+    const position = new Chess(game.fen());
+    const depth = difficulty === 'Hard' ? 3 : 2;
 
-  function handleSquareClick(square) {
-    if (selectedSquare && promotion) return;
-    selectSquare(square);
+    setTimeout(() => {
+      try {
+        const scored = scoreMoves(position, depth);
+
+        if (scored.length) {
+          const best = scored[0].move;
+
+          setHint({
+            from: best.from,
+            to: best.to,
+            san: best.san,
+          });
+
+          setLastAnalysis(
+            `${t.bestMove}: ${best.san}. ${explainMove(best, t)}`,
+          );
+        }
+      } catch {
+        setMessage(t.computerError);
+      } finally {
+        setHintLoading(false);
+      }
+    }, 50);
   }
 
   const board = game.board();
@@ -510,9 +549,7 @@ export default function ChessGame({ language = 'en' }) {
     <section className="chess-game" id="chess-game">
       <div className="chess-heading">
         <span className="chess-eyebrow">{t.eyebrow}</span>
-        <h2>
-          {t.title} <span>{t.titleAccent}</span>
-        </h2>
+        <h2>{t.title} <span>{t.accent}</span></h2>
         <p>{t.subtitle}</p>
       </div>
 
@@ -531,11 +568,12 @@ export default function ChessGame({ language = 'en' }) {
                 const isLight = (rowIndex + colIndex) % 2 === 0;
                 const isSelected = selectedSquare === square;
                 const isTarget = legalTargets.includes(square);
-                const lastMove = game.history({ verbose: true }).slice(-1)[0];
 
-                const isLastMove =
-                  lastMove &&
+                const isLastMove = lastMove &&
                   (lastMove.from === square || lastMove.to === square);
+
+                const isHintSquare = hint &&
+                  (hint.from === square || hint.to === square);
 
                 const pieceDescription = piece
                   ? `${piece.color === 'w' ? t.whitePiece : t.blackPiece} ${t.pieceNames[piece.type]}`
@@ -551,14 +589,13 @@ export default function ChessGame({ language = 'en' }) {
                       isSelected ? 'selected' : '',
                       isTarget ? 'legal-target' : '',
                       isLastMove ? 'last-move' : '',
+                      isHintSquare ? 'ai-hint-square' : '',
                     ].filter(Boolean).join(' ')}
-                    onClick={() => handleSquareClick(square)}
+                    onClick={() => selectSquare(square)}
                     aria-label={`${square}${pieceDescription ? ` ${pieceDescription}` : ''}`}
                   >
                     {piece && (
-                      <span
-                        className={`chess-piece ${piece.color === 'w' ? 'white-piece' : 'black-piece'}`}
-                      >
+                      <span className={`chess-piece ${piece.color === 'w' ? 'white-piece' : 'black-piece'}`}>
                         {PIECES[piece.color][piece.type]}
                       </span>
                     )}
@@ -582,20 +619,16 @@ export default function ChessGame({ language = 'en' }) {
           {promotion && (
             <div className="promotion-panel">
               <p>{t.choosePromotion}</p>
-
               <div className="promotion-options">
                 {['q', 'r', 'b', 'n'].map((pieceType) => (
                   <button
                     key={pieceType}
                     type="button"
-                    onClick={() =>
-                      makeMove(promotion.from, promotion.to, pieceType)
-                    }
+                    onClick={() => makeMove(promotion.from, promotion.to, pieceType)}
                   >
                     {PIECES[game.turn()][pieceType]}
                   </button>
                 ))}
-
                 <button
                   type="button"
                   className="promotion-cancel"
@@ -611,15 +644,12 @@ export default function ChessGame({ language = 'en' }) {
             <button
               type="button"
               onClick={undoMove}
-              disabled={!history.length || thinking}
+              disabled={!history.length || thinking || hintLoading}
             >
               ↶ {t.undo}
             </button>
 
-            <button
-              type="button"
-              onClick={() => setFlipped((value) => !value)}
-            >
+            <button type="button" onClick={() => setFlipped((value) => !value)}>
               ⇅ {t.flip}
             </button>
 
@@ -633,6 +663,42 @@ export default function ChessGame({ language = 'en' }) {
           </div>
 
           {message && <p className="chess-message">{message}</p>}
+
+          <div className="chess-control-card ai-coach-card">
+            <h3>✦ {t.hint}</h3>
+
+            <button
+              type="button"
+              className="ai-hint-button"
+              onClick={requestHint}
+              disabled={
+                gameOver ||
+                thinking ||
+                hintLoading ||
+                !!promotion ||
+                (mode === 'computer' && game.turn() !== playerColor)
+              }
+            >
+              {hintLoading ? t.analyzing : `✧ ${t.getHint}`}
+            </button>
+
+            {hint ? (
+              <div className="ai-hint-result">
+                <strong>{t.bestMove}: {hint.san}</strong>
+                <p>{hint.from} → {hint.to}</p>
+                <small>{lastAnalysis}</small>
+              </div>
+            ) : (
+              <p className="history-empty">{t.hintEmpty}</p>
+            )}
+
+            {lastAnalysis && (
+              <div className="ai-analysis">
+                <strong>{t.analysis}</strong>
+                <p>{lastAnalysis}</p>
+              </div>
+            )}
+          </div>
         </div>
 
         <aside className="chess-sidebar">
@@ -640,7 +706,6 @@ export default function ChessGame({ language = 'en' }) {
             <h3>{t.settings}</h3>
 
             <label htmlFor="chess-mode">{t.playMode}</label>
-
             <select
               id="chess-mode"
               value={mode}
@@ -655,7 +720,6 @@ export default function ChessGame({ language = 'en' }) {
             {mode === 'computer' && (
               <>
                 <label htmlFor="chess-color">{t.playAs}</label>
-
                 <select
                   id="chess-color"
                   value={playerColor}
@@ -668,7 +732,6 @@ export default function ChessGame({ language = 'en' }) {
                 </select>
 
                 <label htmlFor="chess-difficulty">{t.difficulty}</label>
-
                 <select
                   id="chess-difficulty"
                   value={difficulty}
@@ -683,7 +746,6 @@ export default function ChessGame({ language = 'en' }) {
 
                 <div className="difficulty-note">
                   <span className="difficulty-icon">✦</span>
-
                   <span>
                     {difficulty === 'Easy' && t.easyNote}
                     {difficulty === 'Medium' && t.mediumNote}
@@ -696,7 +758,6 @@ export default function ChessGame({ language = 'en' }) {
 
           <div className="chess-control-card">
             <h3>{t.history}</h3>
-
             <div className="move-history">
               {history.length === 0 ? (
                 <p className="history-empty">{t.emptyHistory}</p>
@@ -719,7 +780,6 @@ export default function ChessGame({ language = 'en' }) {
 
           <div className="chess-tip">
             <span>◈</span>
-
             <div>
               <strong>{t.strategy}</strong>
               <p>{t.strategyText}</p>

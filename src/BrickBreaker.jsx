@@ -2,220 +2,118 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import './BrickBreaker.css';
 
-const WIDTH = 800;
-const HEIGHT = 520;
-const PADDLE_WIDTH = 112;
-const PADDLE_HEIGHT = 13;
-const BALL_RADIUS = 8;
-const BRICK_COLS = 9;
-const BRICK_WIDTH = 72;
-const BRICK_HEIGHT = 21;
-const BRICK_GAP = 9;
-const BRICK_TOP = 75;
-
-const BRICK_COLORS = [
-  '#ff4fd8',
-  '#b36bff',
-  '#7d70ff',
-  '#3eafff',
-  '#35e7ff',
-];
-
-const POWER_TYPES = ['wide', 'multi', 'slow', 'life'];
+const W = 800;
+const H = 520;
+const SAVE_KEY = 'nexora-brick-breaker-v3';
 
 const TEXT = {
   en: {
-    eyebrow: 'NEXORA AI ARCADE · GAME 04',
-    title: 'NEON',
-    titleAccent: 'BRICK BREAKER',
+    title: 'NEON BRICK BREAKER',
     subtitle: 'Break the wall. Catch the ball. Beat every level.',
-    score: 'SCORE',
-    lives: 'LIVES',
-    level: 'LEVEL',
-    highScore: 'HIGH SCORE',
-    achievements: 'ACHIEVEMENTS',
-    powerUp: 'POWER-UP',
-    none: 'NONE',
-    ready: 'READY — press Start to launch the ball',
+    score: 'SCORE', lives: 'LIVES', level: 'LEVEL', high: 'HIGH SCORE',
+    start: 'Start Game', resume: 'Resume Game', pause: 'Ⅱ Pause',
+    restart: '↻ Restart', ready: 'READY — press Start to launch',
     playing: 'IN GAME — keep the ball in play!',
-    paused: 'PAUSED — take a breath',
-    won: 'MISSION COMPLETE — you cleared every level!',
-    lost: 'GAME OVER — try again!',
-    youDidIt: 'YOU DID IT!',
-    gameOver: 'GAME OVER',
-    gamePaused: 'GAME PAUSED',
-    readyPlayer: 'READY, PLAYER?',
-    startGame: 'Start Game',
-    resumeGame: 'Resume Game',
+    paused: 'GAME PAUSED', won: 'MISSION COMPLETE!',
+    lost: 'GAME OVER', next: 'NEXT LEVEL',
+    tip: 'ARCADE TIP: Hit the ball with the edge of your paddle to change its angle.',
+    controls: 'Use ← → or A / D, mouse, or touch to move.',
+    power: 'ACTIVE POWER', achievements: 'ACHIEVEMENTS',
+    unlocked: 'Unlocked', locked: 'Not unlocked yet',
+    first: 'First Break', firstDesc: 'Break your first brick.',
+    combo: 'Combo Master', comboDesc: 'Reach a 5-hit combo.',
+    survivor: 'Survivor', survivorDesc: 'Complete a level with at least 2 lives.',
+    collector: 'Power Collector', collectorDesc: 'Collect a power-up.',
+    mute: 'Sound', on: 'ON', off: 'OFF',
+    mobileLeft: '◀ LEFT', mobileRight: 'RIGHT ▶',
+    notice: 'Power-up collected!',
+    bonus: 'BONUS BRICK', solid: 'UNBREAKABLE',
+    levelComplete: 'Level cleared! Get ready for the next level.',
+    final: 'You conquered all five levels!',
     playAgain: 'Play Again',
-    left: '◀ LEFT',
-    right: 'RIGHT ▶',
-    moveWith: 'or',
-    toMove: 'to move',
-    mouseTouch: 'Mouse or touch also works',
-    soundOff: '🔇 Sound Off',
-    soundOn: '🔊 Sound On',
-    pause: 'Ⅱ Pause',
-    resume: '▶ Resume',
-    restart: '↻ Restart',
-    achievementHeading: '🏆 ACHIEVEMENTS',
-    strategyHeading: 'ARCADE TIP:',
-    strategyText: 'Hit the ball with the edge of your paddle to change its angle. Collect falling power-ups. ◆ grey bricks are unbreakable; yellow + bricks award bonus points.',
-    dismiss: 'Dismiss notification',
-    moveLeft: 'Move paddle left',
-    moveRight: 'Move paddle right',
-    canvasLabel: 'Neon Brick Breaker. Move the paddle with arrow keys, A and D, mouse, touch, or mobile controls.',
-    achievementTitles: {
-      first: 'FIRST BREAK',
-      combo: 'COMBO MASTER',
-      level: 'LEVEL CLEAR',
-      score: 'NEON LEGEND',
-      survivor: 'SURVIVOR',
-    },
-    achievementDescriptions: {
-      first: 'Break your first brick',
-      combo: 'Reach a 5x combo',
-      level: 'Clear a level',
-      score: 'Score 500 points',
-      survivor: 'Win with all 3 lives',
-    },
-    powerNames: {
-      wide: 'WIDE PADDLE',
-      multi: 'MULTI-BALL',
-      slow: 'SLOW BALL',
-      life: 'EXTRA LIFE',
-    },
-    notices: {
-      wide: 'WIDE PADDLE · 12 seconds',
-      multi: 'MULTI-BALL ACTIVATED!',
-      slow: 'SLOW BALL ACTIVATED!',
-      life: 'EXTRA LIFE +1',
-    },
-    levelReady: (level) => `LEVEL ${level} READY`,
-    combo: (count) => `${count}x COMBO!`,
-    livesDisplay: (lives) => '♥ '.repeat(lives).trim() || '—',
-    levelDisplay: (level) => `${level} / 5`,
-    achievementCount: (count, total) => `${count} / ${total}`,
+    powers: {
+      wide: 'Wide paddle', multi: 'Multi-ball',
+      slow: 'Slow ball', life: 'Extra life'
+    }
   },
-
   zh: {
-    eyebrow: 'NEXORA AI 游戏中心 · 游戏 04',
-    title: '霓虹',
-    titleAccent: '打砖块',
+    title: '霓虹打砖块',
     subtitle: '击碎砖墙，接住弹球，挑战所有关卡。',
-    score: '得分',
-    lives: '生命',
-    level: '关卡',
-    highScore: '最高分',
-    achievements: '成就',
-    powerUp: '道具',
-    none: '无',
-    ready: '准备就绪 — 点击开始发射弹球',
-    playing: '游戏进行中 — 不要让球掉下去！',
-    paused: '游戏暂停 — 休息一下',
-    won: '任务完成 — 你已经通过所有关卡！',
-    lost: '游戏结束 — 再试一次！',
-    youDidIt: '你做到了！',
-    gameOver: '游戏结束',
-    gamePaused: '游戏已暂停',
-    readyPlayer: '准备好了吗？',
-    startGame: '开始游戏',
-    resumeGame: '继续游戏',
+    score: '分数', lives: '生命', level: '关卡', high: '最高分',
+    start: '开始游戏', resume: '继续游戏', pause: 'Ⅱ 暂停',
+    restart: '↻ 重新开始', ready: '准备好了？点击开始发球',
+    playing: '游戏进行中 — 接住弹球！',
+    paused: '游戏已暂停', won: '任务完成！',
+    lost: '游戏结束', next: '下一关',
+    tip: '游戏技巧：使用挡板边缘击球，可以改变弹球方向。',
+    controls: '使用 ← →、A / D、鼠标或触屏移动。',
+    power: '当前道具', achievements: '成就',
+    unlocked: '已解锁', locked: '尚未解锁',
+    first: '首次击碎', firstDesc: '击碎第一个砖块。',
+    combo: '连击大师', comboDesc: '达到五次连续击中。',
+    survivor: '生存者', survivorDesc: '至少保留两条生命完成一关。',
+    collector: '道具收藏家', collectorDesc: '收集一个道具。',
+    mute: '声音', on: '开启', off: '关闭',
+    mobileLeft: '◀ 左移', mobileRight: '右移 ▶',
+    notice: '获得道具！',
+    bonus: '奖励砖块', solid: '不可破坏',
+    levelComplete: '关卡完成！准备挑战下一关。',
+    final: '你已经征服全部五个关卡！',
     playAgain: '再玩一次',
-    left: '◀ 左移',
-    right: '右移 ▶',
-    moveWith: '或',
-    toMove: '移动挡板',
-    mouseTouch: '也可以使用鼠标或触屏',
-    soundOff: '🔇 关闭声音',
-    soundOn: '🔊 开启声音',
-    pause: 'Ⅱ 暂停',
-    resume: '▶ 继续',
-    restart: '↻ 重新开始',
-    achievementHeading: '🏆 游戏成就',
-    strategyHeading: '街机技巧：',
-    strategyText: '使用挡板边缘击球可以改变弹球角度。收集掉落的道具。◆ 灰色砖块无法击碎；黄色 + 砖块可以获得额外分数。',
-    dismiss: '关闭通知',
-    moveLeft: '挡板向左移动',
-    moveRight: '挡板向右移动',
-    canvasLabel: '霓虹打砖块游戏。使用方向键、A 和 D、鼠标、触屏或手机控制按钮移动挡板。',
-    achievementTitles: {
-      first: '首次击碎',
-      combo: '连击大师',
-      level: '通关达人',
-      score: '霓虹传奇',
-      survivor: '生存专家',
-    },
-    achievementDescriptions: {
-      first: '击碎你的第一块砖',
-      combo: '达到 5 倍连击',
-      level: '完成一个关卡',
-      score: '获得 500 分',
-      survivor: '保留全部 3 条生命获胜',
-    },
-    powerNames: {
-      wide: '加宽挡板',
-      multi: '多重弹球',
-      slow: '减速弹球',
-      life: '额外生命',
-    },
-    notices: {
-      wide: '挡板加宽 · 持续 12 秒',
-      multi: '多重弹球已激活！',
-      slow: '弹球减速已激活！',
-      life: '额外生命 +1',
-    },
-    levelReady: (level) => `第 ${level} 关准备就绪`,
-    combo: (count) => `${count} 倍连击！`,
-    livesDisplay: (lives) => '♥ '.repeat(lives).trim() || '—',
-    levelDisplay: (level) => `${level} / 5`,
-    achievementCount: (count, total) => `${count} / ${total}`,
-  },
+    powers: {
+      wide: '加宽挡板', multi: '多重弹球',
+      slow: '减速弹球', life: '额外生命'
+    }
+  }
 };
 
-function normalizeLanguage(language) {
-  return language === 'zh' || language === 'zh-CN' || language === 'zh-cn'
-    ? 'zh'
-    : 'en';
+function getLanguage(language) {
+  return language === 'zh' || language === 'zh-CN' ? 'zh' : 'en';
 }
 
-function getAchievements(t) {
-  return [
-    { id: 'first', title: t.achievementTitles.first, description: t.achievementDescriptions.first, score: 10 },
-    { id: 'combo', title: t.achievementTitles.combo, description: t.achievementDescriptions.combo, score: 0 },
-    { id: 'level', title: t.achievementTitles.level, description: t.achievementDescriptions.level, score: 0 },
-    { id: 'score', title: t.achievementTitles.score, description: t.achievementDescriptions.score, score: 500 },
-    { id: 'survivor', title: t.achievementTitles.survivor, description: t.achievementDescriptions.survivor, score: 0 },
-  ];
+function loadSaved() {
+  try {
+    return JSON.parse(localStorage.getItem(SAVE_KEY)) || {};
+  } catch {
+    return {};
+  }
 }
 
-function createBricks(level) {
+function saveData(data) {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  } catch {
+    // Saving is optional if browser storage is unavailable.
+  }
+}
+
+function makeBricks(level) {
   const bricks = [];
+  const cols = 9;
   const rows = Math.min(5 + Math.floor((level - 1) / 2), 7);
-  const totalWidth =
-    BRICK_COLS * BRICK_WIDTH + (BRICK_COLS - 1) * BRICK_GAP;
-  const startX = (WIDTH - totalWidth) / 2;
+  const bw = 72;
+  const bh = 21;
+  const gap = 9;
+  const startX = (W - (cols * bw + (cols - 1) * gap)) / 2;
+  const colors = ['#ff4fd8', '#b36bff', '#7d70ff', '#3eafff', '#35e7ff'];
 
-  for (let row = 0; row < rows; row += 1) {
-    for (let col = 0; col < BRICK_COLS; col += 1) {
-      const unbreakable =
-        level >= 3 && row === 0 && col % 3 === 1;
-      const bonus =
-        level >= 2 && !unbreakable && (row + col + level) % 8 === 0;
-      const hits =
-        !unbreakable && level >= 3 && row < 2 ? 2 : 1;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const unbreakable = level >= 3 && (r + c + level) % 13 === 0;
+      const bonus = !unbreakable && (r * cols + c + level) % 17 === 0;
+      const hits = level >= 3 && r < 2 ? 2 : 1;
 
       bricks.push({
-        x: startX + col * (BRICK_WIDTH + BRICK_GAP),
-        y: BRICK_TOP + row * (BRICK_HEIGHT + BRICK_GAP),
-        width: BRICK_WIDTH,
-        height: BRICK_HEIGHT,
-        color: bonus ? '#ffe66d' : BRICK_COLORS[row % BRICK_COLORS.length],
+        x: startX + c * (bw + gap),
+        y: 72 + r * (bh + gap),
+        w: bw,
+        h: bh,
+        color: unbreakable ? '#858b9d' : bonus ? '#ffe66d' : colors[r % colors.length],
         alive: true,
         hits,
         maxHits: hits,
         unbreakable,
-        bonus,
+        bonus
       });
     }
   }
@@ -223,620 +121,454 @@ function createBricks(level) {
   return bricks;
 }
 
-function makeBall(x, y, level, direction = 1) {
-  return {
-    x,
-    y,
-    vx: direction * (4.2 + level * 0.35),
-    vy: -(5.2 + level * 0.35),
-    radius: BALL_RADIUS,
-    active: true,
-  };
+function makeBall(x, y, vx, vy) {
+  return { x, y, vx, vy, r: 8 };
 }
 
-function createGame(level = 1) {
+function makeGame(level = 1, score = 0, lives = 3) {
+  const paddle = {
+    x: W / 2 - 56,
+    y: H - 42,
+    w: 112,
+    h: 13,
+    baseW: 112,
+    speed: 8
+  };
+
   return {
-    paddle: {
-      x: WIDTH / 2 - PADDLE_WIDTH / 2,
-      y: HEIGHT - 42,
-      width: PADDLE_WIDTH,
-      height: PADDLE_HEIGHT,
-      speed: 8,
-      wideUntil: 0,
-    },
-    balls: [makeBall(WIDTH / 2, HEIGHT - 60, level)],
-    bricks: createBricks(level),
-    powerUps: [],
+    paddle,
+    balls: [makeBall(W / 2, paddle.y - 10, 4.2 + level * 0.3, -(5.2 + level * 0.3))],
+    bricks: makeBricks(level),
     particles: [],
+    drops: [],
     keys: { left: false, right: false },
     level,
-    score: 0,
-    lives: 3,
+    score,
+    lives,
     playing: false,
     combo: 0,
-    comboUntil: 0,
-    nextPowerId: 1,
-    lastTime: 0,
+    highScore: 0,
+    activePower: '',
+    powerTimer: 0,
+    notice: '',
+    noticeTimer: 0
   };
 }
 
-function roundedRect(ctx, x, y, width, height, radius) {
-  ctx.beginPath();
-  ctx.roundRect(x, y, width, height, radius);
+function sound(ref, muted, frequency = 440) {
+  if (muted) return;
+
+  try {
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    if (!Audio) return;
+
+    const ctx = ref.current || (ref.current = new Audio());
+    if (ctx.state === 'suspended') ctx.resume();
+
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'sine';
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.12);
+  } catch {
+    // Audio is optional.
+  }
 }
 
-function addParticles(game, x, y, color, count = 12) {
-  for (let i = 0; i < count; i += 1) {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = 1 + Math.random() * 4;
-
+function particle(game, x, y, color) {
+  for (let i = 0; i < 7; i++) {
     game.particles.push({
-      x,
-      y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      life: 25 + Math.random() * 20,
-      maxLife: 45,
-      size: 2 + Math.random() * 3,
-      color,
+      x, y,
+      vx: (Math.random() - 0.5) * 5,
+      vy: (Math.random() - 0.5) * 5,
+      life: 28,
+      color
     });
   }
 }
 
-function drawGame(ctx, game, now, t) {
-  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+function drawGame(ctx, game) {
+  ctx.clearRect(0, 0, W, H);
 
-  const background = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
-  background.addColorStop(0, '#0c1026');
-  background.addColorStop(0.55, '#11102b');
-  background.addColorStop(1, '#080d1d');
-  ctx.fillStyle = background;
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0c1026');
+  bg.addColorStop(0.55, '#11102b');
+  bg.addColorStop(1, '#080d1d');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
 
-  ctx.save();
-  ctx.strokeStyle = 'rgba(76, 112, 255, 0.10)';
+  ctx.strokeStyle = 'rgba(76,112,255,.10)';
   ctx.lineWidth = 1;
 
-  for (let x = 0; x <= WIDTH; x += 40) {
+  for (let x = 0; x <= W; x += 40) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
-    ctx.lineTo(x, HEIGHT);
+    ctx.lineTo(x, H);
     ctx.stroke();
   }
 
-  for (let y = 0; y <= HEIGHT; y += 40) {
+  for (let y = 0; y <= H; y += 40) {
     ctx.beginPath();
     ctx.moveTo(0, y);
-    ctx.lineTo(WIDTH, y);
+    ctx.lineTo(W, y);
     ctx.stroke();
   }
-  ctx.restore();
 
   for (const brick of game.bricks) {
     if (!brick.alive) continue;
 
     ctx.save();
     ctx.shadowColor = brick.color;
-    ctx.shadowBlur = brick.unbreakable ? 4 : 12;
-    ctx.fillStyle = brick.unbreakable ? '#454b66' : brick.color;
-
-    roundedRect(ctx, brick.x, brick.y, brick.width, brick.height, 5);
+    ctx.shadowBlur = brick.unbreakable ? 3 : 12;
+    ctx.fillStyle = brick.color;
+    ctx.beginPath();
+    ctx.roundRect(brick.x, brick.y, brick.w, brick.h, 5);
     ctx.fill();
 
     ctx.shadowBlur = 0;
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    ctx.fillRect(brick.x + 5, brick.y + 3, brick.width - 10, 2);
+    ctx.fillStyle = 'rgba(255,255,255,.25)';
+    ctx.fillRect(brick.x + 5, brick.y + 3, brick.w - 10, 2);
 
     if (brick.unbreakable) {
-      ctx.fillStyle = '#d5d9ef';
-      ctx.font = 'bold 13px sans-serif';
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 10px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('◆', brick.x + brick.width / 2, brick.y + 15);
+      ctx.fillText('SOLID', brick.x + brick.w / 2, brick.y + 14);
     } else if (brick.bonus) {
-      ctx.fillStyle = '#181329';
-      ctx.font = 'bold 13px sans-serif';
+      ctx.fillStyle = '#382b00';
+      ctx.font = 'bold 15px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('+', brick.x + brick.width / 2, brick.y + 15);
+      ctx.fillText('+', brick.x + brick.w / 2, brick.y + 16);
     } else if (brick.hits > 1) {
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 12px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(
-        String(brick.hits),
-        brick.x + brick.width / 2,
-        brick.y + brick.height / 2 + 4,
-      );
+      ctx.fillText(String(brick.hits), brick.x + brick.w / 2, brick.y + 15);
     }
-
     ctx.restore();
   }
 
-  for (const power of game.powerUps) {
+  for (const drop of game.drops) {
     ctx.save();
-    ctx.shadowColor = power.color;
-    ctx.shadowBlur = 16;
-    ctx.fillStyle = power.color;
+    ctx.shadowColor = drop.color;
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = drop.color;
     ctx.beginPath();
-    ctx.arc(power.x, power.y, 10, 0, Math.PI * 2);
+    ctx.roundRect(drop.x - 10, drop.y - 10, 20, 20, 5);
     ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = '#091020';
-    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = '#10152d';
+    ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(power.symbol, power.x, power.y + 0.5);
+    ctx.fillText(drop.symbol, drop.x, drop.y + 4);
     ctx.restore();
   }
 
-  for (const particle of game.particles) {
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
-    ctx.fillStyle = particle.color;
-    ctx.shadowColor = particle.color;
-    ctx.shadowBlur = 8;
-    ctx.beginPath();
-    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  const paddleGradient = ctx.createLinearGradient(
-    game.paddle.x,
-    0,
-    game.paddle.x + game.paddle.width,
-    0,
-  );
-  paddleGradient.addColorStop(0, '#43eaff');
-  paddleGradient.addColorStop(0.5, '#c1a0ff');
-  paddleGradient.addColorStop(1, '#f15ce8');
+  const pg = ctx.createLinearGradient(game.paddle.x, 0, game.paddle.x + game.paddle.w, 0);
+  pg.addColorStop(0, '#43eaff');
+  pg.addColorStop(0.5, '#c1a0ff');
+  pg.addColorStop(1, '#f15ce8');
 
   ctx.save();
   ctx.shadowColor = '#56dfff';
   ctx.shadowBlur = 20;
-  ctx.fillStyle = paddleGradient;
-  roundedRect(
-    ctx,
-    game.paddle.x,
-    game.paddle.y,
-    game.paddle.width,
-    game.paddle.height,
-    7,
-  );
+  ctx.fillStyle = pg;
+  ctx.beginPath();
+  ctx.roundRect(game.paddle.x, game.paddle.y, game.paddle.w, game.paddle.h, 7);
   ctx.fill();
   ctx.restore();
 
   for (const ball of game.balls) {
-    if (!ball.active) continue;
-
-    ctx.save();
-    ctx.globalAlpha = 0.2;
-    ctx.fillStyle = '#73f4ff';
-    ctx.beginPath();
-    ctx.arc(
-      ball.x - ball.vx * 1.8,
-      ball.y - ball.vy * 1.8,
-      ball.radius * 0.75,
-      0,
-      Math.PI * 2,
-    );
-    ctx.fill();
-    ctx.restore();
+    const gradient = ctx.createRadialGradient(ball.x - 3, ball.y - 3, 1, ball.x, ball.y, ball.r);
+    gradient.addColorStop(0, '#fff');
+    gradient.addColorStop(0.5, '#73f4ff');
+    gradient.addColorStop(1, '#6a75ff');
 
     ctx.save();
     ctx.shadowColor = '#fff';
     ctx.shadowBlur = 20;
-    const gradient = ctx.createRadialGradient(
-      ball.x - 3,
-      ball.y - 3,
-      1,
-      ball.x,
-      ball.y,
-      ball.radius,
-    );
-    gradient.addColorStop(0, '#fff');
-    gradient.addColorStop(0.5, '#73f4ff');
-    gradient.addColorStop(1, '#6a75ff');
     ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
 
-  ctx.strokeStyle = 'rgba(72, 224, 255, 0.35)';
-  ctx.beginPath();
-  ctx.moveTo(0, HEIGHT - 12);
-  ctx.lineTo(WIDTH, HEIGHT - 12);
-  ctx.stroke();
-
-  if (game.combo >= 2 && now < game.comboUntil) {
+  for (const p of game.particles) {
     ctx.save();
-    ctx.textAlign = 'center';
-    ctx.font = '900 22px sans-serif';
-    ctx.fillStyle = '#ffe66d';
-    ctx.shadowColor = '#ffb52e';
-    ctx.shadowBlur = 15;
-    ctx.fillText(t.combo(game.combo), WIDTH / 2, HEIGHT - 85);
+    ctx.globalAlpha = Math.max(0, p.life / 28);
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
+
+  ctx.fillStyle = 'rgba(72,224,255,.35)';
+  ctx.fillRect(0, H - 12, W, 1);
 }
 
 export default function BrickBreaker({ language = 'en' }) {
-  const lang = normalizeLanguage(language);
+  const lang = getLanguage(language);
   const t = TEXT[lang];
-  const achievementList = getAchievements(t);
 
   const canvasRef = useRef(null);
-  const gameRef = useRef(createGame());
-  const animationRef = useRef(null);
+  const gameRef = useRef(makeGame());
   const audioRef = useRef(null);
-  const mutedRef = useRef(false);
   const keysRef = useRef({ left: false, right: false });
-
+  const mutedRef = useRef(false);
+  const [status, setStatus] = useState('ready');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [level, setLevel] = useState(1);
-  const [status, setStatus] = useState('ready');
+  const [highScore, setHighScore] = useState(() => Number(loadSaved().highScore) || 0);
   const [muted, setMuted] = useState(false);
-
-  const [highScore, setHighScore] = useState(() => {
-    try {
-      return Number(localStorage.getItem('nexora-brick-high-score')) || 0;
-    } catch {
-      return 0;
-    }
-  });
-
-  const [achievements, setAchievements] = useState(() => {
-    try {
-      return JSON.parse(
-        localStorage.getItem('nexora-brick-achievements') || '[]',
-      );
-    } catch {
-      return [];
-    }
-  });
-
   const [notice, setNotice] = useState('');
-  const [activePower, setActivePower] = useState('');
+  const [power, setPower] = useState('');
+  const [achievements, setAchievements] = useState(() => loadSaved().achievements || {});
+  const [mobileKeys, setMobileKeys] = useState({ left: false, right: false });
 
-  const unlock = useCallback((id) => {
-    setAchievements((old) => {
-      if (old.includes(id)) return old;
+  mutedRef.current = muted;
 
-      const next = [...old, id];
-
-      try {
-        localStorage.setItem('nexora-brick-achievements', JSON.stringify(next));
-      } catch {
-        // Storage may be unavailable in private browsing.
-      }
-
-      setNotice(id);
+  const award = useCallback((name) => {
+    setAchievements(old => {
+      if (old[name]) return old;
+      const next = { ...old, [name]: true };
+      saveData({ highScore: Math.max(highScore, gameRef.current.score), achievements: next });
       return next;
     });
-  }, []);
-
-  const playSound = useCallback((frequency = 440, duration = 0.07, type = 'sine') => {
-    if (mutedRef.current) return;
-
-    try {
-      const AudioContextClass =
-        window.AudioContext || window.webkitAudioContext;
-
-      if (!AudioContextClass) return;
-
-      if (!audioRef.current) audioRef.current = new AudioContextClass();
-
-      const audio = audioRef.current;
-      if (audio.state === 'suspended') audio.resume();
-
-      const oscillator = audio.createOscillator();
-      const gain = audio.createGain();
-
-      oscillator.type = type;
-      oscillator.frequency.setValueAtTime(frequency, audio.currentTime);
-      gain.gain.setValueAtTime(0.07, audio.currentTime);
-      gain.gain.exponentialRampToValueAtTime(
-        0.001,
-        audio.currentTime + duration,
-      );
-
-      oscillator.connect(gain);
-      gain.connect(audio.destination);
-      oscillator.start();
-      oscillator.stop(audio.currentTime + duration);
-    } catch {
-      // Audio is optional; gameplay must continue if unavailable.
-    }
-  }, []);
-
-  const toggleMute = useCallback(() => {
-    setMuted((old) => {
-      mutedRef.current = !old;
-      return !old;
-    });
-  }, []);
+  }, [highScore]);
 
   const resetGame = useCallback(() => {
-    gameRef.current = createGame();
-    keysRef.current = { left: false, right: false };
+    gameRef.current = makeGame();
+    gameRef.current.highScore = highScore;
     setScore(0);
     setLives(3);
     setLevel(1);
-    setStatus('ready');
+    setPower('');
     setNotice('');
-    setActivePower('');
-  }, []);
+    setStatus('ready');
+  }, [highScore]);
 
   const startGame = useCallback(() => {
     if (status === 'won' || status === 'lost') {
-      gameRef.current = createGame();
+      gameRef.current = makeGame();
       setScore(0);
       setLives(3);
       setLevel(1);
-      setActivePower('');
     }
-
-    const game = gameRef.current;
-    game.playing = true;
-    playSound(600, 0.1);
+    gameRef.current.playing = true;
     setStatus('playing');
-  }, [status, playSound]);
+  }, [status]);
 
   const pauseGame = useCallback(() => {
     gameRef.current.playing = false;
-    keysRef.current = { left: false, right: false };
-    setStatus((current) => current === 'playing' ? 'paused' : current);
+    setStatus('paused');
   }, []);
 
-  const movePaddle = useCallback((direction) => {
-    keysRef.current.left = direction === 'left';
-    keysRef.current.right = direction === 'right';
+  const movePaddle = useCallback((event) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left) * W / rect.width;
+    const game = gameRef.current;
+    game.paddle.x = Math.max(0, Math.min(W - game.paddle.w, x - game.paddle.w / 2));
   }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return undefined;
+    if (!canvas || !ctx) return;
 
-    let previousTime = 0;
-
-    function resetBall(game) {
-      game.balls = [
-        makeBall(
-          game.paddle.x + game.paddle.width / 2,
-          game.paddle.y - BALL_RADIUS - 2,
-          game.level,
-        ),
-      ];
-      game.playing = false;
-    }
+    let frameId;
+    let previous = 0;
 
     function applyPower(game, type) {
-      const paddle = game.paddle;
+      const colors = { wide: '#43eaff', multi: '#ff4fd8', slow: '#ffe66d', life: '#65ff9a' };
+      const symbols = { wide: 'W', multi: 'M', slow: 'S', life: '+' };
 
       if (type === 'wide') {
-        paddle.width = Math.min(180, PADDLE_WIDTH * 1.5);
-        paddle.wideUntil = performance.now() + 12000;
-        setActivePower(t.powerNames.wide);
-        setNotice('wide');
+        game.paddle.w = 165;
+        game.activePower = 'wide';
+        game.powerTimer = 600;
       } else if (type === 'multi') {
-        const source = game.balls.find((ball) => ball.active);
-
-        if (source) {
-          for (const direction of [-1, 1]) {
-            game.balls.push({
-              ...source,
-              vx: source.vx + direction * 2.5,
-              vy: source.vy,
-              active: true,
-            });
-          }
-        }
-
-        setActivePower(t.powerNames.multi);
-        setNotice('multi');
+        const source = game.balls[0];
+        game.balls.push(
+          makeBall(source.x, source.y, -source.vx, source.vy),
+          makeBall(source.x, source.y, source.vx * 0.7, -source.vy)
+        );
       } else if (type === 'slow') {
-        game.balls.forEach((ball) => {
-          ball.vx *= 0.7;
-          ball.vy *= 0.7;
+        game.balls.forEach(ball => {
+          ball.vx *= 0.72;
+          ball.vy *= 0.72;
         });
-
-        setActivePower(t.powerNames.slow);
-        setNotice('slow');
-      } else if (type === 'life' && game.lives < 5) {
-        game.lives += 1;
+        game.activePower = 'slow';
+        game.powerTimer = 480;
+      } else if (type === 'life') {
+        game.lives = Math.min(5, game.lives + 1);
         setLives(game.lives);
-        setActivePower(t.powerNames.life);
-        setNotice('life');
       }
 
-      playSound(880, 0.2, 'triangle');
+      game.notice = type;
+      setNotice(type);
+      setPower(type);
+      award('collector');
+      sound(audioRef, mutedRef.current, 700);
+      return { color: colors[type], symbol: symbols[type] };
     }
 
-    function update(delta, now) {
+    function update(delta) {
       const game = gameRef.current;
+      if (!game.playing) return;
+
       const factor = Math.min(delta / 16.67, 2);
+      const keys = keysRef.current;
 
-      game.particles = game.particles.filter((particle) => particle.life > 0);
+      if (keys.left) game.paddle.x -= game.paddle.speed * factor;
+      if (keys.right) game.paddle.x += game.paddle.speed * factor;
+      game.paddle.x = Math.max(0, Math.min(W - game.paddle.w, game.paddle.x));
 
-      for (const particle of game.particles) {
-        particle.x += particle.vx * factor;
-        particle.y += particle.vy * factor;
-        particle.vx *= 0.98;
-        particle.vy *= 0.98;
-        particle.life -= factor;
-      }
-
-      if (game.paddle.wideUntil && now > game.paddle.wideUntil) {
-        game.paddle.width = PADDLE_WIDTH;
-        game.paddle.wideUntil = 0;
-        setActivePower('');
-      }
-
-      if (!game.playing) {
-        const ball = game.balls[0];
-
-        if (ball) {
-          ball.x = game.paddle.x + game.paddle.width / 2;
-          ball.y = game.paddle.y - ball.radius - 2;
+      if (game.powerTimer > 0) {
+        game.powerTimer -= factor;
+        if (game.powerTimer <= 0) {
+          game.paddle.w = game.paddle.baseW;
+          game.activePower = '';
+          setPower('');
         }
-
-        return;
       }
 
-      if (keysRef.current.left || game.keys.left) {
-        game.paddle.x -= game.paddle.speed * factor;
+      if (game.noticeTimer > 0) {
+        game.noticeTimer -= factor;
+        if (game.noticeTimer <= 0) {
+          game.notice = '';
+          setNotice('');
+        }
       }
-
-      if (keysRef.current.right || game.keys.right) {
-        game.paddle.x += game.paddle.speed * factor;
-      }
-
-      game.paddle.x = Math.max(
-        0,
-        Math.min(WIDTH - game.paddle.width, game.paddle.x),
-      );
 
       for (const ball of game.balls) {
-        if (!ball.active) continue;
+        const oldX = ball.x;
+        const oldY = ball.y;
 
         ball.x += ball.vx * factor;
         ball.y += ball.vy * factor;
 
-        if (ball.x - ball.radius <= 0) {
-          ball.x = ball.radius;
+        if (ball.x - ball.r < 0) {
+          ball.x = ball.r;
           ball.vx = Math.abs(ball.vx);
-          playSound(250, 0.03);
         }
-
-        if (ball.x + ball.radius >= WIDTH) {
-          ball.x = WIDTH - ball.radius;
+        if (ball.x + ball.r > W) {
+          ball.x = W - ball.r;
           ball.vx = -Math.abs(ball.vx);
-          playSound(250, 0.03);
         }
-
-        if (ball.y - ball.radius <= 0) {
-          ball.y = ball.radius;
+        if (ball.y - ball.r < 0) {
+          ball.y = ball.r;
           ball.vy = Math.abs(ball.vy);
         }
 
         const paddle = game.paddle;
-
         if (
           ball.vy > 0 &&
-          ball.y + ball.radius >= paddle.y &&
-          ball.y - ball.radius <= paddle.y + paddle.height &&
+          ball.y + ball.r >= paddle.y &&
+          ball.y - ball.r <= paddle.y + paddle.h &&
           ball.x >= paddle.x &&
-          ball.x <= paddle.x + paddle.width
+          ball.x <= paddle.x + paddle.w
         ) {
-          ball.y = paddle.y - ball.radius;
-
-          const hitPosition =
-            (ball.x - (paddle.x + paddle.width / 2)) /
-            (paddle.width / 2);
-
-          ball.vx = hitPosition * (6 + game.level * 0.35);
+          ball.y = paddle.y - ball.r;
+          const offset = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
+          ball.vx = offset * (6 + game.level * 0.3);
           ball.vy = -Math.max(4.5, Math.abs(ball.vy));
-          playSound(360, 0.04);
+          game.combo = 0;
+          sound(audioRef, mutedRef.current, 520);
         }
 
         for (const brick of game.bricks) {
-          if (!brick.alive || brick.unbreakable) continue;
+          if (!brick.alive) continue;
 
           const overlaps =
-            ball.x + ball.radius > brick.x &&
-            ball.x - ball.radius < brick.x + brick.width &&
-            ball.y + ball.radius > brick.y &&
-            ball.y - ball.radius < brick.y + brick.height;
+            ball.x + ball.r > brick.x &&
+            ball.x - ball.r < brick.x + brick.w &&
+            ball.y + ball.r > brick.y &&
+            ball.y - ball.r < brick.y + brick.h;
 
           if (!overlaps) continue;
 
+          // Unbreakable bricks bounce the ball but never lose health.
+          if (brick.unbreakable) {
+            const fromTop = oldY + ball.r <= brick.y;
+            const fromBottom = oldY - ball.r >= brick.y + brick.h;
+            if (fromTop || fromBottom) ball.vy *= -1;
+            else ball.vx *= -1;
+            ball.x = oldX;
+            ball.y = oldY;
+            sound(audioRef, mutedRef.current, 250);
+            break;
+          }
+
           brick.hits -= 1;
-          ball.vy *= -1;
-          addParticles(game, ball.x, ball.y, brick.color, 9);
+          game.combo += 1;
+          const points = brick.bonus ? 50 : brick.hits <= 0 ? 10 : 5;
+          game.score += points + Math.min(game.combo, 10) * 2;
+          setScore(game.score);
+
+          if (game.combo >= 5) award('combo');
+          award('first');
 
           if (brick.hits <= 0) {
             brick.alive = false;
+            particle(game, brick.x + brick.w / 2, brick.y + brick.h / 2, brick.color);
 
-            game.combo = now < game.comboUntil ? game.combo + 1 : 1;
-            game.comboUntil = now + 1800;
-
-            const points =
-              (brick.bonus ? 30 : 10) * Math.min(game.combo, 5);
-
-            game.score += points;
-            setScore(game.score);
-
-            playSound(brick.bonus ? 900 : 520, 0.07, 'triangle');
-
-            if (brick.bonus || Math.random() < 0.16) {
-              const type = POWER_TYPES[
-                Math.floor(Math.random() * POWER_TYPES.length)
-              ];
-
-              const symbols = {
-                wide: 'W',
-                multi: 'M',
-                slow: 'S',
-                life: '+',
-              };
-
-              const colors = {
-                wide: '#43eaff',
-                multi: '#f15ce8',
-                slow: '#a887ff',
-                life: '#7dff9b',
-              };
-
-              game.powerUps.push({
-                id: game.nextPowerId++,
-                x: brick.x + brick.width / 2,
-                y: brick.y + brick.height / 2,
+            if (brick.bonus) {
+              const types = ['wide', 'multi', 'slow', 'life'];
+              const type = types[Math.floor(Math.random() * types.length)];
+              game.drops.push({
+                x: brick.x + brick.w / 2,
+                y: brick.y + brick.h / 2,
                 type,
-                symbol: symbols[type],
-                color: colors[type],
+                color: ({ wide: '#43eaff', multi: '#ff4fd8', slow: '#ffe66d', life: '#65ff9a' })[type],
+                symbol: ({ wide: 'W', multi: 'M', slow: 'S', life: '+' })[type]
               });
             }
-
-            unlock('first');
-
-            if (game.combo >= 5) unlock('combo');
-            if (game.score >= 500) unlock('score');
-
-            if (game.score > highScore) {
-              setHighScore(game.score);
-
-              try {
-                localStorage.setItem(
-                  'nexora-brick-high-score',
-                  String(game.score),
-                );
-              } catch {
-                // Continue without persistent storage.
-              }
-            }
-          } else {
-            game.score += 5;
-            setScore(game.score);
-            playSound(420, 0.04);
           }
 
-          break;
-        }
+          const fromTop = oldY + ball.r <= brick.y;
+          const fromBottom = oldY - ball.r >= brick.y + brick.h;
+          if (fromTop || fromBottom) ball.vy *= -1;
+          else ball.vx *= -1;
 
-        if (ball.y - ball.radius > HEIGHT) {
-          ball.active = false;
+          sound(audioRef, mutedRef.current, 360 + Math.random() * 300);
+          break;
         }
       }
 
-      game.balls = game.balls.filter((ball) => ball.active);
+      game.balls = game.balls.filter(ball => ball.y - ball.r <= H + 10);
+
+      for (const drop of game.drops) {
+        drop.y += 3.2 * factor;
+        const p = game.paddle;
+        if (
+          drop.y + 10 >= p.y &&
+          drop.y - 10 <= p.y + p.h &&
+          drop.x >= p.x &&
+          drop.x <= p.x + p.w
+        ) {
+          applyPower(game, drop.type);
+          drop.collected = true;
+        }
+      }
+      game.drops = game.drops.filter(drop => !drop.collected && drop.y < H + 20);
 
       if (game.balls.length === 0) {
         game.lives -= 1;
         setLives(game.lives);
-        playSound(150, 0.3, 'sawtooth');
+        game.combo = 0;
 
         if (game.lives <= 0) {
           game.playing = false;
@@ -844,350 +576,194 @@ export default function BrickBreaker({ language = 'en' }) {
           return;
         }
 
-        resetBall(game);
-        setStatus('ready');
-        return;
-      }
-
-      for (const power of game.powerUps) {
-        power.y += 2.4 * factor;
-
-        const paddle = game.paddle;
-
-        if (
-          power.y + 10 >= paddle.y &&
-          power.y - 10 <= paddle.y + paddle.height &&
-          power.x >= paddle.x &&
-          power.x <= paddle.x + paddle.width
-        ) {
-          applyPower(game, power.type);
-          power.collected = true;
-        }
-      }
-
-      game.powerUps = game.powerUps.filter(
-        (power) => !power.collected && power.y < HEIGHT + 20,
-      );
-
-      if (game.bricks.every((brick) => !brick.alive || brick.unbreakable)) {
+        game.balls = [makeBall(
+          game.paddle.x + game.paddle.w / 2,
+          game.paddle.y - 12,
+          4.5,
+          -5.5
+        )];
         game.playing = false;
+        setStatus('ready');
+      }
 
+      if (game.bricks.every(brick => !brick.alive || brick.unbreakable)) {
+        game.playing = false;
         if (game.level >= 5) {
           setStatus('won');
-          if (game.lives === 3) unlock('survivor');
+          award('survivor');
         } else {
-          unlock('level');
-
+          if (game.lives >= 2) award('survivor');
           game.level += 1;
-          game.bricks = createBricks(game.level);
-          game.powerUps = [];
-          game.paddle.width = PADDLE_WIDTH;
-          game.paddle.wideUntil = 0;
-
-          resetBall(game);
+          game.bricks = makeBricks(game.level);
+          game.drops = [];
+          game.balls = [makeBall(
+            game.paddle.x + game.paddle.w / 2,
+            game.paddle.y - 12,
+            4.5 + game.level * 0.3,
+            -(5.5 + game.level * 0.3)
+          )];
+          game.paddle.w = game.paddle.baseW;
           setLevel(game.level);
-          setActivePower('');
-          setNotice('levelReady');
           setStatus('ready');
         }
+      }
+
+      game.particles = game.particles.filter(p => p.life > 0);
+      for (const p of game.particles) {
+        p.x += p.vx * factor;
+        p.y += p.vy * factor;
+        p.life -= factor;
+      }
+
+      const best = Math.max(highScore, game.score);
+      if (best > highScore) {
+        setHighScore(best);
+        saveData({ highScore: best, achievements });
       }
     }
 
     function frame(time) {
-      const delta = previousTime ? time - previousTime : 16.67;
-      previousTime = time;
-
-      update(delta, time);
-      drawGame(ctx, gameRef.current, time, t);
-
-      animationRef.current = window.requestAnimationFrame(frame);
+      const delta = previous || 16.67 ? time - (previous || time - 16.67) : 16.67;
+      previous = time;
+      update(delta);
+      drawGame(ctx, gameRef.current);
+      frameId = requestAnimationFrame(frame);
     }
 
-    function handleKeyDown(event) {
+    function keyDown(event) {
       const key = event.key.toLowerCase();
-
-      if (
-        ['arrowleft', 'arrowright', ' '].includes(key) ||
-        key === 'a' ||
-        key === 'd'
-      ) {
-        event.preventDefault();
-      }
-
-      if (key === 'arrowleft' || key === 'a') {
-        gameRef.current.keys.left = true;
-      }
-
-      if (key === 'arrowright' || key === 'd') {
-        gameRef.current.keys.right = true;
-      }
+      if (['arrowleft', 'arrowright', 'a', 'd'].includes(key)) event.preventDefault();
+      if (key === 'arrowleft' || key === 'a') keysRef.current.left = true;
+      if (key === 'arrowright' || key === 'd') keysRef.current.right = true;
     }
 
-    function handleKeyUp(event) {
+    function keyUp(event) {
       const key = event.key.toLowerCase();
-
-      if (key === 'arrowleft' || key === 'a') {
-        gameRef.current.keys.left = false;
-      }
-
-      if (key === 'arrowright' || key === 'd') {
-        gameRef.current.keys.right = false;
-      }
+      if (key === 'arrowleft' || key === 'a') keysRef.current.left = false;
+      if (key === 'arrowright' || key === 'd') keysRef.current.right = false;
     }
 
-    function handlePointerMove(event) {
-      if (event.pointerType === 'touch') event.preventDefault();
-
-      const rect = canvas.getBoundingClientRect();
-      const x = (event.clientX - rect.left) * (WIDTH / rect.width);
-
-      gameRef.current.paddle.x = Math.max(
-        0,
-        Math.min(
-          WIDTH - gameRef.current.paddle.width,
-          x - gameRef.current.paddle.width / 2,
-        ),
-      );
-    }
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    canvas.addEventListener('pointermove', handlePointerMove);
-    canvas.addEventListener('pointerdown', handlePointerMove);
-    canvas.style.touchAction = 'none';
-
-    animationRef.current = window.requestAnimationFrame(frame);
+    window.addEventListener('keydown', keyDown);
+    window.addEventListener('keyup', keyUp);
+    frameId = requestAnimationFrame(frame);
 
     return () => {
-      window.cancelAnimationFrame(animationRef.current);
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-      canvas.removeEventListener('pointermove', handlePointerMove);
-      canvas.removeEventListener('pointerdown', handlePointerMove);
+      cancelAnimationFrame(frameId);
+      window.removeEventListener('keydown', keyDown);
+      window.removeEventListener('keyup', keyUp);
     };
-  }, [highScore, playSound, unlock, t]);
+  }, [achievements, award, highScore]);
 
-  const statusText = {
-    ready: t.ready,
-    playing: t.playing,
-    paused: t.paused,
-    won: t.won,
-    lost: t.lost,
-  }[status];
+  useEffect(() => {
+    const game = gameRef.current;
+    game.highScore = highScore;
+  }, [highScore]);
 
-  const noticeText = notice === 'levelReady'
-    ? t.levelReady(level)
-    : notice === 'wide' || notice === 'multi' || notice === 'slow' || notice === 'life'
-      ? t.notices[notice]
-      : achievementList.find((item) => item.id === notice)
-        ? `🏆 ${achievementList.find((item) => item.id === notice).title}`
-        : notice;
+  const powerName = power ? t.powers[power] : '';
 
   return (
     <section className="brick-breaker" id="brick-breaker">
-      <div className="brick-heading">
-        <span className="brick-eyebrow">{t.eyebrow}</span>
-        <h2>
-          {t.title} <span>{t.titleAccent}</span>
-        </h2>
+      <header className="brick-heading">
+        <span className="brick-eyebrow">NEXORA AI ARCADE · GAME 04</span>
+        <h2>{t.title}</h2>
         <p>{t.subtitle}</p>
-      </div>
+      </header>
 
       <div className="brick-stats">
-        <div className="brick-stat">
-          <span>{t.score}</span>
-          <strong>{score}</strong>
-        </div>
-
-        <div className="brick-stat">
-          <span>{t.lives}</span>
-          <strong>{t.livesDisplay(lives)}</strong>
-        </div>
-
-        <div className="brick-stat">
-          <span>{t.level}</span>
-          <strong>{t.levelDisplay(level)}</strong>
-        </div>
+        <div className="brick-stat"><span>{t.score}</span><strong>{score}</strong></div>
+        <div className="brick-stat"><span>{t.lives}</span><strong>{'♥ '.repeat(lives).trim() || '—'}</strong></div>
+        <div className="brick-stat"><span>{t.level}</span><strong>{level} / 5</strong></div>
+        <div className="brick-stat brick-extra-stats"><span>{t.high}</span><strong>{highScore}</strong></div>
       </div>
 
-      <div className="brick-stats brick-extra-stats">
-        <div className="brick-stat">
-          <span>{t.highScore}</span>
-          <strong>{Math.max(score, highScore)}</strong>
+      {notice && (
+        <div className="brick-notice">
+          ✦ {t.notice} {t.powers[notice]}
+          <button type="button" onClick={() => setNotice('')} aria-label="Close">×</button>
         </div>
+      )}
 
-        <div className="brick-stat">
-          <span>{t.achievements}</span>
-          <strong>
-            {t.achievementCount(achievements.length, achievementList.length)}
-          </strong>
-        </div>
-
-        <div className="brick-stat">
-          <span>{t.powerUp}</span>
-          <strong className="brick-power-label">
-            {activePower || t.none}
-          </strong>
-        </div>
-      </div>
-
-      {noticeText && (
-        <div className="brick-notice" role="status">
-          <span>{noticeText}</span>
-
-          <button
-            type="button"
-            onClick={() => setNotice('')}
-            aria-label={t.dismiss}
-          >
-            ×
-          </button>
-        </div>
+      {powerName && (
+        <p className="brick-power-label">{t.power}: {powerName}</p>
       )}
 
       <div className="brick-game-frame">
         <canvas
           ref={canvasRef}
           className="brick-canvas"
-          width={WIDTH}
-          height={HEIGHT}
-          aria-label={t.canvasLabel}
+          width={W}
+          height={H}
+          onPointerMove={movePaddle}
+          onPointerDown={movePaddle}
+          aria-label="Neon Brick Breaker game"
         />
 
         {status !== 'playing' && (
           <div className="brick-overlay">
             <div className="brick-overlay-card">
               <span className="brick-overlay-symbol">
-                {status === 'won'
-                  ? '✦'
-                  : status === 'lost'
-                    ? '✕'
-                    : status === 'paused'
-                      ? 'Ⅱ'
-                      : '▶'}
+                {status === 'won' ? '✦' : status === 'lost' ? '✕' : status === 'paused' ? 'Ⅱ' : '▶'}
               </span>
-
-              <h3>
-                {status === 'won'
-                  ? t.youDidIt
-                  : status === 'lost'
-                    ? t.gameOver
-                    : status === 'paused'
-                      ? t.gamePaused
-                      : t.readyPlayer}
-              </h3>
-
-              <p>{statusText}</p>
-
+              <h3>{status === 'won' ? t.won : status === 'lost' ? t.lost : status === 'paused' ? t.paused : t.ready}</h3>
+              <p>{status === 'won' ? t.final : status === 'ready' ? t.controls : ''}</p>
               <button type="button" onClick={startGame}>
-                {status === 'paused'
-                  ? t.resumeGame
-                  : status === 'ready'
-                    ? t.startGame
-                    : t.playAgain}
+                {status === 'paused' ? t.resume : status === 'ready' ? t.start : t.playAgain}
               </button>
             </div>
           </div>
         )}
       </div>
 
-      <div className="brick-mobile-controls" aria-label={t.canvasLabel}>
-        <button
-          type="button"
-          onPointerDown={() => movePaddle('left')}
-          onPointerUp={() => movePaddle('')}
-          onPointerLeave={() => movePaddle('')}
-          onPointerCancel={() => movePaddle('')}
-          aria-label={t.moveLeft}
-        >
-          {t.left}
-        </button>
-
-        <button
-          type="button"
-          onPointerDown={() => movePaddle('right')}
-          onPointerUp={() => movePaddle('')}
-          onPointerLeave={() => movePaddle('')}
-          onPointerCancel={() => movePaddle('')}
-          aria-label={t.moveRight}
-        >
-          {t.right}
-        </button>
-      </div>
-
       <div className="brick-controls">
-        <div className="brick-control-help">
-          <span><kbd>←</kbd> <kbd>→</kbd></span>
-          <span>{t.moveWith} <kbd>A</kbd> <kbd>D</kbd> {t.toMove}</span>
-          <span className="brick-help-separator">·</span>
-          <span>{t.mouseTouch}</span>
-        </div>
-
+        <p className="brick-control-help">{t.controls}</p>
         <div className="brick-buttons">
-          <button
-            type="button"
-            className="brick-secondary"
-            onClick={toggleMute}
-          >
-            {muted ? t.soundOff : t.soundOn}
-          </button>
-
-          {status === 'playing' ? (
-            <button
-              type="button"
-              className="brick-secondary"
-              onClick={pauseGame}
-            >
-              {t.pause}
-            </button>
-          ) : status === 'paused' ? (
-            <button
-              type="button"
-              className="brick-primary"
-              onClick={startGame}
-            >
-              {t.resume}
-            </button>
-          ) : null}
-
-          <button
-            type="button"
-            className="brick-secondary"
-            onClick={resetGame}
-          >
-            {t.restart}
+          {status === 'playing' && (
+            <button type="button" className="brick-secondary" onClick={pauseGame}>{t.pause}</button>
+          )}
+          <button type="button" className="brick-secondary" onClick={resetGame}>{t.restart}</button>
+          <button type="button" className="brick-secondary" onClick={() => setMuted(value => !value)}>
+            {t.mute}: {muted ? t.off : t.on}
           </button>
         </div>
       </div>
 
-      <div className="brick-achievements">
-        <h3>{t.achievementHeading}</h3>
-
-        <div className="brick-achievement-list">
-          {achievementList.map((item) => (
-            <div
-              className={`brick-achievement ${achievements.includes(item.id) ? 'is-unlocked' : ''}`}
-              key={item.id}
-            >
-              <span>
-                {achievements.includes(item.id) ? '✦' : '◇'}
-              </span>
-
-              <div>
-                <strong>{item.title}</strong>
-                <p>{item.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="brick-mobile-controls">
+        <button
+          type="button"
+          onPointerDown={() => { keysRef.current.left = true; }}
+          onPointerUp={() => { keysRef.current.left = false; }}
+          onPointerLeave={() => { keysRef.current.left = false; }}
+          onPointerCancel={() => { keysRef.current.left = false; }}
+        >{t.mobileLeft}</button>
+        <button
+          type="button"
+          onPointerDown={() => { keysRef.current.right = true; }}
+          onPointerUp={() => { keysRef.current.right = false; }}
+          onPointerLeave={() => { keysRef.current.right = false; }}
+          onPointerCancel={() => { keysRef.current.right = false; }}
+        >{t.mobileRight}</button>
       </div>
 
       <div className="brick-footer-tip">
-        <span>✦</span>
-        <p>
-          <strong>{t.strategyHeading}</strong> {t.strategyText}
-        </p>
+        <span>✦</span><p>{t.tip}</p>
       </div>
+
+      <section className="brick-achievements">
+        <h3>{t.achievements}</h3>
+        <div className="brick-achievement-list">
+          {[
+            ['first', '🏆', t.first, t.firstDesc],
+            ['combo', '⚡', t.combo, t.comboDesc],
+            ['survivor', '🛡️', t.survivor, t.survivorDesc],
+            ['collector', '💎', t.collector, t.collectorDesc]
+          ].map(([id, icon, title, desc]) => (
+            <article key={id} className={`brick-achievement ${achievements[id] ? 'is-unlocked' : ''}`}>
+              <span>{icon}</span>
+              <div><strong>{title}</strong><p>{achievements[id] ? t.unlocked : t.locked}</p><p>{desc}</p></div>
+            </article>
+          ))}
+        </div>
+      </section>
     </section>
   );
 }

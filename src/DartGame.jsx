@@ -8,134 +8,102 @@ const GROUND = 420;
 const SLING = { x: 150, y: 360 };
 const TOTAL_LEVELS = 50;
 const SAVE_KEY = 'nexora-smash-progress-v2';
+const STATS_KEY = 'nexora-smash-ai-stats-v1';
 
-// FIX: Define the five missing zone themes.
 const ZONES = [
-  {
-    name: 'NEON CITY',
-    glow: '#00f5ff',
-    sky: ['#08051f', '#17104a', '#30105c']
-  },
-  {
-    name: 'FLOATING WORLD',
-    glow: '#a66cff',
-    sky: ['#10052d', '#32105d', '#713b9c']
-  },
-  {
-    name: 'HAZARD ZONE',
-    glow: '#ffb52e',
-    sky: ['#25100d', '#542016', '#8c351e']
-  },
-  {
-    name: 'DARK FORTRESS',
-    glow: '#ff3c83',
-    sky: ['#090718', '#21102e', '#48143d']
-  },
-  {
-    name: 'BOSS DIMENSION',
-    glow: '#ff35df',
-    sky: ['#16001f', '#430044', '#76004e']
-  }
+  { name: 'NEON CITY', glow: '#00f5ff', sky: ['#08051f', '#17104a', '#30105c'] },
+  { name: 'FLOATING WORLD', glow: '#a66cff', sky: ['#10052d', '#32105d', '#713b9c'] },
+  { name: 'HAZARD ZONE', glow: '#ffb52e', sky: ['#25100d', '#542016', '#8c351e'] },
+  { name: 'DARK FORTRESS', glow: '#ff3c83', sky: ['#090718', '#21102e', '#48143d'] },
+  { name: 'BOSS DIMENSION', glow: '#ff35df', sky: ['#16001f', '#430044', '#76004e'] }
 ];
 
 const TEXT = {
   en: {
     zones: ['NEON CITY', 'FLOATING WORLD', 'HAZARD ZONE', 'DARK FORTRESS', 'BOSS DIMENSION'],
     modes: {
-      'BOSS BATTLE': 'BOSS BATTLE',
-      'DARK RAID': 'DARK RAID',
-      'BOSS HUNT': 'BOSS HUNT',
-      'FORTRESS ASSAULT': 'FORTRESS ASSAULT',
-      'WIND STORM': 'WIND STORM',
-      'MOVING TARGETS': 'MOVING TARGETS',
-      'FLOATING TOWERS': 'FLOATING TOWERS',
-      'CLASSIC SMASH': 'CLASSIC SMASH'
+      'BOSS BATTLE': 'BOSS BATTLE', 'DARK RAID': 'DARK RAID',
+      'BOSS HUNT': 'BOSS HUNT', 'FORTRESS ASSAULT': 'FORTRESS ASSAULT',
+      'WIND STORM': 'WIND STORM', 'MOVING TARGETS': 'MOVING TARGETS',
+      'FLOATING TOWERS': 'FLOATING TOWERS', 'CLASSIC SMASH': 'CLASSIC SMASH'
     },
     messages: {
       'DRAG BACK • AIM • RELEASE': 'DRAG BACK • AIM • RELEASE',
       'RELEASE TO LAUNCH!': 'RELEASE TO LAUNCH!',
       'FLY • SMASH • SCORE!': 'FLY • SMASH • SCORE!',
-      'BOSS DEFEATED!': 'BOSS DEFEATED!',
-      'TARGET HIT!': 'TARGET HIT!',
-      'TARGET DAMAGED!': 'TARGET DAMAGED!',
-      'LEVEL CLEARED!': 'LEVEL CLEARED!',
+      'BOSS DEFEATED!': 'BOSS DEFEATED!', 'TARGET HIT!': 'TARGET HIT!',
+      'TARGET DAMAGED!': 'TARGET DAMAGED!', 'LEVEL CLEARED!': 'LEVEL CLEARED!',
       'NO BIRDS LEFT!': 'NO BIRDS LEFT!'
     },
-    level: 'Level',
-    score: 'Score',
-    birds: 'Birds',
-    helpDrag: '🖱️ Drag backward to aim',
-    helpWind: '🌬️ Watch the wind',
-    helpDestroy: '💥 Destroy every target',
-    restart: '↻ Restart level',
-    tryAgain: 'Try again',
-    playAgain: 'Play again',
-    chooseLevel: 'Choose a level (1–50)',
-    unlocked: '🔓 Unlocked through Level',
+    level: 'Level', score: 'Score', birds: 'Birds',
+    helpDrag: '🖱️ Drag backward to aim', helpWind: '🌬️ Watch the wind',
+    helpDestroy: '💥 Destroy every target', restart: '↻ Restart level',
+    tryAgain: 'Try again', playAgain: 'Play again',
+    chooseLevel: 'Choose a level (1–50)', unlocked: '🔓 Unlocked through Level',
     unlockHint: n => `Complete Level ${n} to unlock`,
     playHint: n => `Play Level ${n}`,
     canvasLabel: 'Drag the bird backward and release to launch.',
-    levelCleared: 'LEVEL CLEARED!',
-    campaignComplete: 'CAMPAIGN COMPLETE!',
-    outOfBirds: 'OUT OF BIRDS!',
-    scoreLabel: 'SCORE:',
-    conquered: 'You conquered all 50 levels!',
-    nextLevel: 'Next level loading...',
-    restartHint: 'Restart and try again.',
-    wind: 'WIND'
+    levelCleared: 'LEVEL CLEARED!', campaignComplete: 'CAMPAIGN COMPLETE!',
+    outOfBirds: 'OUT OF BIRDS!', scoreLabel: 'SCORE:',
+    conquered: 'You conquered all 50 levels!', nextLevel: 'Next level loading...',
+    restartHint: 'Restart and try again.', wind: 'WIND',
+    coach: 'NEXORA AI COACH', accuracy: 'Accuracy', shots: 'Shots',
+    successful: 'Levels cleared', best: 'Best level', adviceReady: 'Drag the bird backwards. The dotted line predicts its flight.',
+    adviceAim: 'Your launch path is ready. Try adjusting the angle and power.',
+    adviceGood: 'Great performance! Your aim is improving.',
+    advicePractice: 'Try a higher launch angle and watch the wind direction.',
+    adviceWind: 'Wind affects your shot. Aim slightly against the wind.',
+    adviceFinish: 'Excellent work! Keep practising to improve your accuracy.',
+    adviceGameOver: 'You ran out of birds. Try changing your launch angle.',
+    trajectory: 'AI TRAJECTORY GUIDE', power: 'Power',
+    stats: 'PLAYER PERFORMANCE', levelProgress: 'Campaign progress',
+    adaptive: 'AI challenge', adaptiveOn: 'Active'
   },
   zh: {
     zones: ['霓虹都市', '浮空世界', '危险区域', '黑暗堡垒', '首领次元'],
     modes: {
-      'BOSS BATTLE': '首领战',
-      'DARK RAID': '黑暗突袭',
-      'BOSS HUNT': '首领猎杀',
-      'FORTRESS ASSAULT': '堡垒突击',
-      'WIND STORM': '风暴来袭',
-      'MOVING TARGETS': '移动目标',
-      'FLOATING TOWERS': '浮空塔',
-      'CLASSIC SMASH': '经典粉碎'
+      'BOSS BATTLE': '首领战', 'DARK RAID': '黑暗突袭',
+      'BOSS HUNT': '首领猎杀', 'FORTRESS ASSAULT': '堡垒突击',
+      'WIND STORM': '风暴来袭', 'MOVING TARGETS': '移动目标',
+      'FLOATING TOWERS': '浮空塔', 'CLASSIC SMASH': '经典粉碎'
     },
     messages: {
       'DRAG BACK • AIM • RELEASE': '向后拖动 • 瞄准 • 松开发射',
       'RELEASE TO LAUNCH!': '松开即可发射！',
       'FLY • SMASH • SCORE!': '飞行 • 粉碎 • 得分！',
-      'BOSS DEFEATED!': '首领已击败！',
-      'TARGET HIT!': '命中目标！',
-      'TARGET DAMAGED!': '目标受到伤害！',
-      'LEVEL CLEARED!': '关卡完成！',
+      'BOSS DEFEATED!': '首领已击败！', 'TARGET HIT!': '命中目标！',
+      'TARGET DAMAGED!': '目标受到伤害！', 'LEVEL CLEARED!': '关卡完成！',
       'NO BIRDS LEFT!': '没有剩余弹射鸟了！'
     },
-    level: '关卡',
-    score: '得分',
-    birds: '弹射鸟',
-    helpDrag: '🖱️ 向后拖动进行瞄准',
-    helpWind: '🌬️ 注意风向',
-    helpDestroy: '💥 摧毁所有目标',
-    restart: '↻ 重新开始',
-    tryAgain: '再试一次',
-    playAgain: '重新游玩',
-    chooseLevel: '选择关卡（1–50）',
-    unlocked: '🔓 已解锁至关卡',
+    level: '关卡', score: '得分', birds: '弹射鸟',
+    helpDrag: '🖱️ 向后拖动进行瞄准', helpWind: '🌬️ 注意风向',
+    helpDestroy: '💥 摧毁所有目标', restart: '↻ 重新开始',
+    tryAgain: '再试一次', playAgain: '重新游玩',
+    chooseLevel: '选择关卡（1–50）', unlocked: '🔓 已解锁至关卡',
     unlockHint: n => `完成第 ${n} 关即可解锁`,
     playHint: n => `游玩第 ${n} 关`,
     canvasLabel: '向后拖动小鸟并松开发射。',
-    levelCleared: '关卡完成！',
-    campaignComplete: '全部关卡完成！',
-    outOfBirds: '弹射鸟用完了！',
-    scoreLabel: '得分：',
-    conquered: '你已经征服全部 50 个关卡！',
-    nextLevel: '正在加载下一关……',
-    restartHint: '重新开始，再试一次。',
-    wind: '风向'
+    levelCleared: '关卡完成！', campaignComplete: '全部关卡完成！',
+    outOfBirds: '弹射鸟用完了！', scoreLabel: '得分：',
+    conquered: '你已经征服全部 50 个关卡！', nextLevel: '正在加载下一关……',
+    restartHint: '重新开始，再试一次。', wind: '风向',
+    coach: 'NEXORA AI 教练', accuracy: '命中率', shots: '发射次数',
+    successful: '完成关卡', best: '最高关卡', adviceReady: '向后拖动小鸟。虚线会预测飞行轨迹。',
+    adviceAim: '发射轨迹已显示。尝试调整角度和力度。',
+    adviceGood: '表现出色！你的瞄准正在进步。',
+    advicePractice: '尝试更高的发射角度，并注意风向。',
+    adviceWind: '风会影响你的射击。尝试稍微逆风瞄准。',
+    adviceFinish: '表现很好！继续练习，提高命中率。',
+    adviceGameOver: '弹射鸟用完了。尝试改变发射角度。',
+    trajectory: 'AI 轨迹预测', power: '力度',
+    stats: '玩家表现', levelProgress: '关卡进度',
+    adaptive: 'AI 挑战', adaptiveOn: '已开启'
   }
 };
 
 function normalizeLanguage(language) {
   const value = String(language || 'en').toLowerCase();
-  return value.startsWith('zh') || value.includes('chinese') || value.includes('中文')
-    ? 'zh'
-    : 'en';
+  return value.startsWith('zh') || value.includes('chinese') || value.includes('中文') ? 'zh' : 'en';
 }
 
 function getZone(level) {
@@ -156,6 +124,16 @@ function getUnlocked() {
     return Math.max(1, Math.min(TOTAL_LEVELS, Number(localStorage.getItem(SAVE_KEY)) || 1));
   } catch {
     return 1;
+  }
+}
+
+function getSavedStats() {
+  try {
+    return JSON.parse(localStorage.getItem(STATS_KEY)) || {
+      shots: 0, cleared: 0, bestLevel: 1, hits: 0
+    };
+  } catch {
+    return { shots: 0, cleared: 0, bestLevel: 1, hits: 0 };
   }
 }
 
@@ -183,36 +161,25 @@ function createLevel(level, score = 0) {
       id: `block-${index}`,
       x: x + (index % 2 === 0 ? shift : 0),
       y: Math.max(155, y - (index % 2 === 1 ? verticalShift : 0)),
-      w, h,
-      hp: 1 + Math.floor(difficulty / 2),
-      alive: true,
+      w, h, hp: 1 + Math.floor(difficulty / 2), alive: true,
       type: index % 3 === 0 ? 'reinforced' : 'normal'
     });
   });
 
   if (level >= 6) {
     blocks.push({
-      id: 'extra-wall',
-      x: 825 - (level % 3) * 12,
+      id: 'extra-wall', x: 825 - (level % 3) * 12,
       y: GROUND - 90 - (level % 4) * 12,
-      w: 17,
-      h: 90 + (level % 4) * 12,
-      hp: 2 + Math.floor(difficulty / 3),
-      alive: true,
-      type: 'reinforced'
+      w: 17, h: 90 + (level % 4) * 12,
+      hp: 2 + Math.floor(difficulty / 3), alive: true, type: 'reinforced'
     });
   }
 
   if (level >= 16 && level % 2 === 0) {
     blocks.push({
-      id: 'high-barrier',
-      x: 670,
-      y: 165 + (level % 4) * 10,
-      w: 90,
-      h: 14,
-      hp: 2 + Math.floor(difficulty / 3),
-      alive: true,
-      type: 'reinforced'
+      id: 'high-barrier', x: 670, y: 165 + (level % 4) * 10,
+      w: 90, h: 14, hp: 2 + Math.floor(difficulty / 3),
+      alive: true, type: 'reinforced'
     });
   }
 
@@ -228,14 +195,12 @@ function createLevel(level, score = 0) {
     const [px, py] = positions[(i + level) % positions.length];
     const x = boss ? 690 : px + (level % 3) * 8;
     const y = boss ? GROUND - 100 : py;
+    const hp = boss ? 5 + Math.floor(level / 5) : 1 + Math.floor(level / 13);
 
     enemies.push({
       id: i, x, baseX: x, y, baseY: y,
       r: boss ? 30 + Math.floor(level / 20) * 5 : 16,
-      hp: boss ? 5 + Math.floor(level / 5) : 1 + Math.floor(level / 13),
-      maxHp: boss ? 5 + Math.floor(level / 5) : 1 + Math.floor(level / 13),
-      alive: true,
-      phase: i * 1.7 + level
+      hp, maxHp: hp, alive: true, phase: i * 1.7 + level
     });
   }
 
@@ -256,35 +221,20 @@ function drawBird(ctx, bird) {
   if (bird.flying) ctx.rotate(Math.atan2(bird.vy, bird.vx));
   ctx.shadowColor = '#ff35df';
   ctx.shadowBlur = 22;
-
   const gradient = ctx.createRadialGradient(-6,-7,1,0,0,bird.r);
   gradient.addColorStop(0,'#fff3a0');
   gradient.addColorStop(0.5,'#ff537c');
   gradient.addColorStop(1,'#a51c82');
   ctx.fillStyle = gradient;
-  ctx.beginPath();
-  ctx.arc(0,0,bird.r,0,Math.PI*2);
-  ctx.fill();
-  ctx.strokeStyle = '#ffc5fb';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  ctx.beginPath(); ctx.arc(0,0,bird.r,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#ffc5fb'; ctx.lineWidth = 2; ctx.stroke();
   ctx.shadowBlur = 0;
-
   ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(6,-5,6,0,Math.PI*2);
-  ctx.fill();
+  ctx.beginPath(); ctx.arc(6,-5,6,0,Math.PI*2); ctx.fill();
   ctx.fillStyle = '#160625';
-  ctx.beginPath();
-  ctx.arc(8,-5,2.5,0,Math.PI*2);
-  ctx.fill();
+  ctx.beginPath(); ctx.arc(8,-5,2.5,0,Math.PI*2); ctx.fill();
   ctx.fillStyle = '#ffe56b';
-  ctx.beginPath();
-  ctx.moveTo(12,0);
-  ctx.lineTo(25,4);
-  ctx.lineTo(12,8);
-  ctx.closePath();
-  ctx.fill();
+  ctx.beginPath(); ctx.moveTo(12,0); ctx.lineTo(25,4); ctx.lineTo(12,8); ctx.closePath(); ctx.fill();
   ctx.restore();
 }
 
@@ -292,20 +242,13 @@ function drawEnemy(ctx, enemy, boss) {
   ctx.save();
   ctx.shadowColor = boss ? '#ff35df' : '#00ff9d';
   ctx.shadowBlur = boss ? 28 : 18;
-
   const gradient = ctx.createRadialGradient(enemy.x-5,enemy.y-7,2,enemy.x,enemy.y,enemy.r);
   gradient.addColorStop(0,boss ? '#ffb5f2' : '#c4ffdb');
   gradient.addColorStop(1,boss ? '#9f1b9e' : '#00a976');
-
   ctx.fillStyle = gradient;
-  ctx.beginPath();
-  ctx.arc(enemy.x,enemy.y,enemy.r,0,Math.PI*2);
-  ctx.fill();
+  ctx.beginPath(); ctx.arc(enemy.x,enemy.y,enemy.r,0,Math.PI*2); ctx.fill();
   ctx.strokeStyle = boss ? '#ff67e9' : '#6affc7';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
+  ctx.lineWidth = 2; ctx.stroke(); ctx.shadowBlur = 0;
   ctx.fillStyle = '#fff';
   ctx.beginPath();
   ctx.arc(enemy.x-6,enemy.y-5,5,0,Math.PI*2);
@@ -316,7 +259,6 @@ function drawEnemy(ctx, enemy, boss) {
   ctx.arc(enemy.x-5,enemy.y-4,2,0,Math.PI*2);
   ctx.arc(enemy.x+7,enemy.y-4,2,0,Math.PI*2);
   ctx.fill();
-
   if (enemy.maxHp > 1) {
     const width = enemy.r * 2;
     ctx.fillStyle = '#35152e';
@@ -327,10 +269,40 @@ function drawEnemy(ctx, enemy, boss) {
   ctx.restore();
 }
 
+function drawTrajectory(ctx, bird, wind) {
+  const vx = (SLING.x - bird.x) * 0.18;
+  const vy = (SLING.y - bird.y) * 0.18;
+  let x = bird.x;
+  let y = bird.y;
+  let dx = vx;
+  let dy = vy;
+
+  ctx.save();
+  ctx.setLineDash([5, 8]);
+  ctx.strokeStyle = '#00f5ff';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#00f5ff';
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+
+  for (let i = 0; i < 65; i++) {
+    dx += wind;
+    dy += 0.22;
+    x += dx * 2.2;
+    y += dy * 2.2;
+    if (i % 2 === 0) ctx.lineTo(x, y);
+    if (x < 0 || x > WIDTH || y < 0 || y > GROUND + 30) break;
+  }
+
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
 function drawGame(ctx, game, language) {
   const t = TEXT[language];
   ctx.clearRect(0,0,WIDTH,HEIGHT);
-
   const zone = ZONES[game.zone];
   const sky = ctx.createLinearGradient(0,0,WIDTH,HEIGHT);
   zone.sky.forEach((color,i) => sky.addColorStop(i/2,color));
@@ -345,29 +317,22 @@ function drawGame(ctx, game, language) {
   ctx.globalAlpha = 1;
 
   ctx.save();
-  ctx.shadowColor = zone.glow;
-  ctx.shadowBlur = 32;
-  ctx.fillStyle = zone.glow;
-  ctx.globalAlpha = 0.8;
+  ctx.shadowColor = zone.glow; ctx.shadowBlur = 32;
+  ctx.fillStyle = zone.glow; ctx.globalAlpha = 0.8;
   ctx.beginPath();
   ctx.arc(820-game.zone*35,88+game.zone*12,25+game.zone*2,0,Math.PI*2);
-  ctx.fill();
-  ctx.restore();
+  ctx.fill(); ctx.restore();
 
   for (let i=0;i<19;i++) {
-    const x=i*54;
-    const width=30+(i%3)*12;
+    const x=i*54, width=30+(i%3)*12;
     const height=55+((i*37+game.zone*21)%115);
     const y=370-height;
     ctx.fillStyle=i%2?'#130c36':'#0b1234';
     ctx.fillRect(x,y,width,height);
     ctx.save();
     ctx.strokeStyle=i%2?zone.glow:'#ff43dc';
-    ctx.shadowColor=ctx.strokeStyle;
-    ctx.shadowBlur=8;
-    ctx.strokeRect(x,y,width,height);
-    ctx.restore();
-
+    ctx.shadowColor=ctx.strokeStyle; ctx.shadowBlur=8;
+    ctx.strokeRect(x,y,width,height); ctx.restore();
     for (let wy=y+12;wy<355;wy+=18) {
       for (let wx=x+7;wx<x+width-4;wx+=12) {
         ctx.fillStyle=(wx+wy+game.zone)%3?zone.glow:'#ff43dc';
@@ -379,36 +344,27 @@ function drawGame(ctx, game, language) {
   ctx.fillStyle='#100a2e';
   ctx.fillRect(0,GROUND,WIDTH,HEIGHT-GROUND);
   ctx.save();
-  ctx.beginPath();
-  ctx.rect(0,GROUND,WIDTH,HEIGHT-GROUND);
-  ctx.clip();
-  ctx.strokeStyle=zone.glow;
-  ctx.globalAlpha=0.4;
+  ctx.beginPath(); ctx.rect(0,GROUND,WIDTH,HEIGHT-GROUND); ctx.clip();
+  ctx.strokeStyle=zone.glow; ctx.globalAlpha=0.4;
   for(let y=GROUND+12;y<HEIGHT+40;y+=17){
     ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WIDTH,y);ctx.stroke();
   }
   for(let x=-WIDTH;x<WIDTH*2;x+=50){
     ctx.beginPath();
     ctx.moveTo(WIDTH/2+(x-WIDTH/2)*0.15,GROUND);
-    ctx.lineTo(x,HEIGHT);
-    ctx.stroke();
+    ctx.lineTo(x,HEIGHT);ctx.stroke();
   }
   ctx.restore();
 
   ctx.save();
-  ctx.strokeStyle=zone.glow;
-  ctx.shadowColor=zone.glow;
-  ctx.shadowBlur=20;
-  ctx.lineWidth=4;
+  ctx.strokeStyle=zone.glow; ctx.shadowColor=zone.glow;
+  ctx.shadowBlur=20; ctx.lineWidth=4;
   ctx.beginPath();ctx.moveTo(0,GROUND);ctx.lineTo(WIDTH,GROUND);ctx.stroke();
   ctx.restore();
 
   ctx.save();
-  ctx.lineCap='round';
-  ctx.strokeStyle='#ff35df';
-  ctx.shadowColor='#ff35df';
-  ctx.shadowBlur=18;
-  ctx.lineWidth=14;
+  ctx.lineCap='round';ctx.strokeStyle='#ff35df';
+  ctx.shadowColor='#ff35df';ctx.shadowBlur=18;ctx.lineWidth=14;
   ctx.beginPath();
   ctx.moveTo(SLING.x-12,430);ctx.lineTo(SLING.x-8,337);
   ctx.moveTo(SLING.x+15,430);ctx.lineTo(SLING.x+9,337);
@@ -418,40 +374,24 @@ function drawGame(ctx, game, language) {
     ctx.beginPath();
     ctx.moveTo(SLING.x-8,337);
     ctx.lineTo(game.bird.x,game.bird.y);
-    ctx.lineTo(SLING.x+9,337);
-    ctx.stroke();
+    ctx.lineTo(SLING.x+9,337);ctx.stroke();
   }
   ctx.restore();
+
+  if (game.dragging) drawTrajectory(ctx, game.bird, game.wind);
 
   for(const block of game.blocks){
     if(!block.alive)continue;
     ctx.save();
     ctx.fillStyle=block.type==='reinforced'?'rgba(255,50,220,.28)':'rgba(0,245,255,.22)';
     ctx.strokeStyle=block.type==='reinforced'?'#ff55e8':zone.glow;
-    ctx.shadowColor=ctx.strokeStyle;
-    ctx.shadowBlur=12;
-    ctx.lineWidth=2;
+    ctx.shadowColor=ctx.strokeStyle;ctx.shadowBlur=12;ctx.lineWidth=2;
     ctx.beginPath();ctx.roundRect(block.x,block.y,block.w,block.h,3);
-    ctx.fill();ctx.stroke();
-    ctx.restore();
+    ctx.fill();ctx.stroke();ctx.restore();
   }
 
   for(const enemy of game.enemies)if(enemy.alive)drawEnemy(ctx,enemy,game.boss);
   if(!game.bird.used||game.bird.flying)drawBird(ctx,game.bird);
-
-  if(game.dragging){
-    const vx=(SLING.x-game.bird.x)*0.18;
-    const vy=(SLING.y-game.bird.y)*0.18;
-    for(let i=1;i<=12;i++){
-      const time=i*4.5;
-      ctx.save();
-      ctx.fillStyle=i%2?'#00f5ff':'#ff35df';
-      ctx.globalAlpha=1-i*0.055;
-      ctx.beginPath();
-      ctx.arc(game.bird.x+vx*time,game.bird.y+vy*time+0.11*time*time,Math.max(1.5,4-i*0.18),0,Math.PI*2);
-      ctx.fill();ctx.restore();
-    }
-  }
 
   for(const p of game.particles){
     ctx.save();
@@ -463,36 +403,24 @@ function drawGame(ctx, game, language) {
 
   ctx.save();
   ctx.fillStyle='rgba(8,5,30,.94)';
-  ctx.strokeStyle=zone.glow;
-  ctx.shadowColor=zone.glow;
-  ctx.shadowBlur=12;
+  ctx.strokeStyle=zone.glow;ctx.shadowColor=zone.glow;ctx.shadowBlur=12;
   ctx.lineWidth=1.5;
   ctx.beginPath();ctx.roundRect(16,16,215,42,12);ctx.fill();ctx.stroke();
-  ctx.shadowBlur=0;
-  ctx.fillStyle='#fff';
-  ctx.font='bold 15px sans-serif';
-  ctx.textAlign='left';
+  ctx.shadowBlur=0;ctx.fillStyle='#fff';
+  ctx.font='bold 15px sans-serif';ctx.textAlign='left';
   ctx.fillText(`${t.level.toUpperCase()} ${game.level}/${TOTAL_LEVELS}`,28,42);
-  ctx.fillStyle='#ffe56b';
-  ctx.fillText(`★ ${game.score}`,157,42);
+  ctx.fillStyle='#ffe56b';ctx.fillText(`★ ${game.score}`,157,42);
 
-  ctx.fillStyle='rgba(8,5,30,.94)';
-  ctx.strokeStyle='#ff45dc';
-  ctx.shadowColor='#ff45dc';
-  ctx.shadowBlur=12;
+  ctx.fillStyle='rgba(8,5,30,.94)';ctx.strokeStyle='#ff45dc';
+  ctx.shadowColor='#ff45dc';ctx.shadowBlur=12;
   ctx.beginPath();ctx.roundRect(745,16,199,42,12);ctx.fill();ctx.stroke();
-  ctx.shadowBlur=0;
-  ctx.fillStyle='#fff';
-  ctx.font='bold 12px sans-serif';
+  ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';
   ctx.fillText(`${t.birds.toUpperCase()} ${game.birds}`,757,42);
-  ctx.fillStyle='#65faff';
-  ctx.fillText(t.modes[game.mode],817,42);
+  ctx.fillStyle='#65faff';ctx.fillText(t.modes[game.mode],817,42);
 
-  ctx.fillStyle='rgba(8,5,30,.94)';
-  ctx.strokeStyle='#ff45dc';
+  ctx.fillStyle='rgba(8,5,30,.94)';ctx.strokeStyle='#ff45dc';
   ctx.beginPath();ctx.roundRect(250,16,475,36,10);ctx.fill();ctx.stroke();
-  ctx.fillStyle='#ffe5ff';
-  ctx.textAlign='center';
+  ctx.fillStyle='#ffe5ff';ctx.textAlign='center';
   ctx.font='bold 12px sans-serif';
   ctx.fillText(t.messages[game.message] || game.message,487,39,455);
 
@@ -505,25 +433,19 @@ function drawGame(ctx, game, language) {
   if(game.won||game.gameOver){
     ctx.fillStyle='rgba(5,3,24,.88)';
     ctx.fillRect(0,0,WIDTH,HEIGHT);
-    ctx.save();
-    ctx.textAlign='center';
-    ctx.shadowColor=game.won?'#00f5ff':'#ff35df';
-    ctx.shadowBlur=24;
-    ctx.fillStyle='#fff';
-    ctx.font='bold 35px sans-serif';
+    ctx.save();ctx.textAlign='center';
+    ctx.shadowColor=game.won?'#00f5ff':'#ff35df';ctx.shadowBlur=24;
+    ctx.fillStyle='#fff';ctx.font='bold 35px sans-serif';
     ctx.fillText(
       game.won
         ? game.level===TOTAL_LEVELS?t.campaignComplete:t.levelCleared
         : t.outOfBirds,
       WIDTH/2,230
     );
-    ctx.shadowColor='#ffe56b';
-    ctx.fillStyle='#ffe56b';
+    ctx.shadowColor='#ffe56b';ctx.fillStyle='#ffe56b';
     ctx.font='bold 22px sans-serif';
     ctx.fillText(`${t.scoreLabel} ${game.score}`,WIDTH/2,270);
-    ctx.shadowBlur=0;
-    ctx.fillStyle='#d8d3ff';
-    ctx.font='16px sans-serif';
+    ctx.shadowBlur=0;ctx.fillStyle='#d8d3ff';ctx.font='16px sans-serif';
     ctx.fillText(
       game.won
         ? game.level===TOTAL_LEVELS?t.conquered:t.nextLevel
@@ -538,263 +460,301 @@ export default function DartGame({ language = 'en' }) {
   const currentLanguage = normalizeLanguage(language);
   const t = TEXT[currentLanguage];
 
-  const canvasRef=useRef(null);
-  const gameRef=useRef(null);
-  const timerRef=useRef(null);
-  const completedRef=useRef(false);
+  const canvasRef = useRef(null);
+  const gameRef = useRef(null);
+  const timerRef = useRef(null);
+  const completedRef = useRef(false);
+  const statsRef = useRef(getSavedStats());
 
-  const [,render]=useState(0);
-  const [unlocked,setUnlocked]=useState(getUnlocked);
+  const [, render] = useState(0);
+  const [unlocked, setUnlocked] = useState(getUnlocked);
+  const [stats, setStats] = useState(statsRef.current);
+  const [coachMessage, setCoachMessage] = useState(t.adviceReady);
 
-  if(!gameRef.current)gameRef.current=createLevel(1);
+  if (!gameRef.current) gameRef.current = createLevel(1);
 
-  const refresh=useCallback(()=>render(value=>value+1),[]);
+  const refresh = useCallback(() => render(value => value + 1), []);
 
-  const startLevel=useCallback((level,score=0)=>{
-    if(level<1||level>getUnlocked())return;
+  const saveStats = useCallback((next) => {
+    statsRef.current = next;
+    setStats(next);
+    try {
+      localStorage.setItem(STATS_KEY, JSON.stringify(next));
+    } catch {
+      // The game remains playable when storage is unavailable.
+    }
+  }, []);
+
+  const startLevel = useCallback((level, score = 0) => {
+    if (level < 1 || level > getUnlocked()) return;
     clearTimeout(timerRef.current);
-    completedRef.current=false;
-    gameRef.current=createLevel(level,score);
+    completedRef.current = false;
+    gameRef.current = createLevel(level, score);
+    setCoachMessage(t.adviceReady);
     refresh();
-  },[refresh]);
+  }, [refresh, t.adviceReady]);
 
-  const restart=useCallback(()=>{
-    const game=gameRef.current;
-    startLevel(game.level,game.score);
-  },[startLevel]);
+  const restart = useCallback(() => {
+    const game = gameRef.current;
+    startLevel(game.level, game.score);
+  }, [startLevel]);
 
-  const completeLevel=useCallback((level,score)=>{
-    if(completedRef.current)return;
-    completedRef.current=true;
-    const game=gameRef.current;
-    game.won=true;
+  const completeLevel = useCallback((level, score) => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    const game = gameRef.current;
+    game.won = true;
 
-    if(level>=TOTAL_LEVELS){
+    const current = statsRef.current;
+    saveStats({
+      ...current,
+      cleared: current.cleared + 1,
+      bestLevel: Math.max(current.bestLevel, level),
+    });
+    setCoachMessage(t.adviceFinish);
+
+    if (level >= TOTAL_LEVELS) {
       refresh();
       return;
     }
 
-    const next=level+1;
-    try{
-      localStorage.setItem(SAVE_KEY,String(Math.max(getUnlocked(),next)));
-    }catch{}
-    setUnlocked(Math.max(getUnlocked(),next));
+    const next = level + 1;
+    try {
+      localStorage.setItem(SAVE_KEY, String(Math.max(getUnlocked(), next)));
+    } catch {}
+    setUnlocked(Math.max(getUnlocked(), next));
     refresh();
 
     clearTimeout(timerRef.current);
-    timerRef.current=setTimeout(()=>{
-      gameRef.current=createLevel(next,score);
-      completedRef.current=false;
+    timerRef.current = setTimeout(() => {
+      gameRef.current = createLevel(next, score);
+      completedRef.current = false;
       refresh();
-    },1800);
-  },[refresh]);
+    }, 1800);
+  }, [refresh, saveStats, t.adviceFinish]);
 
-  useEffect(()=>{
-    const canvas=canvasRef.current;
-    if(!canvas)return undefined;
-    const ctx=canvas.getContext('2d');
-    let active=true;
-    let previousTime=performance.now();
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+    const ctx = canvas.getContext('2d');
+    let active = true;
+    let previousTime = performance.now();
     let animationId;
 
-    function loop(now){
-      if(!active)return;
-      const game=gameRef.current;
-      const bird=game.bird;
-      const dt=Math.min(2,Math.max(0.5,(now-previousTime)/16.67));
-      previousTime=now;
+    function loop(now) {
+      if (!active) return;
+      const game = gameRef.current;
+      const bird = game.bird;
+      const dt = Math.min(2, Math.max(0.5, (now - previousTime) / 16.67));
+      previousTime = now;
 
-      if(!game.won&&!game.gameOver){
-        if(['MOVING TARGETS','WIND STORM','BOSS HUNT'].includes(game.mode)&&!bird.flying){
-          game.enemies.forEach(enemy=>{
-            if(enemy.alive){
-              enemy.x=enemy.baseX+Math.sin(now/400+enemy.phase)*(15+game.level%15);
-              enemy.y=enemy.baseY+Math.cos(now/600+enemy.phase)*(game.level>=21?12:4);
+      if (!game.won && !game.gameOver) {
+        if (['MOVING TARGETS','WIND STORM','BOSS HUNT'].includes(game.mode) && !bird.flying) {
+          game.enemies.forEach(enemy => {
+            if (enemy.alive) {
+              const bossBoost = game.boss ? 1.5 : 1;
+              enemy.x = enemy.baseX + Math.sin(now / 400 + enemy.phase) * (15 + game.level % 15) * bossBoost;
+              enemy.y = enemy.baseY + Math.cos(now / 600 + enemy.phase) * (game.level >= 21 ? 12 : 4);
             }
           });
         }
 
-        if(bird.flying){
-          bird.vx+=game.wind*dt;
-          bird.vy+=0.22*dt;
-          bird.x+=bird.vx*dt;
-          bird.y+=bird.vy*dt;
+        if (bird.flying) {
+          bird.vx += game.wind * dt;
+          bird.vy += 0.22 * dt;
+          bird.x += bird.vx * dt;
+          bird.y += bird.vy * dt;
 
-          for(const block of game.blocks){
-            if(!block.alive)continue;
-            const nearX=Math.max(block.x,Math.min(bird.x,block.x+block.w));
-            const nearY=Math.max(block.y,Math.min(bird.y,block.y+block.h));
-            if(Math.hypot(bird.x-nearX,bird.y-nearY)<bird.r){
-              const impact=Math.abs(bird.vx)+Math.abs(bird.vy);
-              block.hp-=impact>7?2:1;
-              if(block.hp<=0){
-                block.alive=false;
-                game.score+=50;
-                for(let i=0;i<10;i++){
+          for (const block of game.blocks) {
+            if (!block.alive) continue;
+            const nearX = Math.max(block.x, Math.min(bird.x, block.x + block.w));
+            const nearY = Math.max(block.y, Math.min(bird.y, block.y + block.h));
+            if (Math.hypot(bird.x - nearX, bird.y - nearY) < bird.r) {
+              const impact = Math.abs(bird.vx) + Math.abs(bird.vy);
+              block.hp -= impact > 7 ? 2 : 1;
+              if (block.hp <= 0) {
+                block.alive = false;
+                game.score += 50;
+                for (let i = 0; i < 10; i++) {
                   game.particles.push({
-                    x:nearX,y:nearY,
-                    vx:(Math.random()-0.5)*7,
-                    vy:-Math.random()*6,
-                    r:2+Math.random()*3,life:30,
-                    color:i%2?'#00f5ff':'#ff35df'
+                    x: nearX, y: nearY,
+                    vx: (Math.random() - 0.5) * 7,
+                    vy: -Math.random() * 6,
+                    r: 2 + Math.random() * 3, life: 30,
+                    color: i % 2 ? '#00f5ff' : '#ff35df'
                   });
                 }
               }
-              bird.vx*=0.68;
-              bird.vy*=-0.42;
+              bird.vx *= 0.68;
+              bird.vy *= -0.42;
               break;
             }
           }
 
-          for(const enemy of game.enemies){
-            if(!enemy.alive)continue;
-            if(Math.hypot(bird.x-enemy.x,bird.y-enemy.y)<bird.r+enemy.r){
-              const damage=Math.max(1,Math.floor((Math.abs(bird.vx)+Math.abs(bird.vy))/5));
-              enemy.hp-=damage;
-              if(enemy.hp<=0){
-                enemy.alive=false;
-                game.score+=game.boss?800:500;
-                game.message=game.boss?'BOSS DEFEATED!':'TARGET HIT!';
-                for(let i=0;i<16;i++){
+          for (const enemy of game.enemies) {
+            if (!enemy.alive) continue;
+            if (Math.hypot(bird.x - enemy.x, bird.y - enemy.y) < bird.r + enemy.r) {
+              const damage = Math.max(1, Math.floor((Math.abs(bird.vx) + Math.abs(bird.vy)) / 5));
+              enemy.hp -= damage;
+              if (enemy.hp <= 0) {
+                enemy.alive = false;
+                game.score += game.boss ? 800 : 500;
+                game.message = game.boss ? 'BOSS DEFEATED!' : 'TARGET HIT!';
+                for (let i = 0; i < 16; i++) {
                   game.particles.push({
-                    x:enemy.x,y:enemy.y,
-                    vx:(Math.random()-0.5)*8,
-                    vy:-Math.random()*7,
-                    r:2+Math.random()*4,life:30,
-                    color:['#00f5ff','#ff35df','#ffe56b'][i%3]
+                    x: enemy.x, y: enemy.y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: -Math.random() * 7,
+                    r: 2 + Math.random() * 4, life: 30,
+                    color: ['#00f5ff','#ff35df','#ffe56b'][i % 3]
                   });
                 }
-              }else{
-                game.message='TARGET DAMAGED!';
+              } else {
+                game.message = 'TARGET DAMAGED!';
               }
-              bird.vx*=0.72;
-              bird.vy*=0.72;
+              bird.vx *= 0.72;
+              bird.vy *= 0.72;
             }
           }
 
-          if(bird.y>GROUND+40||bird.x>WIDTH+40||bird.x<-40||bird.y<-80){
-            bird.flying=false;
+          if (bird.y > GROUND + 40 || bird.x > WIDTH + 40 || bird.x < -40 || bird.y < -80) {
+            bird.flying = false;
           }
         }
 
-        if(bird.used&&!bird.flying){
-          bird.used=false;
-          if(game.enemies.every(enemy=>!enemy.alive)){
-            game.won=true;
-            game.score+=1000+game.birds*100;
-            game.message='LEVEL CLEARED!';
-            completeLevel(game.level,game.score);
-          }else{
-            game.birds=Math.max(0,game.birds-1);
-            if(game.birds<=0){
-              game.gameOver=true;
-              game.message='NO BIRDS LEFT!';
+        if (bird.used && !bird.flying) {
+          bird.used = false;
+          if (game.enemies.every(enemy => !enemy.alive)) {
+            game.won = true;
+            game.score += 1000 + game.birds * 100;
+            game.message = 'LEVEL CLEARED!';
+            completeLevel(game.level, game.score);
+          } else {
+            game.birds = Math.max(0, game.birds - 1);
+            if (game.birds <= 0) {
+              game.gameOver = true;
+              game.message = 'NO BIRDS LEFT!';
+              setCoachMessage(t.adviceGameOver);
               refresh();
-            }else{
-              game.bird={
-                x:SLING.x,y:SLING.y,vx:0,vy:0,
-                r:17,used:false,flying:false
+            } else {
+              game.bird = {
+                x: SLING.x, y: SLING.y, vx: 0, vy: 0,
+                r: 17, used: false, flying: false
               };
-              game.message='DRAG BACK • AIM • RELEASE';
+              game.message = 'DRAG BACK • AIM • RELEASE';
             }
           }
         }
       }
 
-      game.particles=game.particles.filter(p=>p.life>0);
-      for(const p of game.particles){
-        p.x+=p.vx*dt;
-        p.y+=p.vy*dt;
-        p.vy+=0.12*dt;
-        p.life-=dt;
+      game.particles = game.particles.filter(p => p.life > 0);
+      for (const p of game.particles) {
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += 0.12 * dt;
+        p.life -= dt;
       }
 
-      drawGame(ctx,game,currentLanguage);
-      animationId=requestAnimationFrame(loop);
+      drawGame(ctx, game, currentLanguage);
+      animationId = requestAnimationFrame(loop);
     }
 
-    animationId=requestAnimationFrame(loop);
-    return ()=>{
-      active=false;
+    animationId = requestAnimationFrame(loop);
+    return () => {
+      active = false;
       cancelAnimationFrame(animationId);
       clearTimeout(timerRef.current);
     };
-  },[completeLevel,refresh,currentLanguage]);
+  }, [completeLevel, refresh, currentLanguage, t.adviceGameOver]);
 
-  function pointerPosition(event){
-    const canvas=canvasRef.current;
-    const rect=canvas.getBoundingClientRect();
+  function pointerPosition(event) {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
     return {
-      x:((event.clientX-rect.left)/rect.width)*WIDTH,
-      y:((event.clientY-rect.top)/rect.height)*HEIGHT
+      x: ((event.clientX - rect.left) / rect.width) * WIDTH,
+      y: ((event.clientY - rect.top) / rect.height) * HEIGHT
     };
   }
 
-  function pointerDown(event){
-    const game=gameRef.current;
-    const bird=game.bird;
-    if(game.won||game.gameOver||bird.used||bird.flying||game.dragging)return;
-    const point=pointerPosition(event);
-    if(Math.hypot(point.x-bird.x,point.y-bird.y)<55){
+  function pointerDown(event) {
+    const game = gameRef.current;
+    const bird = game.bird;
+    if (game.won || game.gameOver || bird.used || bird.flying || game.dragging) return;
+    const point = pointerPosition(event);
+    if (Math.hypot(point.x - bird.x, point.y - bird.y) < 55) {
       event.preventDefault();
-      game.dragging=true;
-      try{event.currentTarget.setPointerCapture(event.pointerId);}catch{}
+      game.dragging = true;
+      try { event.currentTarget.setPointerCapture(event.pointerId); } catch {}
     }
   }
 
-  function pointerMove(event){
-    const game=gameRef.current;
-    if(!game.dragging)return;
+  function pointerMove(event) {
+    const game = gameRef.current;
+    if (!game.dragging) return;
     event.preventDefault();
-    const point=pointerPosition(event);
-    const dx=point.x-SLING.x;
-    const dy=point.y-SLING.y;
-    const distance=Math.hypot(dx,dy);
-    const scale=distance>105?105/distance:1;
-    game.bird.x=SLING.x+dx*scale;
-    game.bird.y=SLING.y+dy*scale;
-    game.message='RELEASE TO LAUNCH!';
-  }
-
-  function pointerUp(event){
-    const game=gameRef.current;
-    if(!game.dragging)return;
-    game.dragging=false;
-    game.bird.vx=(SLING.x-game.bird.x)*0.18;
-    game.bird.vy=(SLING.y-game.bird.y)*0.18;
-    game.bird.flying=true;
-    game.bird.used=true;
-    game.message='FLY • SMASH • SCORE!';
-    try{
-      if(event.currentTarget.hasPointerCapture(event.pointerId)){
-        event.currentTarget.releasePointerCapture(event.pointerId);
-      }
-    }catch{}
+    const point = pointerPosition(event);
+    const dx = point.x - SLING.x;
+    const dy = point.y - SLING.y;
+    const distance = Math.hypot(dx, dy);
+    const scale = distance > 105 ? 105 / distance : 1;
+    game.bird.x = SLING.x + dx * scale;
+    game.bird.y = SLING.y + dy * scale;
+    game.message = 'RELEASE TO LAUNCH!';
     refresh();
   }
 
-  function pointerCancel(event){
-    const game=gameRef.current;
-    if(!game.dragging)return;
-    game.dragging=false;
-    try{
-      if(event.currentTarget.hasPointerCapture(event.pointerId)){
+  function pointerUp(event) {
+    const game = gameRef.current;
+    if (!game.dragging) return;
+    game.dragging = false;
+    game.bird.vx = (SLING.x - game.bird.x) * 0.18;
+    game.bird.vy = (SLING.y - game.bird.y) * 0.18;
+    game.bird.flying = true;
+    game.bird.used = true;
+
+    const current = statsRef.current;
+    saveStats({ ...current, shots: current.shots + 1 });
+    setCoachMessage(
+      Math.abs(game.wind) > 0
+        ? t.adviceWind
+        : t.adviceAim
+    );
+
+    game.message = 'FLY • SMASH • SCORE!';
+    try {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
         event.currentTarget.releasePointerCapture(event.pointerId);
       }
-    }catch{}
+    } catch {}
+    refresh();
   }
 
-  const game=gameRef.current;
-  const theme=ZONES[game.zone];
+  function pointerCancel(event) {
+    const game = gameRef.current;
+    if (!game.dragging) return;
+    game.dragging = false;
+    try {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+    } catch {}
+    refresh();
+  }
+
+  const game = gameRef.current;
+  const theme = ZONES[game.zone];
+  const accuracy = stats.shots
+    ? Math.round((stats.cleared / stats.shots) * 100)
+    : 0;
 
   return (
-    <section className="smash-game" style={{'--smash-glow':theme.glow}}>
+    <section className="smash-game" style={{ '--smash-glow': theme.glow }}>
       <header className="smash-header">
         <div className="smash-brand">
           <span className="smash-logo">N</span>
           <div>
             <strong>NEXORA SMASH</strong>
-            <small>{currentLanguage==='zh'?'50 个关卡 • 5 个霓虹区域':'50 LEVELS • 5 NEON ZONES'}</small>
+            <small>{currentLanguage === 'zh' ? '50 个关卡 • 5 个霓虹区域' : '50 LEVELS • 5 NEON ZONES'}</small>
           </div>
         </div>
         <div className="smash-stats">
@@ -829,13 +789,51 @@ export default function DartGame({ language = 'en' }) {
         <span>{t.helpDestroy}</span>
       </div>
 
+      <div style={{
+        marginTop: 18, padding: 18, borderRadius: 14,
+        border: '1px solid rgba(0,245,255,.35)',
+        background: 'rgba(8,12,35,.8)', color: '#fff'
+      }}>
+        <h3 style={{ color: '#00f5ff', marginTop: 0 }}>
+          🤖 {t.coach}
+        </h3>
+        <p>{coachMessage}</p>
+        <p style={{ color: '#00f5ff', fontSize: 13 }}>
+          {t.trajectory}: {t.adaptiveOn}
+        </p>
+        <div style={{
+          display: 'flex', flexWrap: 'wrap', gap: 16,
+          fontSize: 13
+        }}>
+          <span>{t.shots}: <b>{stats.shots}</b></span>
+          <span>{t.successful}: <b>{stats.cleared}</b></span>
+          <span>{t.accuracy}: <b>{accuracy}%</b></span>
+          <span>{t.best}: <b>{stats.bestLevel}</b></span>
+        </div>
+        <div style={{
+          height: 7, background: '#24213c',
+          borderRadius: 10, overflow: 'hidden', marginTop: 12
+        }}>
+          <div style={{
+            width: `${(unlocked / TOTAL_LEVELS) * 100}%`,
+            height: '100%', background: '#00f5ff',
+            transition: 'width .3s'
+          }} />
+        </div>
+        <small style={{ display: 'block', marginTop: 7, opacity: .7 }}>
+          {t.levelProgress}: {unlocked}/{TOTAL_LEVELS}
+        </small>
+      </div>
+
       <div className="smash-actions">
         <button onClick={restart}>{t.restart}</button>
-        {game.gameOver&&(
+        {game.gameOver && (
           <button className="smash-primary" onClick={restart}>{t.tryAgain}</button>
         )}
-        {game.won&&game.level===TOTAL_LEVELS&&(
-          <button className="smash-primary" onClick={()=>startLevel(1)}>{t.playAgain}</button>
+        {game.won && game.level === TOTAL_LEVELS && (
+          <button className="smash-primary" onClick={() => startLevel(1)}>
+            {t.playAgain}
+          </button>
         )}
       </div>
 
@@ -843,21 +841,21 @@ export default function DartGame({ language = 'en' }) {
         <summary>{t.chooseLevel}</summary>
         <p className="smash-unlock-status">{t.unlocked} {unlocked}</p>
         <div className="smash-level-grid">
-          {Array.from({length:TOTAL_LEVELS},(_,index)=>{
-            const level=index+1;
-            const locked=level>unlocked;
+          {Array.from({ length: TOTAL_LEVELS }, (_, index) => {
+            const level = index + 1;
+            const locked = level > unlocked;
             return (
               <button
                 key={level}
                 disabled={locked}
                 className={[
-                  level===game.level?'selected':'',
-                  locked?'locked':''
+                  level === game.level ? 'selected' : '',
+                  locked ? 'locked' : ''
                 ].join(' ')}
-                onClick={()=>startLevel(level,game.score)}
-                title={locked?t.unlockHint(level-1):t.playHint(level)}
+                onClick={() => startLevel(level, game.score)}
+                title={locked ? t.unlockHint(level - 1) : t.playHint(level)}
               >
-                {locked?'🔒':level}
+                {locked ? '🔒' : level}
               </button>
             );
           })}

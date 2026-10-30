@@ -1,12 +1,86 @@
 
-/* Nexora Brick Breaker upgrade additions */
+.brick-breaker {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+  color: #e7e3ff;
+  font-family: inherit;
+}
+
+.brick-heading {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.brick-eyebrow {
+  color: #43eaff;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.brick-heading h2 {
+  margin: 10px 0;
+  color: #fff;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 1000;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 18px rgba(67, 234, 255, 0.35);
+}
+
+.brick-heading h2 span {
+  color: #b58aff;
+}
+
+.brick-heading p {
+  color: #a7abc9;
+  margin: 0;
+}
+
+.brick-stats {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 auto 18px;
+}
+
+.brick-stat {
+  min-width: 105px;
+  padding: 12px 18px;
+  text-align: center;
+  background: rgba(17, 20, 48, 0.88);
+  border: 1px solid rgba(67, 234, 255, 0.22);
+  border-radius: 10px;
+  box-shadow: 0 0 18px rgba(67, 234, 255, 0.05);
+}
+
+.brick-stat span {
+  display: block;
+  margin-bottom: 5px;
+  color: #8d94bb;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.brick-stat strong {
+  color: #fff;
+  font-size: 1.15rem;
+}
 
 .brick-extra-stats {
   margin-top: -4px;
 }
 
 .brick-power-label {
-  font-size: 0.85rem !important;
+  margin: 0 0 10px;
+  color: #43eaff;
+  font-size: 0.85rem;
+  font-weight: 800;
   overflow-wrap: anywhere;
 }
 
@@ -15,7 +89,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 0 0 14px;
+  margin: 0 auto 14px;
+  max-width: 800px;
   padding: 12px 16px;
   color: #ffe66d;
   background: rgba(255, 230, 109, 0.07);
@@ -35,21 +110,125 @@
 }
 
 @keyframes brick-notice-in {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.brick-game-frame {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(67, 234, 255, 0.55);
+  border-radius: 14px;
+  background: #080d1d;
+  box-shadow:
+    0 0 20px rgba(67, 234, 255, 0.15),
+    0 0 45px rgba(156, 108, 255, 0.12);
+}
+
+.brick-canvas {
+  display: block;
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  margin: 0 auto;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.brick-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(5, 7, 25, 0.78);
+  backdrop-filter: blur(5px);
+}
+
+.brick-overlay-card {
+  width: min(100%, 390px);
+  padding: 28px;
+  text-align: center;
+  background: rgba(16, 19, 48, 0.96);
+  border: 1px solid rgba(67, 234, 255, 0.45);
+  border-radius: 15px;
+  box-shadow: 0 0 35px rgba(67, 234, 255, 0.12);
+}
+
+.brick-overlay-symbol {
+  display: block;
+  color: #43eaff;
+  font-size: 2.5rem;
+  text-shadow: 0 0 18px #43eaff;
+}
+
+.brick-overlay-card h3 {
+  margin: 10px 0;
+  color: #fff;
+  font-size: 1.4rem;
+}
+
+.brick-overlay-card p {
+  color: #b9bdd8;
+  line-height: 1.6;
+}
+
+.brick-overlay-card button,
+.brick-buttons button {
+  padding: 11px 18px;
+  color: #08101e;
+  background: linear-gradient(100deg, #43eaff, #a887ff);
+  border: 0;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.brick-overlay-card button:hover,
+.brick-buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(67, 234, 255, 0.3);
+}
+
+.brick-controls {
+  max-width: 800px;
+  margin: 14px auto 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.brick-control-help {
+  color: #9da4c8;
+  font-size: 0.85rem;
+}
+
+.brick-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.brick-buttons .brick-secondary {
+  color: #e7e3ff;
+  background: rgba(25, 27, 53, 0.95);
+  border: 1px solid rgba(67, 234, 255, 0.35);
 }
 
 .brick-mobile-controls {
   display: none;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  margin-top: 14px;
+  max-width: 800px;
+  margin: 14px auto 0;
 }
 
 .brick-mobile-controls button {
@@ -70,8 +249,31 @@
   background: linear-gradient(100deg, #43eaff, #a887ff);
 }
 
+.brick-footer-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 800px;
+  margin: 18px auto 0;
+  padding: 14px 16px;
+  color: #c6c9e0;
+  background: rgba(12, 14, 34, 0.72);
+  border: 1px solid rgba(156, 108, 255, 0.2);
+  border-radius: 10px;
+  line-height: 1.5;
+}
+
+.brick-footer-tip > span {
+  color: #ffe66d;
+}
+
+.brick-footer-tip p {
+  margin: 0;
+}
+
 .brick-achievements {
-  margin-top: 22px;
+  max-width: 800px;
+  margin: 22px auto 0;
   padding: 18px;
   background: rgba(12, 14, 34, 0.72);
   border: 1px solid rgba(156, 108, 255, 0.25);
@@ -128,88 +330,26 @@
   text-shadow: 0 0 12px rgba(255, 230, 109, 0.5);
 }
 
+@media (max-width: 768px) {
+  .brick-breaker { padding: 16px; }
+  .brick-stats { flex-wrap: wrap; }
+  .brick-game-frame { width: 100%; }
+  .brick-controls { justify-content: center; text-align: center; }
+}
+
 @media (max-width: 650px) {
-  .brick-extra-stats {
-    margin-top: 0;
-  }
-
-  .brick-mobile-controls {
-    display: grid;
-  }
-
-  .brick-achievements {
-    padding: 12px;
-  }
-
-  .brick-achievement-list {
-    grid-template-columns: 1fr;
-  }
-
-  .brick-notice {
-    font-size: 0.78rem;
-  }
+  .brick-extra-stats { margin-top: 0; }
+  .brick-mobile-controls { display: grid; }
+  .brick-achievements { padding: 12px; }
+  .brick-achievement-list { grid-template-columns: 1fr; }
+  .brick-notice { font-size: 0.78rem; }
+  .brick-control-help { width: 100%; text-align: center; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .brick-notice {
-    animation: none;
-  }
-
-/* =========================================
-   NEON BRICK BREAKER - CENTERED FULLSCREEN
-========================================= */
-
-/* Center the game inside its available space */
-.brick-breaker {
-  width: 100%;
-  max-width: 1200px;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  box-sizing: border-box;
-}
-
-/* Center the heading */
-.brick-heading {
-  text-align: center;
-}
-
-/* Center the game canvas and its frame */
-.brick-game-frame {
-  width: 100%;
-  max-width: 800px;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-/* Keep the canvas responsive */
-.brick-canvas {
-  display: block;
-  width: 100%;
-  max-width: 800px;
-  height: auto;
-  margin: 0 auto;
-}
-
-/* Center statistics and controls */
-.brick-stats,
-.brick-controls {
-  justify-content: center;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Center the footer tip */
-.brick-footer-tip {
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Fullscreen layout */
 :fullscreen .brick-breaker {
   width: min(1200px, 100%);
   min-height: 100vh;
-  margin: 0 auto !important;
+  margin: 0 auto;
   padding: 30px 24px;
   display: flex;
   flex-direction: column;
@@ -220,7 +360,7 @@
 
 :fullscreen .brick-game-frame {
   width: min(800px, 90vw);
-  margin: 20px auto !important;
+  margin: 20px auto;
 }
 
 :fullscreen .brick-canvas {
@@ -228,19 +368,8 @@
   height: auto;
 }
 
-/* Smaller screens */
-@media (max-width: 768px) {
-  .brick-breaker {
-    padding: 16px;
-  }
-
-  .brick-stats {
-    flex-wrap: wrap;
-  }
-
-  .brick-game-frame {
-    width: 100%;
-  }
-}
-
+@media (prefers-reduced-motion: reduce) {
+  .brick-notice { animation: none; }
+  .brick-overlay-card button,
+  .brick-buttons button { transition: none; }
 }

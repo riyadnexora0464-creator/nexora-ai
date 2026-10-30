@@ -1,4 +1,3 @@
-
 .neon-rpg {
   width: 100%;
   max-width: 1400px;
@@ -50,33 +49,52 @@
   line-height: 1.5;
 }
 
-.neon-rpg-play {
+.neon-rpg-header-actions {
+  display: flex;
   flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.neon-rpg-play,
+.neon-rpg-pause {
+  min-height: 44px;
   padding: 13px 19px;
-  color: #07101e;
-  background: linear-gradient(100deg, #5df2ff, #a9faff);
   border: 0;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 1px;
   cursor: pointer;
-  box-shadow: 0 0 22px rgba(54, 225, 255, 0.2);
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
-.neon-rpg-play:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 28px rgba(54, 225, 255, 0.4);
+.neon-rpg-play {
+  color: #07101e;
+  background: linear-gradient(100deg, #5df2ff, #a9faff);
+  box-shadow: 0 0 22px rgba(54, 225, 255, 0.2);
 }
 
-.neon-rpg-play:active {
+.neon-rpg-pause {
+  color: #eafaff;
+  background: #202b50;
+  border: 1px solid rgba(79, 222, 255, 0.45);
+}
+
+.neon-rpg-play:hover,
+.neon-rpg-pause:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 28px rgba(54, 225, 255, 0.3);
+}
+
+.neon-rpg-play:active,
+.neon-rpg-pause:active {
   transform: translateY(0);
 }
 
 .neon-rpg-hud {
   display: grid;
-  grid-template-columns: 1.5fr 0.55fr 1.5fr 0.8fr 0.9fr;
+  grid-template-columns: 1.5fr 0.55fr 1.5fr 0.8fr 0.9fr 0.8fr;
   gap: 12px;
   margin-bottom: 14px;
 }
@@ -211,6 +229,7 @@
   cursor: pointer;
   touch-action: none;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .neon-rpg-touch-controls button:active {
@@ -230,11 +249,18 @@
   border-color: #d46aff;
 }
 
-@media (max-width: 900px) {
+.neon-rpg button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 1100px) {
   .neon-rpg-hud {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
 
+@media (max-width: 900px) {
   .neon-rpg-controls {
     align-items: flex-start;
     flex-direction: column;
@@ -242,6 +268,11 @@
 
   .neon-rpg-instructions {
     gap: 10px;
+  }
+
+  .neon-rpg-touch-controls {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
 
@@ -256,8 +287,13 @@
     flex-direction: column;
   }
 
-  .neon-rpg-play {
+  .neon-rpg-header-actions {
     width: 100%;
+  }
+
+  .neon-rpg-header-actions button {
+    flex: 1;
+    padding: 12px 8px;
   }
 
   .neon-rpg-hud {
@@ -284,6 +320,7 @@
   }
 
   .neon-rpg-touch-controls button {
+    min-width: 0;
     padding: 10px;
   }
 
@@ -293,5 +330,13 @@
 
   .neon-rpg-instructions {
     font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neon-rpg *,
+  .neon-rpg *::before,
+  .neon-rpg *::after {
+    transition-duration: 0.01ms !important;
   }
 }

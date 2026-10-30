@@ -8,7 +8,6 @@ const ROAD_LEFT = 190;
 const ROAD_RIGHT = 610;
 const CAR_WIDTH = 42;
 const CAR_HEIGHT = 72;
-
 const TRAFFIC_COLORS = ['#ff4fd8', '#ffb454', '#a78bff', '#54eaff'];
 
 const normalizeLanguage = (language) =>
@@ -21,6 +20,7 @@ const TEXT = {
     racing: 'RACING',
     tagline: 'Own the highway. Dodge the traffic. Beat your high score.',
     yourScore: 'YOUR SCORE',
+    bestScore: 'BEST SCORE',
     roadSpeed: 'ROAD SPEED',
     raceStatus: 'RACE STATUS',
     ready: 'READY',
@@ -57,6 +57,7 @@ const TEXT = {
     racing: '赛车',
     tagline: '驰骋高速公路，躲避车流，刷新你的最高分。',
     yourScore: '你的得分',
+    bestScore: '最高纪录',
     roadSpeed: '行驶速度',
     raceStatus: '比赛状态',
     ready: '准备就绪',
@@ -113,24 +114,25 @@ function createRace() {
     score: 0,
     speed: 4,
     running: false,
-    lastSpawn: 0,
-    lastTime: 0,
   };
 }
 
 function roundedRect(ctx, x, y, width, height, radius) {
   ctx.beginPath();
-  ctx.roundRect(x, y, width, height, radius);
+  if (typeof ctx.roundRect === 'function') {
+    ctx.roundRect(x, y, width, height, radius);
+  } else {
+    ctx.rect(x, y, width, height);
+  }
 }
 
 function drawCar(ctx, x, y, color, player = false) {
   ctx.save();
-
   ctx.shadowColor = color;
   ctx.shadowBlur = player ? 22 : 12;
 
-  // Wheels.
   ctx.fillStyle = '#090a15';
+
   roundedRect(ctx, x - 4, y + 13, 8, 18, 3);
   ctx.fill();
   roundedRect(ctx, x + CAR_WIDTH - 4, y + 13, 8, 18, 3);
@@ -140,7 +142,6 @@ function drawCar(ctx, x, y, color, player = false) {
   roundedRect(ctx, x + CAR_WIDTH - 4, y + 46, 8, 18, 3);
   ctx.fill();
 
-  // Main body.
   const gradient = ctx.createLinearGradient(x, y, x + CAR_WIDTH, y);
   gradient.addColorStop(0, '#292044');
   gradient.addColorStop(0.5, color);
@@ -150,27 +151,24 @@ function drawCar(ctx, x, y, color, player = false) {
   roundedRect(ctx, x, y, CAR_WIDTH, CAR_HEIGHT, 11);
   ctx.fill();
 
-  // Windshield.
   ctx.shadowBlur = 0;
   ctx.fillStyle = '#101b38';
   roundedRect(ctx, x + 6, y + 15, CAR_WIDTH - 12, 19, 5);
   ctx.fill();
 
-  // Rear / front glass detail.
   ctx.fillStyle = '#26385c';
   roundedRect(ctx, x + 7, y + 39, CAR_WIDTH - 14, 12, 3);
   ctx.fill();
 
-  // Headlights.
   ctx.fillStyle = player ? '#ffffff' : '#ff6dba';
   ctx.shadowColor = player ? '#54eaff' : '#ff4fd8';
   ctx.shadowBlur = 10;
+
   roundedRect(ctx, x + 5, y + 3, 9, 4, 2);
   ctx.fill();
   roundedRect(ctx, x + CAR_WIDTH - 14, y + 3, 9, 4, 2);
   ctx.fill();
 
-  // Rear lights.
   ctx.fillStyle = '#ff426d';
   roundedRect(ctx, x + 5, y + CAR_HEIGHT - 7, 9, 4, 2);
   ctx.fill();
@@ -185,14 +183,13 @@ function drawRace(ctx, game, language) {
 
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
-  // Background.
   const background = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
   background.addColorStop(0, '#080b19');
   background.addColorStop(1, '#15102c');
   ctx.fillStyle = background;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-  // Futuristic city silhouettes.
+  // Futuristic city.
   for (let i = 0; i < 15; i += 1) {
     const x = i * 55;
     const buildingHeight = 65 + ((i * 37) % 95);
@@ -201,7 +198,12 @@ function drawRace(ctx, game, language) {
     ctx.fillRect(x, HEIGHT - buildingHeight, 40, buildingHeight);
 
     ctx.fillStyle = 'rgba(67, 231, 255, 0.3)';
-    for (let wy = HEIGHT - buildingHeight + 12; wy < HEIGHT - 10; wy += 19) {
+
+    for (
+      let wy = HEIGHT - buildingHeight + 12;
+      wy < HEIGHT - 10;
+      wy += 19
+    ) {
       ctx.fillRect(x + 8, wy, 4, 7);
       ctx.fillRect(x + 23, wy, 4, 7);
     }
@@ -211,15 +213,16 @@ function drawRace(ctx, game, language) {
   ctx.fillStyle = '#090d1c';
   ctx.fillRect(ROAD_LEFT - 24, 0, ROAD_RIGHT - ROAD_LEFT + 48, HEIGHT);
 
-  // Road.
+  // Road surface.
   const roadGradient = ctx.createLinearGradient(ROAD_LEFT, 0, ROAD_RIGHT, 0);
   roadGradient.addColorStop(0, '#15162d');
   roadGradient.addColorStop(0.5, '#20203a');
   roadGradient.addColorStop(1, '#15162d');
+
   ctx.fillStyle = roadGradient;
   ctx.fillRect(ROAD_LEFT, 0, ROAD_RIGHT - ROAD_LEFT, HEIGHT);
 
-  // Neon road edges.
+  // Neon edges.
   ctx.save();
   ctx.shadowColor = '#35eaff';
   ctx.shadowBlur = 12;
@@ -228,7 +231,7 @@ function drawRace(ctx, game, language) {
   ctx.fillRect(ROAD_RIGHT - 3, 0, 3, HEIGHT);
   ctx.restore();
 
-  // Road lane markers.
+  // Lane markers.
   ctx.save();
   ctx.strokeStyle = 'rgba(167, 139, 250, 0.8)';
   ctx.lineWidth = 3;
@@ -245,7 +248,7 @@ function drawRace(ctx, game, language) {
 
   ctx.restore();
 
-  // Decorative side lights.
+  // Roadside lights.
   for (let y = -30 + (game.roadOffset % 70); y < HEIGHT; y += 70) {
     ctx.fillStyle = '#a16bff';
     ctx.shadowColor = '#a16bff';
@@ -253,17 +256,16 @@ function drawRace(ctx, game, language) {
     ctx.fillRect(ROAD_LEFT - 16, y, 4, 20);
     ctx.fillRect(ROAD_RIGHT + 12, y, 4, 20);
   }
+
   ctx.shadowBlur = 0;
 
-  // Traffic.
-  for (const car of game.traffic) {
+  game.traffic.forEach((car) => {
     drawCar(ctx, car.x, car.y, car.color);
-  }
+  });
 
-  // Player.
   drawCar(ctx, game.playerX, game.playerY, '#46eaff', true);
 
-  // Speed indicator.
+  // Canvas speed display.
   ctx.fillStyle = 'rgba(7, 10, 26, 0.8)';
   roundedRect(ctx, 20, 20, 145, 51, 9);
   ctx.fill();
@@ -283,12 +285,37 @@ export default function NeonRacing({ language = 'en' }) {
 
   const canvasRef = useRef(null);
   const gameRef = useRef(createRace());
+  const spawnTimerRef = useRef(0);
+  const scoreTimerRef = useRef(0);
 
   const [score, setScore] = useState(0);
+  const [bestScore, setBestScore] = useState(() => {
+    try {
+      return Number(localStorage.getItem('nexora-neon-racing-best')) || 0;
+    } catch {
+      return 0;
+    }
+  });
   const [status, setStatus] = useState('ready');
+
+  const saveBestScore = useCallback((newScore) => {
+    setBestScore((currentBest) => {
+      const nextBest = Math.max(currentBest, newScore);
+
+      try {
+        localStorage.setItem('nexora-neon-racing-best', String(nextBest));
+      } catch {
+        // The game still works if browser storage is unavailable.
+      }
+
+      return nextBest;
+    });
+  }, []);
 
   const resetRace = useCallback(() => {
     gameRef.current = createRace();
+    spawnTimerRef.current = 0;
+    scoreTimerRef.current = 0;
     setScore(0);
     setStatus('ready');
   }, []);
@@ -296,6 +323,8 @@ export default function NeonRacing({ language = 'en' }) {
   const startRace = useCallback(() => {
     if (status === 'crashed') {
       gameRef.current = createRace();
+      spawnTimerRef.current = 0;
+      scoreTimerRef.current = 0;
       setScore(0);
     }
 
@@ -305,6 +334,8 @@ export default function NeonRacing({ language = 'en' }) {
 
   const pauseRace = useCallback(() => {
     gameRef.current.running = false;
+    gameRef.current.keys.left = false;
+    gameRef.current.keys.right = false;
     setStatus((current) => current === 'racing' ? 'paused' : current);
   }, []);
 
@@ -320,13 +351,14 @@ export default function NeonRacing({ language = 'en' }) {
 
     let animationFrame;
     let previousTime = 0;
-    let spawnTimer = 0;
+    let active = true;
 
     function update(delta) {
       const game = gameRef.current;
       if (!game.running) return;
 
       const factor = Math.min(delta / 16.67, 2);
+
       game.roadOffset = (game.roadOffset + game.speed * factor) % 53;
 
       if (game.keys.left) game.playerX -= 6.5 * factor;
@@ -339,15 +371,15 @@ export default function NeonRacing({ language = 'en' }) {
 
       game.speed = Math.min(4 + game.score / 500, 9);
 
+      const playerHitbox = {
+        left: game.playerX + 5,
+        right: game.playerX + CAR_WIDTH - 5,
+        top: game.playerY + 8,
+        bottom: game.playerY + CAR_HEIGHT - 8,
+      };
+
       for (const car of game.traffic) {
         car.y += game.speed * factor;
-
-        const playerHitbox = {
-          left: game.playerX + 5,
-          right: game.playerX + CAR_WIDTH - 5,
-          top: game.playerY + 8,
-          bottom: game.playerY + CAR_HEIGHT - 8,
-        };
 
         const trafficHitbox = {
           left: car.x + 4,
@@ -364,13 +396,15 @@ export default function NeonRacing({ language = 'en' }) {
 
         if (collision) {
           game.running = false;
+          game.keys.left = false;
+          game.keys.right = false;
+          saveBestScore(game.score);
           setStatus('crashed');
           return;
         }
 
         if (car.y > HEIGHT + CAR_HEIGHT) {
           game.score += 10;
-          setScore(game.score);
           car.y = -CAR_HEIGHT - Math.random() * 200;
 
           const lane = Math.floor(Math.random() * 4);
@@ -382,17 +416,24 @@ export default function NeonRacing({ language = 'en' }) {
         }
       }
 
-      spawnTimer += delta;
+      // Spawn traffic at progressively shorter intervals.
+      spawnTimerRef.current += delta;
 
-      if (spawnTimer > Math.max(550, 1300 - game.score * 2)) {
-        spawnTimer = 0;
+      const spawnInterval = Math.max(550, 1300 - game.score * 2);
 
-        const lane = Math.floor(Math.random() * 4);
-        const tooClose = game.traffic.some(
-          (car) => car.lane === lane && car.y < 130,
-        );
+      if (spawnTimerRef.current >= spawnInterval) {
+        spawnTimerRef.current = 0;
 
-        if (!tooClose && game.traffic.length < 6) {
+        const availableLanes = [0, 1, 2, 3].filter((lane) => {
+          return !game.traffic.some(
+            (car) => car.lane === lane && car.y < 160,
+          );
+        });
+
+        if (availableLanes.length > 0 && game.traffic.length < 6) {
+          const lane =
+            availableLanes[Math.floor(Math.random() * availableLanes.length)];
+
           game.traffic.push(
             makeTrafficCar(
               lane,
@@ -404,10 +445,23 @@ export default function NeonRacing({ language = 'en' }) {
           );
         }
       }
+
+      // Update the React score less frequently than the animation loop.
+      scoreTimerRef.current += delta;
+
+      if (scoreTimerRef.current >= 100) {
+        scoreTimerRef.current = 0;
+        setScore(game.score);
+      }
     }
 
     function frame(time) {
-      const delta = previousTime ? time - previousTime : 16.67;
+      if (!active) return;
+
+      const delta = previousTime
+        ? Math.min(time - previousTime, 33.34)
+        : 16.67;
+
       previousTime = time;
 
       update(delta);
@@ -449,19 +503,30 @@ export default function NeonRacing({ language = 'en' }) {
       gameRef.current.keys.right = false;
     }
 
+    function handleVisibility() {
+      if (document.hidden && gameRef.current.running) {
+        gameRef.current.running = false;
+        clearKeys();
+        setStatus('paused');
+      }
+    }
+
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
     window.addEventListener('blur', clearKeys);
+    document.addEventListener('visibilitychange', handleVisibility);
 
     animationFrame = window.requestAnimationFrame(frame);
 
     return () => {
+      active = false;
       window.cancelAnimationFrame(animationFrame);
       window.removeEventListener('keydown', keyDown);
       window.removeEventListener('keyup', keyUp);
       window.removeEventListener('blur', clearKeys);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [lang]);
+  }, [lang, saveBestScore]);
 
   const statusText = {
     ready: t.readyMessage,
@@ -502,8 +567,8 @@ export default function NeonRacing({ language = 'en' }) {
         </div>
 
         <div>
-          <span>{t.roadSpeed}</span>
-          <strong>{Math.round(100 + Math.min(score, 500))} {t.kmh}</strong>
+          <span>{t.bestScore}</span>
+          <strong>{bestScore}</strong>
         </div>
 
         <div>
@@ -512,6 +577,11 @@ export default function NeonRacing({ language = 'en' }) {
             {statusLabel}
           </strong>
         </div>
+      </div>
+
+      <div className="racing-speed-stat">
+        <span>{t.roadSpeed}</span>
+        <strong>{Math.round((gameRef.current.speed || 4) * 25)} {t.kmh}</strong>
       </div>
 
       <div className="racing-canvas-wrap">
@@ -531,8 +601,13 @@ export default function NeonRacing({ language = 'en' }) {
               </span>
 
               <h3>{overlayTitle}</h3>
-
               <p>{statusText}</p>
+
+              {status === 'crashed' && (
+                <p className="racing-final-score">
+                  {t.yourScore}: {score}
+                </p>
+              )}
 
               <button type="button" onClick={startRace}>
                 {status === 'paused'
