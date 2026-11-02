@@ -1100,12 +1100,11 @@ footer > span {
 /* DESKTOP LAYOUT */
 
 @media (min-width: 1100px) {
-  .dashboard-section {
+  .site-shell > main {
     display: grid;
-    grid-template-columns: 1.2fr 0.9fr;
-    column-gap: 24px;
-    align-items: end;
+    grid-template-columns: 1.15fr 0.85fr 0.85fr;
   }
+}
 
   .dashboard-heading {
     grid-column: 1 / -1;
@@ -1193,7 +1192,7 @@ footer > span {
   .hero-visual {
     min-height: 390px;
   }
-}
+
 
 /* TABLET */
 

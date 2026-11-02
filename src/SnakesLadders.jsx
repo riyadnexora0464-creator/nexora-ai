@@ -160,9 +160,12 @@ function makeBoardPath(from, to) {
     35,
     Math.min(150, Math.abs(x2 - x1) * 0.35 + 45)
   );
+
   const direction = x2 >= x1 ? 1 : -1;
 
-  return `M ${x1} ${y1} C ${x1 + curve * direction} ${y1 - 20}, ${x2 - curve * direction} ${y2 + 20}, ${x2} ${y2}`;
+  return `M ${x1} ${y1} C ${x1 + curve * direction} ${y1 - 20}, ${
+    x2 - curve * direction
+  } ${y2 + 20}, ${x2} ${y2}`;
 }
 
 export default function SnakesLadders({ language = "en" }) {
@@ -170,8 +173,18 @@ export default function SnakesLadders({ language = "en" }) {
   const t = TEXT[lang];
 
   const PLAYERS = [
-    { name: lang === "zh" ? "玩家 1" : "Player 1", short: "P1", color: "#39e7ff", icon: "🔷" },
-    { name: lang === "zh" ? "玩家 2" : "Player 2", short: "P2", color: "#ff63df", icon: "🟣" },
+    {
+      name: lang === "zh" ? "玩家 1" : "Player 1",
+      short: "P1",
+      color: "#39e7ff",
+      icon: "🔷",
+    },
+    {
+      name: lang === "zh" ? "玩家 2" : "Player 2",
+      short: "P2",
+      color: "#ff63df",
+      icon: "🟣",
+    },
   ];
 
   const [mode, setMode] = useState("both");
@@ -200,18 +213,25 @@ export default function SnakesLadders({ language = "en" }) {
     switch (message.key) {
       case "start":
         return t.startMessage;
+
       case "rolling":
         return t.rollingMessage(getPlayerName(message.player));
+
       case "tooHigh":
         return t.tooHighMessage(getPlayerName(message.player), message.result);
+
       case "snake":
         return t.snakeMessage(getPlayerName(message.player), message.position);
+
       case "ladder":
         return t.ladderMessage(getPlayerName(message.player), message.position);
+
       case "moved":
         return t.movedMessage(getPlayerName(message.player), message.position);
+
       case "win":
         return t.winMessage(getPlayerName(message.player));
+
       default:
         return t.startMessage;
     }
@@ -372,10 +392,10 @@ export default function SnakesLadders({ language = "en" }) {
     busyRef.current = false;
   }
 
-  // Save the latest roll function so the computer can call it.
+  // Keep the latest roll function available to the computer player.
   rollRef.current = rollDice;
 
-  // Automatically give the computer its turn.
+  // Automatically play the computer's turn.
   useEffect(() => {
     if (mode !== "ai" || currentPlayer !== 1 || winner !== null) {
       return undefined;
@@ -388,6 +408,7 @@ export default function SnakesLadders({ language = "en" }) {
     return () => clearTimeout(timer);
   }, [mode, currentPlayer, winner, history]);
 
+  // Build the 100 board squares in their correct zigzag positions.
   const boardCells = Array.from({ length: 100 }, (_, index) => {
     const square = 100 - index;
     const { col, row } = getCellPosition(square);
@@ -398,10 +419,11 @@ export default function SnakesLadders({ language = "en" }) {
   const computerTurn = mode === "ai" && currentPlayer === 1;
 
   return (
-    <main className="snakes-game">
+    <div className="snakes-game">
       <header className="snakes-header">
         <div className="snakes-brand">
           <span className="snakes-brand-icon">✦</span>
+
           <span>
             {t.brand} <b>{t.arcade}</b>
           </span>
@@ -415,9 +437,12 @@ export default function SnakesLadders({ language = "en" }) {
 
       <section className="snakes-intro">
         <p className="snakes-eyebrow">{t.eyebrow}</p>
+
         <h1>
-          {t.title} <span>&amp;</span> {lang === "zh" ? "梯子" : "LADDERS"}
+          {t.title} <span>&amp;</span>{" "}
+          {lang === "zh" ? "梯子" : "LADDERS"}
         </h1>
+
         <p className="snakes-subtitle">{t.subtitle}</p>
       </section>
 
@@ -467,6 +492,7 @@ export default function SnakesLadders({ language = "en" }) {
                   );
 
                 const isSnakeHead = SNAKES.has(square);
+
                 const isLadderBottom =
                   JUMPS[square] && !SNAKES.has(square);
 
@@ -486,14 +512,20 @@ export default function SnakesLadders({ language = "en" }) {
                       gridRow: row + 1,
                     }}
                   >
-                    <span className="snakes-number">{square}</span>
+                    <span className="snakes-number">
+                      {square}
+                    </span>
 
                     {isSnakeHead && (
-                      <span className="snakes-cell-marker">🐍</span>
+                      <span className="snakes-cell-marker">
+                        🐍
+                      </span>
                     )}
 
                     {isLadderBottom && (
-                      <span className="snakes-cell-marker">🪜</span>
+                      <span className="snakes-cell-marker">
+                        🪜
+                      </span>
                     )}
 
                     <div className="snakes-tokens">
@@ -534,8 +566,12 @@ export default function SnakesLadders({ language = "en" }) {
                     />
 
                     <circle
-                      cx={getCellPosition(from).col * 100 + 50}
-                      cy={getCellPosition(from).row * 100 + 50}
+                      cx={
+                        getCellPosition(from).col * 100 + 50
+                      }
+                      cy={
+                        getCellPosition(from).row * 100 + 50
+                      }
                       r="15"
                       className={
                         isSnake
@@ -551,10 +587,13 @@ export default function SnakesLadders({ language = "en" }) {
 
           <div className="snakes-legend">
             <span>
-              <i className="legend-snake" /> {t.snakeLegend}
+              <i className="legend-snake" />
+              {t.snakeLegend}
             </span>
+
             <span>
-              <i className="legend-ladder" /> {t.ladderLegend}
+              <i className="legend-ladder" />
+              {t.ladderLegend}
             </span>
           </div>
         </section>
@@ -640,11 +679,18 @@ export default function SnakesLadders({ language = "en" }) {
           </section>
 
           <section className="snakes-card snakes-score-card">
-            <p className="snakes-card-label">{t.playerPositions}</p>
+            <p className="snakes-card-label">
+              {t.playerPositions}
+            </p>
 
             {PLAYERS.map((player, index) => (
-              <div className="snakes-score-row" key={player.short}>
-                <span className={`snakes-score-avatar avatar-${index}`}>
+              <div
+                className="snakes-score-row"
+                key={player.short}
+              >
+                <span
+                  className={`snakes-score-avatar avatar-${index}`}
+                >
                   {index === 0 ? "🔷" : "🟣"}
                 </span>
 
@@ -662,7 +708,9 @@ export default function SnakesLadders({ language = "en" }) {
                   <div className="snakes-progress">
                     <span
                       className={`progress-${index}`}
-                      style={{ width: `${players[index]}%` }}
+                      style={{
+                        width: `${players[index]}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -672,8 +720,13 @@ export default function SnakesLadders({ language = "en" }) {
 
           <section className="snakes-card snakes-history-card">
             <div className="snakes-history-heading">
-              <p className="snakes-card-label">{t.moveHistory}</p>
-              <span>{history.length} {t.moves}</span>
+              <p className="snakes-card-label">
+                {t.moveHistory}
+              </p>
+
+              <span>
+                {history.length} {t.moves}
+              </span>
             </div>
 
             {history.length === 0 ? (
@@ -683,7 +736,9 @@ export default function SnakesLadders({ language = "en" }) {
             ) : (
               <ul className="snakes-history-list">
                 {history.slice(0, 6).map((item, index) => (
-                  <li key={`${item.key}-${item.player}-${index}`}>
+                  <li
+                    key={`${item.key}-${item.player}-${index}`}
+                  >
                     {getHistoryText(item)}
                   </li>
                 ))}
@@ -697,6 +752,6 @@ export default function SnakesLadders({ language = "en" }) {
         <span>{t.footer}</span>
         <span>{t.exactRoll}</span>
       </footer>
-    </main>
+    </div>
   );
 }

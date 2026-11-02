@@ -1,22 +1,31 @@
 
 /* =========================================
-   NEXORA SNAKES & LADDERS
-   Larger centered game layout
+   NEXORA AI — SNAKES & LADDERS
+   Complete responsive game stylesheet
 ========================================= */
 
-.snakes-game {
-  width: min(1500px, calc(100% - 40px));
-  margin: 0 auto;
-  padding: 28px 20px;
-  color: #edf5ff;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(40, 54, 112, 0.18), transparent 55%),
-    #0b1020;
+.snakes-game,
+.snakes-game * {
   box-sizing: border-box;
 }
 
-.snakes-game * {
-  box-sizing: border-box;
+.snakes-game {
+  display: block;
+  position: relative;
+  width: 100%;
+  max-width: 1500px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 26px;
+  color: #eaf4ff;
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(0, 245, 255, 0.09), transparent 35%),
+    radial-gradient(ellipse at 90% 80%, rgba(160, 60, 255, 0.10), transparent 35%),
+    #090d19;
+  border: 1px solid rgba(0, 225, 255, 0.18);
+  border-radius: 18px;
+  overflow: hidden;
+  font-family: inherit;
 }
 
 /* Header */
@@ -26,164 +35,148 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 34px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid rgba(46, 198, 255, 0.22);
+  margin-bottom: 30px;
 }
 
 .snakes-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  color: #f4f8ff;
-  font-size: 19px;
-  font-weight: 900;
+  gap: 9px;
+  color: #f2f7ff;
+  font-size: 15px;
+  font-weight: 800;
   letter-spacing: 2px;
 }
 
 .snakes-brand b {
-  color: #32e5ff;
+  color: #a66aff;
 }
 
 .snakes-brand-icon {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border: 1px solid #24dfff;
-  border-radius: 12px;
-  color: #32e5ff;
+  color: #00eaff;
   font-size: 24px;
-  box-shadow: 0 0 20px rgba(30, 210, 255, 0.2);
 }
 
 .snakes-online {
   display: flex;
   align-items: center;
-  gap: 9px;
-  color: #9baacb;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 2px;
+  gap: 8px;
+  color: #9eafc8;
+  font-size: 12px;
+  letter-spacing: 1px;
 }
 
 .snakes-live-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #38efbd;
-  box-shadow: 0 0 12px #38efbd;
+  background: #36f5a5;
+  box-shadow: 0 0 12px #36f5a5;
 }
 
 /* Intro */
 
 .snakes-intro {
-  text-align: center;
-  margin: 0 auto 24px;
+  margin-bottom: 22px;
 }
 
 .snakes-eyebrow {
   margin: 0 0 10px;
-  color: #36e7ff;
+  color: #00eaff;
   font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 5px;
+  font-weight: 800;
+  letter-spacing: 3px;
 }
 
 .snakes-intro h1 {
   margin: 0;
-  color: #f4f6ff;
-  font-size: clamp(34px, 5vw, 58px);
-  font-weight: 950;
-  line-height: 1.05;
-  letter-spacing: -2px;
+  color: #f4f8ff;
+  font-size: clamp(25px, 4vw, 38px);
+  font-weight: 900;
+  letter-spacing: 1px;
+  line-height: 1.2;
 }
 
 .snakes-intro h1 span {
-  color: #35eaff;
+  color: #a66aff;
 }
 
 .snakes-subtitle {
-  margin: 12px 0 0;
-  color: #aab7d3;
+  margin: 10px 0 0;
+  color: #9eafc8;
   font-size: 14px;
+  line-height: 1.6;
 }
 
-/* Game mode controls */
+/* Game mode buttons */
 
 .snakes-mode-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
-  margin: 24px 0 30px;
+  gap: 12px;
+  margin-bottom: 22px;
 }
 
 .snakes-mode-picker {
   display: flex;
-  gap: 5px;
-  padding: 5px;
-  border: 1px solid #303a65;
-  border-radius: 13px;
-  background: #141b32;
+  flex-wrap: wrap;
+  gap: 9px;
 }
 
 .snakes-mode-picker button,
-.snakes-restart {
+.snakes-restart,
+.snakes-roll-button {
   min-height: 42px;
-  padding: 0 19px;
-  border: 1px solid transparent;
+  padding: 10px 17px;
+  border: 1px solid rgba(0, 230, 255, 0.35);
   border-radius: 9px;
-  color: #bdc9e5;
-  background: transparent;
-  font-weight: 800;
+  color: #dcecff;
+  background: rgba(14, 27, 48, 0.95);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
   transition: 0.2s ease;
 }
 
 .snakes-mode-picker button:hover,
 .snakes-restart:hover {
-  color: #fff;
-  border-color: #35dfff;
+  border-color: #00eaff;
+  background: rgba(0, 234, 255, 0.12);
 }
 
 .snakes-mode-picker button.selected {
-  color: #fff;
-  background: linear-gradient(120deg, #5838ba, #253e9c);
-  border-color: #805cff;
-  box-shadow: 0 0 18px rgba(108, 78, 255, 0.25);
+  color: #07111e;
+  border-color: #00eaff;
+  background: #00eaff;
+  box-shadow: 0 0 16px rgba(0, 234, 255, 0.25);
 }
 
 .snakes-restart {
-  color: #35eaff;
-  border-color: #1a829f;
-  background: rgba(22, 173, 207, 0.08);
+  border-color: rgba(174, 105, 255, 0.55);
+  background: rgba(122, 57, 220, 0.18);
 }
 
-/* Main centered layout */
+/* Main game layout */
 
 .snakes-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.75fr);
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.75fr);
   align-items: start;
-  gap: 26px;
+  gap: 24px;
   width: 100%;
-  max-width: 1320px;
-  margin: 0 auto;
+  min-width: 0;
 }
-
-/* Board panel */
 
 .snakes-board-panel {
   min-width: 0;
-  padding: 20px;
-  border: 1px solid rgba(57, 210, 255, 0.28);
-  border-radius: 20px;
-  background: linear-gradient(145deg, #171b36, #101a2b);
-  box-shadow:
-    0 20px 55px rgba(0, 0, 0, 0.28),
-    inset 0 1px rgba(255, 255, 255, 0.04);
+  padding: 16px;
+  border: 1px solid rgba(0, 225, 255, 0.2);
+  border-radius: 15px;
+  background: rgba(11, 22, 39, 0.88);
+  box-shadow: 0 0 30px rgba(0, 180, 255, 0.06);
 }
 
 .snakes-board-topline {
@@ -191,32 +184,29 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
-  color: #a8b7d7;
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 2px;
+  margin-bottom: 13px;
+  color: #a9bdd5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
 }
 
-.snakes-board-topline span:last-child {
-  color: #36eaff;
-}
-
-/* Larger 10 x 10 board */
+/* IMPORTANT: The board must be a 10 x 10 grid */
 
 .snakes-board {
   position: relative;
+  display: block;
   width: 100%;
-  max-width: 850px;
+  max-width: 900px;
   aspect-ratio: 1 / 1;
   margin: 0 auto;
   overflow: hidden;
-  border: 3px solid #7160ed;
-  border-radius: 13px;
-  background: #11172c;
+  border: 2px solid rgba(0, 234, 255, 0.75);
+  border-radius: 9px;
+  background: #101c31;
   box-shadow:
-    0 0 0 5px rgba(105, 79, 255, 0.12),
-    0 0 35px rgba(69, 87, 255, 0.2);
+    0 0 18px rgba(0, 234, 255, 0.2),
+    inset 0 0 25px rgba(0, 0, 0, 0.45);
 }
 
 .snakes-cells {
@@ -225,325 +215,340 @@
   display: grid;
   grid-template-columns: repeat(10, minmax(0, 1fr));
   grid-template-rows: repeat(10, minmax(0, 1fr));
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
 .snakes-cell {
   position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
   min-width: 0;
   min-height: 0;
+  padding: 4px;
+  border: 1px solid rgba(140, 190, 255, 0.13);
   overflow: hidden;
-  border: 1px solid rgba(155, 174, 255, 0.16);
 }
 
 .snakes-cell.cell-dark {
-  background: linear-gradient(145deg, #25254d, #1a2040);
+  background: linear-gradient(145deg, #172a45, #102039);
 }
 
 .snakes-cell.cell-light {
-  background: linear-gradient(145deg, #30305e, #20294c);
-}
-
-.snakes-cell.cell-start {
-  background: linear-gradient(145deg, #075b65, #123c58);
+  background: linear-gradient(145deg, #203957, #172b47);
 }
 
 .snakes-cell.cell-finish {
-  background: linear-gradient(145deg, #6943bd, #322c79);
-  box-shadow: inset 0 0 18px rgba(183, 130, 255, 0.35);
+  background: linear-gradient(145deg, #5940a0, #33245f);
+  box-shadow: inset 0 0 13px rgba(188, 120, 255, 0.35);
+}
+
+.snakes-cell.cell-start {
+  background: linear-gradient(145deg, #075d65, #103a53);
+  box-shadow: inset 0 0 13px rgba(0, 234, 255, 0.25);
 }
 
 .snakes-number {
-  position: absolute;
-  top: 4px;
-  left: 5px;
-  z-index: 2;
-  color: #e4eaff;
-  font-size: clamp(8px, 1vw, 13px);
-  font-weight: 900;
-  text-shadow: 0 1px 4px #090d1c;
+  position: relative;
+  z-index: 3;
+  color: #d9e9ff;
+  font-size: clamp(8px, 1.2vw, 14px);
+  font-weight: 800;
+  line-height: 1;
 }
 
 .snakes-cell-marker {
-  position: relative;
-  z-index: 2;
-  font-size: clamp(14px, 2vw, 25px);
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6));
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  z-index: 3;
+  font-size: clamp(10px, 1.5vw, 19px);
+  line-height: 1;
 }
 
 .snakes-tokens {
   position: absolute;
-  right: 3px;
-  bottom: 3px;
+  right: 2px;
+  bottom: 2px;
+  left: 2px;
   z-index: 5;
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 2px;
+  pointer-events: none;
 }
 
 .snakes-token {
-  display: grid;
-  place-items: center;
-  width: clamp(17px, 2vw, 27px);
-  height: clamp(17px, 2vw, 27px);
-  border: 2px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(15px, 2vw, 25px);
+  height: clamp(15px, 2vw, 25px);
+  border: 2px solid #ffffff;
   border-radius: 50%;
-  color: #08101f;
-  font-size: clamp(9px, 1vw, 13px);
-  font-weight: 950;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.55);
+  color: #07111e;
+  font-size: clamp(8px, 1vw, 12px);
+  font-weight: 900;
+  box-shadow: 0 0 9px currentColor;
 }
 
 .token-0 {
   background: #39e7ff;
+  color: #061522;
 }
 
 .token-1 {
   background: #ff63df;
+  color: #241022;
 }
 
-/* Snake and ladder paths */
+/* Snake and ladder connection overlay */
 
 .snakes-connections {
   position: absolute;
   inset: 0;
-  z-index: 3;
+  z-index: 2;
   width: 100%;
   height: 100%;
-  pointer-events: none;
   overflow: visible;
+  pointer-events: none;
 }
 
 .connection-snake,
 .connection-ladder {
   fill: none;
-  stroke-width: 11;
   stroke-linecap: round;
-  opacity: 0.72;
+  stroke-linejoin: round;
 }
 
 .connection-snake {
-  stroke: #ff4c91;
-  filter: drop-shadow(0 0 7px #ff367f);
+  stroke: #ff557e;
+  stroke-width: 11;
+  stroke-dasharray: 16 11;
+  opacity: 0.75;
+  filter: drop-shadow(0 0 5px #ff315f);
 }
 
 .connection-ladder {
-  stroke: #3af5c0;
-  stroke-dasharray: 14 9;
-  filter: drop-shadow(0 0 7px #25efb7);
+  stroke: #ffd45a;
+  stroke-width: 10;
+  opacity: 0.78;
+  filter: drop-shadow(0 0 5px #ffbd38);
 }
 
 .connection-snake-dot {
-  fill: #ff4c91;
-  stroke: #ffd4e5;
-  stroke-width: 3;
+  fill: #ff557e;
+  stroke: #ffe0e8;
+  stroke-width: 4;
 }
 
 .connection-ladder-dot {
-  fill: #3af5c0;
-  stroke: #d5fff3;
-  stroke-width: 3;
+  fill: #ffd45a;
+  stroke: #fff1b5;
+  stroke-width: 4;
 }
 
 /* Legend */
 
 .snakes-legend {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
-  gap: 24px;
-  margin-top: 17px;
-  color: #b3c1df;
+  gap: 18px;
+  margin-top: 15px;
+  color: #a9bdd5;
   font-size: 12px;
 }
 
 .snakes-legend span {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 7px;
 }
 
 .snakes-legend i {
   display: inline-block;
-  width: 22px;
-  height: 5px;
-  border-radius: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
 }
 
 .legend-snake {
-  background: #ff4c91;
-  box-shadow: 0 0 10px #ff4c91;
+  background: #ff557e;
+  box-shadow: 0 0 8px #ff557e;
 }
 
 .legend-ladder {
-  background: #3af5c0;
-  box-shadow: 0 0 10px #3af5c0;
+  background: #ffd45a;
+  box-shadow: 0 0 8px #ffd45a;
 }
 
-/* Right-side controls */
+/* Sidebar */
 
 .snakes-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 17px;
+  gap: 15px;
   min-width: 0;
 }
 
 .snakes-card {
-  padding: 20px;
-  border: 1px solid rgba(112, 105, 220, 0.32);
-  border-radius: 17px;
-  background: linear-gradient(145deg, #191b35, #111a2a);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(0, 225, 255, 0.18);
+  border-radius: 13px;
+  background: linear-gradient(145deg, rgba(18, 34, 57, 0.96), rgba(12, 20, 37, 0.96));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
 
 .snakes-card-label {
   margin: 0 0 16px;
-  color: #98a9d0;
-  font-size: 11px;
+  color: #8fa9c7;
+  font-size: 10px;
   font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: 1.8px;
 }
 
 .snakes-turn-player {
   display: flex;
   align-items: center;
   gap: 13px;
+  margin-bottom: 18px;
 }
 
 .snakes-avatar,
 .snakes-score-avatar {
-  display: grid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border: 1px solid #258eae;
-  border-radius: 13px;
-  background: rgba(30, 200, 255, 0.1);
-  font-size: 24px;
+  width: 43px;
+  height: 43px;
+  border-radius: 12px;
+  background: rgba(0, 234, 255, 0.12);
+  font-size: 22px;
+}
+
+.avatar-0 {
+  border: 1px solid rgba(57, 231, 255, 0.6);
+  background: rgba(57, 231, 255, 0.12);
 }
 
 .avatar-1 {
-  border-color: #c14ba9;
-  background: rgba(255, 80, 210, 0.1);
+  border: 1px solid rgba(255, 99, 223, 0.6);
+  background: rgba(255, 99, 223, 0.12);
 }
 
 .snakes-turn-player h2 {
-  margin: 0 0 5px;
-  color: #f1f5ff;
+  margin: 0;
+  color: #f2f7ff;
   font-size: 19px;
+  font-weight: 800;
 }
 
 .snakes-turn-player p {
-  margin: 0;
-  color: #94a6cb;
+  margin: 5px 0 0;
+  color: #94a9c4;
   font-size: 12px;
 }
 
+/* Dice */
+
 .snakes-dice-area {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  margin: 22px 0 17px;
+  gap: 14px;
+  margin: 12px 0;
 }
 
 .snakes-die {
-  display: grid;
-  place-items: center;
-  width: 105px;
-  height: 105px;
-  border: 2px solid #36dfff;
-  border-radius: 24px;
-  color: #fff;
-  background: linear-gradient(145deg, #383077, #1d2857);
-  box-shadow:
-    0 0 25px rgba(48, 205, 255, 0.17),
-    inset 0 0 20px rgba(125, 97, 255, 0.2);
-  font-size: 66px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 65px;
+  height: 65px;
+  border: 1px solid rgba(0, 234, 255, 0.65);
+  border-radius: 14px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #17445d, #142340);
+  box-shadow: 0 0 17px rgba(0, 234, 255, 0.17);
+  font-size: 43px;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: 0.2s ease;
 }
 
 .snakes-die:hover:not(:disabled) {
-  transform: scale(1.06) rotate(-4deg);
+  transform: translateY(-2px) rotate(-4deg);
+  box-shadow: 0 0 24px rgba(0, 234, 255, 0.35);
 }
 
 .snakes-die:disabled {
+  opacity: 0.65;
   cursor: not-allowed;
-  opacity: 0.7;
+}
+
+.snakes-dice-caption {
+  color: #9fb5d0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
 }
 
 .dice-rolling {
-  animation: snakes-dice-roll 0.35s linear infinite;
+  animation: snakes-dice-roll 0.18s linear infinite;
 }
 
 @keyframes snakes-dice-roll {
   0% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(8deg) scale(1.05); }
-  50% { transform: rotate(0deg) scale(1); }
-  75% { transform: rotate(-8deg) scale(1.05); }
-  100% { transform: rotate(0deg) scale(1); }
-}
-
-.snakes-dice-caption {
-  color: #9eafd1;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 3px;
+  50% { transform: rotate(12deg) scale(1.08); }
+  100% { transform: rotate(-12deg) scale(1); }
 }
 
 .snakes-roll-button {
   width: 100%;
-  min-height: 52px;
+  min-height: 48px;
+  margin-top: 10px;
   border: 0;
-  border-radius: 12px;
-  color: #061525;
-  background: linear-gradient(100deg, #31dafa, #75f4e3);
-  font-size: 14px;
-  font-weight: 950;
-  cursor: pointer;
-  box-shadow: 0 7px 24px rgba(42, 221, 240, 0.18);
-  transition: 0.2s ease;
+  color: #ffffff;
+  background: linear-gradient(100deg, #713dff, #a13dff);
+  box-shadow: 0 0 18px rgba(139, 68, 255, 0.25);
+  font-size: 13px;
+  letter-spacing: 0.5px;
 }
 
 .snakes-roll-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(42, 221, 240, 0.3);
+  box-shadow: 0 0 25px rgba(139, 68, 255, 0.45);
 }
 
 .snakes-roll-button:disabled {
-  cursor: not-allowed;
   opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .snakes-message {
-  min-height: 34px;
-  margin: 13px 0 0;
-  color: #b5c4e3;
+  min-height: 38px;
+  margin: 14px 0 0;
+  color: #c1d2e9;
   font-size: 12px;
   line-height: 1.6;
-  text-align: center;
 }
 
-/* Player positions */
+/* Player scores */
 
 .snakes-score-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   margin-top: 15px;
 }
 
 .snakes-score-avatar {
-  width: 39px;
-  height: 39px;
-  border-radius: 11px;
-  font-size: 19px;
+  width: 35px;
+  height: 35px;
+  font-size: 17px;
 }
 
 .snakes-score-info {
@@ -554,21 +559,21 @@
 .snakes-score-name {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 8px;
-  color: #dce6ff;
+  gap: 8px;
+  margin-bottom: 7px;
+  color: #d9e8fb;
   font-size: 12px;
 }
 
 .snakes-score-name b {
-  color: #f5f7ff;
+  color: #ffffff;
 }
 
 .snakes-progress {
   height: 7px;
   overflow: hidden;
   border-radius: 20px;
-  background: #303651;
+  background: #263750;
 }
 
 .snakes-progress span {
@@ -579,12 +584,12 @@
 }
 
 .progress-0 {
-  background: linear-gradient(90deg, #1bbce9, #51f5ff);
-  box-shadow: 0 0 10px #2adfff;
+  background: #39e7ff;
+  box-shadow: 0 0 10px #39e7ff;
 }
 
 .progress-1 {
-  background: linear-gradient(90deg, #d33ba9, #ff83e7);
+  background: #ff63df;
   box-shadow: 0 0 10px #ff63df;
 }
 
@@ -598,17 +603,17 @@
 }
 
 .snakes-history-heading .snakes-card-label {
-  margin-bottom: 0;
+  margin-bottom: 12px;
 }
 
 .snakes-history-heading > span {
-  color: #35eaff;
+  color: #00eaff;
   font-size: 11px;
 }
 
 .snakes-history-empty {
-  margin: 18px 0 3px;
-  color: #8f9fbe;
+  margin: 0;
+  color: #8198b4;
   font-size: 12px;
   line-height: 1.6;
 }
@@ -618,84 +623,44 @@
   flex-direction: column;
   gap: 9px;
   max-height: 220px;
+  margin: 0;
+  padding: 0 0 0 18px;
   overflow-y: auto;
-  margin: 15px 0 0;
-  padding: 0 5px 0 18px;
-  color: #b8c7e4;
+  color: #c5d5e9;
   font-size: 11px;
   line-height: 1.5;
 }
 
 .snakes-history-list li::marker {
-  color: #35eaff;
+  color: #00eaff;
 }
 
 /* Footer */
 
 .snakes-footer {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  max-width: 1320px;
-  margin: 24px auto 0;
-  padding: 17px 4px 5px;
-  border-top: 1px solid rgba(72, 184, 255, 0.16);
-  color: #8495b8;
-  font-size: 11px;
-}
-
-.snakes-footer span:first-child {
-  color: #35eaff;
-  font-weight: 900;
-  letter-spacing: 2px;
+  max-width: 1400px;
+  margin: 22px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 225, 255, 0.14);
+  color: #7189a8;
+  font-size: 10px;
+  letter-spacing: 1px;
 }
 
 /* Tablet */
 
-@media (max-width: 1000px) {
-  .snakes-layout {
-    grid-template-columns: minmax(0, 1.3fr) minmax(270px, 0.8fr);
-    gap: 17px;
-  }
-
-  .snakes-board-panel {
-    padding: 13px;
-  }
-
-  .snakes-card {
-    padding: 16px;
-  }
-}
-
-/* Mobile and narrow screens */
-
-@media (max-width: 760px) {
-  .snakes-game {
-    width: 100%;
-    padding: 18px 12px;
-  }
-
-  .snakes-header {
-    margin-bottom: 25px;
-  }
-
-  .snakes-online {
-    font-size: 9px;
-    letter-spacing: 1px;
-  }
-
+@media (max-width: 900px) {
   .snakes-layout {
     grid-template-columns: minmax(0, 1fr);
-    max-width: 620px;
-  }
-
-  .snakes-board-panel {
-    padding: 10px;
   }
 
   .snakes-board {
-    max-width: 620px;
+    max-width: 720px;
   }
 
   .snakes-sidebar {
@@ -707,56 +672,94 @@
   .snakes-turn-card {
     grid-column: 1 / -1;
   }
-
-  .snakes-history-card {
-    grid-column: 1 / -1;
-  }
 }
 
-@media (max-width: 480px) {
-  .snakes-brand {
-    font-size: 15px;
+/* Phone */
+
+@media (max-width: 600px) {
+  .snakes-game {
+    padding: 14px 9px;
+    border-radius: 12px;
+  }
+
+  .snakes-header {
+    margin-bottom: 22px;
   }
 
   .snakes-online {
-    max-width: 120px;
-    text-align: right;
-  }
-
-  .snakes-mode-row {
-    gap: 9px;
-  }
-
-  .snakes-mode-picker button,
-  .snakes-restart {
-    min-height: 38px;
-    padding: 0 11px;
-    font-size: 11px;
-  }
-
-  .snakes-board-topline {
     font-size: 9px;
-    letter-spacing: 1px;
-  }
-
-  .snakes-sidebar {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .snakes-turn-card,
-  .snakes-history-card {
-    grid-column: auto;
   }
 
   .snakes-intro h1 {
-    font-size: 34px;
+    font-size: 25px;
   }
 
   .snakes-subtitle {
     font-size: 12px;
   }
 
+  .snakes-mode-row {
+    align-items: stretch;
+  }
+
+  .snakes-mode-picker {
+    width: 100%;
+  }
+
+  .snakes-mode-picker button {
+    flex: 1;
+    padding: 9px 7px;
+    font-size: 11px;
+  }
+
+  .snakes-restart {
+    width: 100%;
+  }
+
+  .snakes-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .snakes-board-panel {
+    padding: 7px;
+  }
+
+  .snakes-board-topline {
+    font-size: 9px;
+  }
+
+  .snakes-cell {
+    padding: 2px;
+  }
+
+  .snakes-number {
+    font-size: clamp(7px, 2.1vw, 11px);
+  }
+
+  .snakes-cell-marker {
+    right: 1px;
+    bottom: 1px;
+    font-size: clamp(8px, 2.4vw, 13px);
+  }
+
+  .snakes-token {
+    width: clamp(12px, 3vw, 18px);
+    height: clamp(12px, 3vw, 18px);
+    border-width: 1px;
+    font-size: 8px;
+  }
+
+  .snakes-sidebar {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .snakes-card {
+    padding: 14px;
+  }
+
   .snakes-footer {
-    font-size: 10px;
+    font-size: 9px;
   }
 }
