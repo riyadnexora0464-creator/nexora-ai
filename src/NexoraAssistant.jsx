@@ -2,8 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./NexoraAssistant.css";
 
-const MODEL = "qwen2.5:3b";
-
 const TEXT = {
   en: {
     title: "NEXORA AI",
@@ -19,12 +17,12 @@ const TEXT = {
     you: "YOU",
     assistant: "NEXORA AI",
     error:
-      "I couldn't connect to Ollama. Check that Ollama is running and the Qwen model is installed.",
+      "I couldn't connect to Nexora AI. Please try again in a moment.",
     empty: "Please enter a message first.",
     prompt1: "Improve my gaming skills",
     prompt2: "Give me a winning strategy",
     prompt3: "How can I react faster?",
-    powered: "POWERED BY QWEN AI",
+    powered: "POWERED BY CLOUDflare AI",
   },
   zh: {
     title: "NEXORA AI",
@@ -39,12 +37,12 @@ const TEXT = {
     thinking: "Nexora AI 正在思考",
     you: "你",
     assistant: "NEXORA AI",
-    error: "无法连接 Ollama。请确认 Ollama 正在运行，并且已经安装 Qwen 模型。",
+    error: "无法连接 Nexora AI，请稍后再试。",
     empty: "请先输入消息。",
     prompt1: "提升我的游戏技巧",
     prompt2: "给我一个获胜策略",
     prompt3: "怎样提高反应速度？",
-    powered: "由 QWEN AI 提供支持",
+    powered: "由 CLOUDFLARE AI 提供支持",
   },
 };
 
@@ -94,30 +92,28 @@ export default function NexoraAssistant({ language = "en", compact = false }) {
     };
 
     try {
-      const response = await fetch("/ollama-api/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: MODEL,
           messages: [
             systemMessage,
             ...updatedMessages.slice(-12),
           ],
-          stream: false,
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Ollama returned HTTP ${response.status}`);
+        throw new Error(`Cloudflare AI returned HTTP ${response.status}`);
       }
 
       const data = await response.json();
       const answer = data?.message?.content?.trim();
 
       if (!answer) {
-        throw new Error("Ollama returned an empty response.");
+        throw new Error("Cloudflare AI returned an empty response.");
       }
 
       setMessages((current) => [
